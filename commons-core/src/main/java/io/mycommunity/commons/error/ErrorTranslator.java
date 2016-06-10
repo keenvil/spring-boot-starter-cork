@@ -1,4 +1,4 @@
-package io.mycommunity.commons.component;
+package io.mycommunity.commons.error;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,8 +7,6 @@ import org.apache.commons.lang3.Validate;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
-
-import io.mycommunity.commons.error.BaseError;
 
 /** Translates Spring binding results into platform error codes.
  * <p>Platform codes are as following:

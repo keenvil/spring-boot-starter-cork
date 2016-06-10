@@ -1,4 +1,4 @@
-package io.mycommunity.commons.domain;
+package io.mycommunity.commons.error;
 
 import static org.easymock.EasyMock.*;
 import static org.hamcrest.CoreMatchers.*;
@@ -13,11 +13,11 @@ import org.junit.runner.RunWith;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 
-import io.mycommunity.commons.component.ErrorTranslator;
 import io.mycommunity.commons.error.BaseError;
+import io.mycommunity.commons.error.ErrorTranslator;
 
 @RunWith(EasyMockRunner.class)
-public class ResponseErrorBuilderTest {
+public class ErrorTranslatorTest {
 
   private ErrorTranslator parser = new ErrorTranslator();
 
