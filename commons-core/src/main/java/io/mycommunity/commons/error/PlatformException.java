@@ -26,6 +26,17 @@ public class PlatformException extends RuntimeException {
     }
   }
 
+  /** Used to indicate that an entity was not found into the platform.
+   */
+  public static class EntityNotFound extends PlatformException {
+
+    public EntityNotFound() { }
+
+    public EntityNotFound(final String message) {
+      super(message);
+    }
+  }
+
   /** Used to indicate that there was some validation errors in a API service.
    */
   public static class ValidationError extends PlatformException {
