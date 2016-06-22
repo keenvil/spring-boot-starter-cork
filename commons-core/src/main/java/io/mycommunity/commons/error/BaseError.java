@@ -9,6 +9,7 @@ import io.swagger.annotations.ApiModelProperty;
  * throw an API service.
  */
 @ApiModel
+@Deprecated
 public class BaseError {
 
   @ApiModelProperty(required = true, value = "Error Code")

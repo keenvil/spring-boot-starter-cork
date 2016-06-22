@@ -16,6 +16,7 @@ import org.springframework.validation.ObjectError;
  * </ul>
  */
 @Component
+@Deprecated
 public class ErrorTranslator {
 
   /** Translate Spring binding results into platform specific error codes. 

@@ -2,6 +2,8 @@ package io.mycommunity.commons.error;
 
 import java.util.List;
 
+import org.springframework.validation.ObjectError;
+
 /** Platform common errors.
  * <p>Platform common errors are application common errors than can be reused
  * across the platform.
@@ -41,15 +43,15 @@ public class PlatformException extends RuntimeException {
    */
   public static class ValidationError extends PlatformException {
 
-    public List<BaseError> validationErrors;
+    public List<ObjectError> validationErrors;
 
     public ValidationError() { }
 
-    public ValidationError(final List<BaseError> someErrors) {
+    public ValidationError(final List<ObjectError> someErrors) {
       validationErrors = someErrors;
     }
 
-    public List<BaseError> getValidationErrors() {
+    public List<ObjectError> getValidationErrors() {
       return validationErrors;
     }
   }
