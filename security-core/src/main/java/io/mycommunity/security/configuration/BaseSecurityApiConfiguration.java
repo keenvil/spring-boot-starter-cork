@@ -36,7 +36,8 @@ public class BaseSecurityApiConfiguration extends WebSecurityConfigurerAdapter {
         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
       .and()
       .authorizeRequests()
-      .antMatchers("/account/auth",
+      .antMatchers("/",
+          "/account/auth",
           "/swagger-ui.html",
           "/swagger-resources/**",
           "/webjars/springfox-swagger-ui/**",
