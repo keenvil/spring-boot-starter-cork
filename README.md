@@ -18,7 +18,7 @@ You will need the following things properly installed on your computer.
 * You must be logge into the my-community VPN,
 * `git clone https://github.com/my-community/commons.git` this repository
 * change into the new directory: `cd commons`
-* `vim ~/.m2/setting.xml` and paste the following:
+* `vim ~/.m2/settings.xml` and paste the following:
 ```
 <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
