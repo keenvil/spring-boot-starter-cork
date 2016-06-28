@@ -1,6 +1,5 @@
 package io.mycommunity.security.configuration;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration
@@ -23,14 +22,18 @@ import io.mycommunity.security.service.JwtService;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class BaseSecurityApiConfiguration extends WebSecurityConfigurerAdapter {
 
-  @Autowired
-  private JwtAuthenticationEntryPoint unauthorizedHandler;
+  @Bean
+  public JwtService jwtService() {
+    return new JwtService();
+  }
 
   @Override
   protected void configure(HttpSecurity http) throws Exception {
+    JwtAuthenticationEntryPoint authenticationEntryPoint =
+        new JwtAuthenticationEntryPoint();
     http
       .csrf().disable()
-      .exceptionHandling().authenticationEntryPoint(unauthorizedHandler)
+      .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint)
       .and()
       .sessionManagement()
         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -51,22 +54,11 @@ public class BaseSecurityApiConfiguration extends WebSecurityConfigurerAdapter {
           UsernamePasswordAuthenticationFilter.class);
   }
 
-  @Bean
-  public JwtAuthenticationFilter authenticationTokenFilterBean() 
+  private JwtAuthenticationFilter authenticationTokenFilterBean() 
       throws Exception {
       JwtAuthenticationFilter filter =
           new JwtAuthenticationFilter(jwtService());
       filter.setAuthenticationManager(authenticationManagerBean());
       return filter;
-  }
-
-  @Bean
-  public JwtService jwtService() {
-    return new JwtService();
-  }
-
-  @Bean
-  public JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint() {
-    return new JwtAuthenticationEntryPoint();
   }
 }

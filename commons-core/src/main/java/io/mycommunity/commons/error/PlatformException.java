@@ -11,7 +11,9 @@ import org.springframework.validation.ObjectError;
 @SuppressWarnings("serial")
 public class PlatformException extends RuntimeException {
 
-  public PlatformException() { }
+  public PlatformException() { 
+    super();
+  }
 
   public PlatformException(final String message) {
     super(message);
@@ -64,6 +66,17 @@ public class PlatformException extends RuntimeException {
     public Authorization() { }
 
     public Authorization(final String message) {
+      super(message);
+    }
+  }
+
+  /** Used to indicate that there was a problem identifying a community id.
+   */
+  public static class InvalidCommunityId extends PlatformException {
+
+    public InvalidCommunityId() { }
+
+    public InvalidCommunityId(final String message) {
       super(message);
     }
   }

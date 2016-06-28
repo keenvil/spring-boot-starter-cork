@@ -9,15 +9,23 @@
   <parent>
     <groupId>io.mycommunity.commons</groupId>
     <artifactId>commons</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>security-core</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0.0-SNAPSHOT</version>
 
   <name>security-core</name>
   <description>My Community Security Core Module</description>
- 
+
+  <dependencies>
+    <dependency>
+      <groupId>io.mycommunity.commons</groupId>
+      <artifactId>commons-core</artifactId>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>
+  </dependencies>
+
   <build>
     <plugins>
       <plugin>
