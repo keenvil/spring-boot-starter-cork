@@ -70,7 +70,6 @@ public class Tenant {
   }
 
   public void setPassword(String aPassword) {
-    Validate.notBlank(aPassword, "Password cannot be empty.");
     password = aPassword;
   }
 

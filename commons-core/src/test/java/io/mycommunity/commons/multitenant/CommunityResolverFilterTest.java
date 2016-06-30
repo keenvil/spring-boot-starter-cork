@@ -4,14 +4,11 @@ import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
-import static org.junit.Assert.fail;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.easymock.TestSubject;
 import org.junit.Test;
-
-import io.mycommunity.commons.error.PlatformException;
 
 public class CommunityResolverFilterTest {
 
@@ -40,11 +37,7 @@ public class CommunityResolverFilterTest {
         .andReturn(null);
     replay(request);
 
-    try {
-      filter.preHandle(request, null, null);
-      fail();
-    } catch (PlatformException.InvalidCommunityId e) {
-    }
+    filter.preHandle(request, null, null);
     verify(request);
   }
 
@@ -56,11 +49,7 @@ public class CommunityResolverFilterTest {
         .andReturn("");
     replay(request);
 
-    try {
-      filter.preHandle(request, null, null);
-      fail();
-    } catch (PlatformException.InvalidCommunityId e) {
-    }
+    filter.preHandle(request, null, null);
     verify(request);
   }
 }

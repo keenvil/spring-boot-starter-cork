@@ -8,12 +8,12 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
-import io.mycommunity.commons.error.PlatformException;
-
 /** Resolves the selected community id for this request.
  * 
- * <p>This filters looks for the X-Community-Id http header validates that
- * it is present and it is not empty.</p>
+ * <p>This filters looks for the X-Community-Id http header if present and
+ * set that value under a request attribute.
+ * Tenant value is not mandatory since Hibernate needs at least a default
+ * value to run.</p>
  */
 public class CommunityResolverFilter extends HandlerInterceptorAdapter {
 
@@ -28,16 +28,14 @@ public class CommunityResolverFilter extends HandlerInterceptorAdapter {
     log.trace("Entering doFilterInternal.");
     
     String communityId = request.getHeader(X_COMMUNITY_ID);
-    if (communityId == null || communityId.isEmpty()) {
-      throw new PlatformException
-        .InvalidCommunityId("Http Header X-Community-Id was not found.");
+    if (communityId != null && !communityId.isEmpty()) {
+
+      if (log.isDebugEnabled()) {
+        log.debug("X-Community-Id: {}", communityId);
+      }
+      request.setAttribute("community-id", communityId);
     }
     
-    if (log.isDebugEnabled()) {
-      log.debug("X-Community-Id: {}", communityId);
-    }
-    
-    request.setAttribute("community-id", communityId);
     log.trace("Leaving doFilterInternal.");
     return true;
   }
