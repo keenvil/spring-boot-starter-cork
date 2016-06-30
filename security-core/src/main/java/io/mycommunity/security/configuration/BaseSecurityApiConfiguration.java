@@ -44,7 +44,7 @@ public class BaseSecurityApiConfiguration extends WebSecurityConfigurerAdapter {
           "/swagger-ui.html",
           "/swagger-resources/**",
           "/webjars/springfox-swagger-ui/**",
-          "/configuration/ui/**",
+          "/configuration/**",
           "/v2/api-docs").permitAll()
       .anyRequest()
       .authenticated()

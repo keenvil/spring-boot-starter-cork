@@ -4,6 +4,9 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 import static org.easymock.EasyMock.*;
 
+import static io.mycommunity.commons.multitenant
+    .CurrentCommunityIdentifierResolver.DEFAULT_TENANT;
+
 import org.easymock.TestSubject;
 import org.junit.Test;
 import org.springframework.web.context.request.RequestAttributes;
@@ -33,7 +36,7 @@ public class CurrentCommunityIdentifierResolverTest {
     RequestContextHolder.setRequestAttributes(null);
 
     String identifier = resolver.resolveCurrentTenantIdentifier();
-    assertThat(identifier, nullValue());
+    assertThat(identifier, is(DEFAULT_TENANT));
   }
 
   @Test
@@ -45,7 +48,7 @@ public class CurrentCommunityIdentifierResolverTest {
     replay(attributes);
 
     String identifier = resolver.resolveCurrentTenantIdentifier();
-    assertThat(identifier, nullValue());
+    assertThat(identifier, is(DEFAULT_TENANT));
 
     verify( attributes);
   }
@@ -59,7 +62,7 @@ public class CurrentCommunityIdentifierResolverTest {
     replay(attributes);
 
     String identifier = resolver.resolveCurrentTenantIdentifier();
-    assertThat(identifier, nullValue());
+    assertThat(identifier, is(DEFAULT_TENANT));
 
     verify( attributes);
   }
