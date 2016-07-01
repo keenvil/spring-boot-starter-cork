@@ -32,12 +32,6 @@ public class EmailService {
   private JavaMailSender mailSender;
 
   public EmailService() {
-/*
-    BasicAWSCredentials credentials = new BasicAWSCredentials("AKIAIUHILB7UDGS4SFXA", "AqQc2RBqih04IvMTZ6ITO40hltCF7YSMm9wmeTkaD+fu");
-    AmazonSimpleEmailService amazonSimpleEmailService = new AmazonSimpleEmailServiceClient();
-    amazonSimpleEmailService.setRegion(Region.getRegion(Regions.US_EAST_1));
-    mailSender = new SimpleEmailServiceJavaMailSender(amazonSimpleEmailService);
- */
   }
 
   /**
