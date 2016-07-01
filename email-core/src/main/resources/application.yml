@@ -1,0 +1,6 @@
+cloud:
+  aws:
+    region: US_EAST_1
+    credentials:
+      accessKey: AKIAIUHILB7UDGS4SFXA
+      secretKey: AqQc2RBqih04IvMTZ6ITO40hltCF7YSMm9wmeTkaD+fu
