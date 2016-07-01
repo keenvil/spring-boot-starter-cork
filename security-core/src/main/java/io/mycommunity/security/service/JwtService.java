@@ -95,6 +95,18 @@ public class JwtService {
       return Collections.unmodifiableSet(roles);
     }
 
+    /** Return {@code true} if JWT User has an given role in a community.
+     * @param role role to verify.
+     * @param communityId community to verify.
+     * @return whether the user has the given role in the given community.
+     */
+    public boolean hasRoleInCommunity(final String role,
+        final String communityId) {
+      return roles
+          .stream()
+          .anyMatch(r -> r.equals(role.concat("_").concat(communityId)));
+    }
+
     @Override
     public String getPassword() {
       return null;
