@@ -2,15 +2,9 @@ package com.keenvil.email.service;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
-import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClient;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 
-import org.springframework.cloud.aws.mail.simplemail.SimpleEmailServiceJavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
