@@ -16,11 +16,17 @@ import org.springframework.security.web.authentication
 import io.mycommunity.security.filter.JwtAuthenticationEntryPoint;
 import io.mycommunity.security.filter.JwtAuthenticationFilter;
 import io.mycommunity.security.service.JwtService;
+import io.mycommunity.security.service.PlatformSecurityService;
 
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class BaseSecurityApiConfiguration extends WebSecurityConfigurerAdapter {
+
+  @Bean
+  public PlatformSecurityService securityService() {
+    return new PlatformSecurityService();
+  }
 
   @Bean
   public JwtService jwtService() {
