@@ -19,8 +19,10 @@ public class EmailServiceTest {
   @Test
   public void sendTextMessage_mailSent() throws Exception {
 
-      service.sendTextEmail("info@keenvil.com", "franco@keenvil.com",
-          "Test", "This is a test email");
+    String[] to = {"franco@keenvil.com"};
+
+    service.sendTextEmail("info@keenvil.com", to,
+        "Test", "This is a test email");
 
 
   }

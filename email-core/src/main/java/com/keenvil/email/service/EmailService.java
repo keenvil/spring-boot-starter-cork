@@ -35,7 +35,7 @@ public class EmailService {
    * @param subject The subject of the message
    * @param text The text body of the message
    */
-  public void sendTextEmail(final String from, final String to,
+  public void sendTextEmail(final String from, final String[] to,
       final String subject, final String text) {
 
     log.trace("Entering sendTextMessage.");
@@ -57,7 +57,7 @@ public class EmailService {
    * @param subject The subject of the message
    * @param HTMLContent The HTML content in a string format
    */
-  public void sendHTMLEmail(final String from, final String to,
+  public void sendHTMLEmail(final String from, final String[] to,
                               final String subject, final String HTMLContent) {
 
     log.trace("Entering sendHTMLMessage.");
@@ -73,15 +73,18 @@ public class EmailService {
   }
 
   /**
-   *
-   * @param from
-   * @param to
-   * @param subject
-   * @param content
-   * @param isHTML
+   * Sends either a text or HTML email using AWS SES
+   * @param from the email address that is sending the email
+   * @param to the email address to send the email to
+   * @param subject the email subject
+   * @param content the email content in a String format.
+   *                It can either be text or HTML.
+   *                If sending HTML content, isHTML must be true
+   * @param isHTML A boolean indicating if the content is HTML or plain text.
    */
-  private void sendEmail(final String from, final String to,
-                         final String subject, final String content, final boolean isHTML){
+  private void sendEmail(final String from, final String[] to,
+                         final String subject, final String content,
+                         final boolean isHTML){
 
     MimeMessage message = mailSender.createMimeMessage();
     try {
