@@ -29,7 +29,7 @@ public class PlatformSecurityServiceTest {
     RequestContextHolder.setRequestAttributes(attributes);
     JwtUser jwtUser =
         new JwtUser(1L, "admin@keenvil.com", Sets.newHashSet("ADMIN_KEENVIL"));
-    boolean hasCommunityRole = service.hasCommunityRole(jwtUser, "ADMIN");
+    boolean hasCommunityRole = service.hasRoleInCommunity(jwtUser, "ADMIN");
 
     assertTrue(hasCommunityRole);
     verify(attributes);
@@ -46,7 +46,7 @@ public class PlatformSecurityServiceTest {
     HashSet<String> roles = Sets.newHashSet("RESIDENT_KEENVIL", "ADMIN_MYCO");
     JwtUser jwtUser =
         new JwtUser(1L, "admin@keenvil.com", roles);
-    boolean hasCommunityRole = service.hasCommunityRole(jwtUser, "ADMIN");
+    boolean hasCommunityRole = service.hasRoleInCommunity(jwtUser, "ADMIN");
 
     assertFalse(hasCommunityRole);
     verify(attributes);

@@ -5,8 +5,8 @@ import java.lang.annotation.RetentionPolicy;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 
-/** Annotation renaming for being and ADMIN user in any of user's communities.
+/** Annotation renaming for being an ADMIN user in any of user's communities.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@PreAuthorize("@securityService.hasCommunityRole(principal, 'ADMIN')")
+@PreAuthorize("@securityService.hasRoleInCommunity(principal, 'ADMIN')")
 public @interface HasAdminRoleInCommunity { }

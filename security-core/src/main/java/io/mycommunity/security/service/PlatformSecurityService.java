@@ -19,7 +19,7 @@ public class PlatformSecurityService {
    * @return whether the given user has the given role in any of his/her
    * communities.
    */
-  public boolean hasCommunityRole(final JwtUser jwtUser, String role) {
+  public boolean hasRoleInCommunity(final JwtUser jwtUser, String role) {
     RequestAttributes attributes = RequestContextHolder.getRequestAttributes();
     String communityId = (String) attributes.getAttribute("community-id",
         RequestAttributes.SCOPE_REQUEST);
