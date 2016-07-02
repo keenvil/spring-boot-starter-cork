@@ -23,8 +23,6 @@ public class EmailServiceTest {
 
     service.sendTextEmail("info@keenvil.com", to,
         "Test", "This is a test email");
-
-
   }
 
 }
