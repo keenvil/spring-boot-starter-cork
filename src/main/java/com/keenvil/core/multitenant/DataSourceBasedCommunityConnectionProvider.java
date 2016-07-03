@@ -2,13 +2,14 @@ package com.keenvil.core.multitenant;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-import java.util.Map;
-
-import javax.sql.DataSource;
 
 import org.hibernate.engine.jdbc.connections.spi.AbstractDataSourceBasedMultiTenantConnectionProviderImpl;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
+
+import java.util.Map;
+
+import javax.sql.DataSource;
 
 /** Datasource provider for multiple tenants/communities.
  * 
@@ -30,10 +31,10 @@ public class DataSourceBasedCommunityConnectionProvider
 
   public DataSourceBasedCommunityConnectionProvider() { }
 
-  public DataSourceBasedCommunityConnectionProvider(String aDefaultTenant,
-      Map<String, DataSource> aDataSourceMapping) {
-    defaultTenant = aDefaultTenant;
-    dataSourceMapping = aDataSourceMapping;
+  public DataSourceBasedCommunityConnectionProvider(String theDefaultTenant,
+      Map<String, DataSource> theDataSourceMapping) {
+    defaultTenant = theDefaultTenant;
+    dataSourceMapping = theDataSourceMapping;
   }
   
   @Override

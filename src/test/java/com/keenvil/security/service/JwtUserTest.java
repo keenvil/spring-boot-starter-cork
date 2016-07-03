@@ -1,13 +1,15 @@
 package com.keenvil.security.service;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-import java.util.HashSet;
+import com.google.common.collect.Sets;
+
+import com.keenvil.security.jwt.JwtService.JwtUser;
 
 import org.junit.Test;
 
-import com.google.common.collect.Sets;
-import com.keenvil.security.jwt.JwtService.JwtUser;
+import java.util.HashSet;
 
 public class JwtUserTest {
 

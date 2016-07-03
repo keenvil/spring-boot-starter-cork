@@ -2,23 +2,6 @@ package com.keenvil.security.jwt;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import org.apache.commons.lang3.Validate;
-import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Service;
-
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.IncorrectClaimException;
@@ -29,10 +12,26 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.MissingClaimException;
 import io.jsonwebtoken.SignatureAlgorithm;
 
+import org.apache.commons.lang3.Validate;
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 /** Generates/Refreshes JSON Web Tokens and JWT Users which can be used to
  * interact with application services.
- * 
- * Token encrypts: TBD <Define what to we want to put in here>
+ * Token encrypts: TBD Define what to we want to put in here
  */
 @Service
 public class JwtService {
@@ -68,13 +67,18 @@ public class JwtService {
 
     JwtUser() { }
 
-    public JwtUser(final Long anId, final String aUsername,
+    /** Creates a JWT User.
+     * @param theId the id,
+     * @param theUsername the user name,
+     * @param setOfRoles roles.
+     */
+    public JwtUser(final Long theId, final String theUsername,
         final Set<String> setOfRoles) {
-      Validate.notNull(anId);
-      Validate.notNull(aUsername);
+      Validate.notNull(theId);
+      Validate.notNull(theUsername);
       Validate.notNull(setOfRoles);
-      id = anId;
-      username = aUsername;
+      id = theId;
+      username = theUsername;
       roles = setOfRoles;
     }
 
@@ -140,7 +144,6 @@ public class JwtService {
 
   /** Generates a JWT with default TTL, which can be used to access application
    * services.
-   * @param account to generate the JWT.
    * @return the JWT.
    */
   public String generate(
@@ -152,7 +155,6 @@ public class JwtService {
   }
 
   /** Generates a JWT which can be used to access application services.
-   * @param account to generate the JWT.
    * @param expirationDate JWT expiration date.
    * @return the JWT.
    */
@@ -194,22 +196,22 @@ public class JwtService {
     Validate.notNull(jwt);
     Jwt<JwsHeader, Claims> parsed = null;
     try {
-        parsed = Jwts.parser()
+      parsed = Jwts.parser()
           .requireIssuer(ISSUER)
           .setSigningKey(JwtService.KEY)
           .parseClaimsJws(jwt);
-    } catch(MissingClaimException mce) {
+    } catch (MissingClaimException mce) {
       log.error("Issuer not present.");
       throw new RuntimeException("Invalid JWT.", mce);
-    } catch(IncorrectClaimException ice) {
+    } catch (IncorrectClaimException ice) {
       log.error("Unrecognized issuer.");
       throw new RuntimeException("Invalid JWT.", ice);
     } catch (ExpiredJwtException ee) {
       log.error("Expired jwt.");
       throw new RuntimeException("Expired JWT.", ee);
-    } catch (Exception e) {
-      log.error("Error parsing JWT. ", e);
-      throw new MalformedJwtException("Error parsing JWT.", e);
+    } catch (Exception exception) {
+      log.error("Error parsing JWT. ", exception);
+      throw new MalformedJwtException("Error parsing JWT.", exception);
     }
 
     Claims claims = parsed.getBody();
@@ -232,13 +234,13 @@ public class JwtService {
           parsed.getHeader(), parsed.getBody(), "Roles not defined.");
     }
 
-    JwtUser JwtUser =
+    JwtUser jwtUser =
         new JwtUser(Long.valueOf(claims.getSubject()),
             (String) claims.get(USERNAME),
             (Set<String>) new HashSet((List<String>)claims.get(ROLES)));
 
     log.trace("Leaving parse.");
-    return JwtUser;
+    return jwtUser;
   }
 
   /** Refreshes a valid JWT.

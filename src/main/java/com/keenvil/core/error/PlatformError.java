@@ -27,8 +27,8 @@ public class PlatformError {
     return httpStatus;
   }
 
-  public void setHttpStatus(int aHttpStatus) {
-    httpStatus = aHttpStatus;
+  public void setHttpStatus(int theHttpStatus) {
+    httpStatus = theHttpStatus;
   }
 
   /** Internal Platform error code.
@@ -38,8 +38,8 @@ public class PlatformError {
     return code;
   }
 
-  public void setCode(String aCode) {
-    code = aCode;
+  public void setCode(String theCode) {
+    code = theCode;
   }
 
   /** Human readable error title.
@@ -49,8 +49,8 @@ public class PlatformError {
     return title;
   }
 
-  public void setTitle(String aTitle) {
-    title = aTitle;
+  public void setTitle(String theTitle) {
+    title = theTitle;
   }
 
   /** Module where the error occur.
@@ -60,8 +60,8 @@ public class PlatformError {
     return module;
   }
 
-  public void setModule(String aModule) {
-    module = aModule;
+  public void setModule(String theModule) {
+    module = theModule;
   }
 
   /** Brief error description, intended to be human readable. 
@@ -71,8 +71,8 @@ public class PlatformError {
     return detail;
   }
 
-  public void setDetail(String aDetail) {
-    detail = aDetail;
+  public void setDetail(String theDetail) {
+    detail = theDetail;
   }
 
   /** URI where the error occurs.
@@ -93,8 +93,8 @@ public class PlatformError {
     return httpMethod;
   }
 
-  public void setHttpMethod(String aHttpMethod) {
-    httpMethod = aHttpMethod;
+  public void setHttpMethod(String theHttpMethod) {
+    httpMethod = theHttpMethod;
   }
 
   /** Host name.
@@ -104,8 +104,8 @@ public class PlatformError {
     return hostName;
   }
 
-  public void setHostName(String aHostName) {
-    hostName = aHostName;
+  public void setHostName(String theHostName) {
+    hostName = theHostName;
   }
 
   /** Local host name.
@@ -115,8 +115,8 @@ public class PlatformError {
     return localHostName;
   }
 
-  public void setLocalHostName(String aLocalHostName) {
-    localHostName = aLocalHostName;
+  public void setLocalHostName(String theLocalHostName) {
+    localHostName = theLocalHostName;
   }
 
   /** Stack trace of the exception which originate, if applicable.
@@ -126,8 +126,8 @@ public class PlatformError {
     return source;
   }
 
-  public void setSource(String aSource) {
-    source = aSource;
+  public void setSource(String theSource) {
+    source = theSource;
   }
 
   @Override
@@ -144,23 +144,23 @@ public class PlatformError {
 
     public PlatformErrorBuilder() { }
 
-    public PlatformErrorBuilder httpStatus(int aHttpStatus) {
-      error.setHttpStatus(aHttpStatus);
+    public PlatformErrorBuilder httpStatus(int theHttp) {
+      error.setHttpStatus(theHttp);
       return this;
     }
  
-    public PlatformErrorBuilder code(String aCode) {
-      error.setCode(aCode);
+    public PlatformErrorBuilder code(String theCode) {
+      error.setCode(theCode);
       return this;
     }
 
-    public PlatformErrorBuilder title(String aTitle) {
-      error.setTitle(aTitle);
+    public PlatformErrorBuilder title(String theTitle) {
+      error.setTitle(theTitle);
       return this;
     }
 
-    public PlatformErrorBuilder detail(String aDetail) {
-      error.setDetail(aDetail);
+    public PlatformErrorBuilder detail(String theDetil) {
+      error.setDetail(theDetil);
       return this;
     }
 
@@ -169,8 +169,8 @@ public class PlatformError {
       return this;
     }
 
-    public PlatformErrorBuilder module(String aModule) {
-      error.setModule(aModule);
+    public PlatformErrorBuilder module(String theModule) {
+      error.setModule(theModule);
       return this;
     }
 
@@ -185,7 +185,7 @@ public class PlatformError {
   }
 
   private void requestInformation(HttpServletRequest request) {
-    if(request != null) {
+    if (request != null) {
       setHostName(request.getServerName());
       setLocalHostName(request.getLocalName());
       setHttpMethod(request.getMethod());
@@ -194,10 +194,10 @@ public class PlatformError {
   }
 
   private static String buildStringTrace(StackTraceElement []elements) {
-    if(elements != null && elements.length > 0) {
+    if (elements != null && elements.length > 0) {
       StringBuilder builder = new StringBuilder();
       int length = elements.length;
-      for(int t=0; t < length && t < MAX_STACK_LINES; t++) {
+      for (int t = 0; t < length && t < MAX_STACK_LINES; t++) {
         builder.append(String.format("%s:%s:%s(%s) ",
             elements[t].getClassName(),
             elements[t].getMethodName(),

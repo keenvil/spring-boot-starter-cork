@@ -1,15 +1,16 @@
 package com.keenvil.core.multitenant;
 
+
+import com.keenvil.core.error.PlatformException;
+
+import org.apache.commons.lang3.Validate;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
-
-import org.apache.commons.lang3.Validate;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-
-import com.keenvil.core.error.PlatformException;
 
 /** Multi tenant/community datasource properties configuration.
  * 
@@ -25,6 +26,8 @@ public class MultitenancyConfigurationProperties {
 
   public MultitenancyConfigurationProperties() { }
 
+  /** Initialize tenants, check that there's just one default tenant.
+   */
   @PostConstruct
   public void init() {
     List<Tenant> defaults = tenants.stream()

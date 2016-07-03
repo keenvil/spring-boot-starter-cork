@@ -1,21 +1,12 @@
 package com.keenvil.security.jwt;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import org.joda.time.DateTime;
-import org.junit.Test;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-
-import com.keenvil.security.jwt.JwtService;
 import com.keenvil.security.jwt.JwtService.JwtUser;
 
 import io.jsonwebtoken.Claims;
@@ -26,6 +17,18 @@ import io.jsonwebtoken.Jwt;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MissingClaimException;
 import io.jsonwebtoken.SignatureAlgorithm;
+
+import org.joda.time.DateTime;
+import org.junit.Test;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class JwtServiceTest {
 
@@ -47,13 +50,13 @@ public class JwtServiceTest {
           .parseClaimsJws(jwt);
 
     Claims claims = parsed.getBody();
-    Collection<String> claimRoles = (List<String>) claims.get("roles");
 
     assertThat(claims.getIssuer(), is(JwtService.ISSUER));
     assertThat(claims.getIssuedAt(), notNullValue());
     assertThat(claims.getExpiration(), notNullValue());
     assertTrue(claims.getExpiration().after(claims.getIssuedAt()));
     assertThat(claims.getSubject(), is("1"));
+    Collection<String> claimRoles = (List<String>)claims.get("roles");
     assertTrue(roles.containsAll(claimRoles) && claimRoles.containsAll(roles));
   }
 
@@ -68,8 +71,8 @@ public class JwtServiceTest {
     try {
       service.parse(jwt);
       fail();
-    } catch (Exception e) {
-      assertThat(e, is(instanceOf(MissingClaimException.class)));
+    } catch (Exception exception) {
+      assertThat(exception, is(instanceOf(MissingClaimException.class)));
     }
   }
 
@@ -82,8 +85,9 @@ public class JwtServiceTest {
     try {
       service.parse(jwt);
       fail();
-    } catch (Exception e) {
-      assertThat(e.getCause(), is(instanceOf(MissingClaimException.class)));
+    } catch (Exception exception) {
+      assertThat(exception.getCause(),
+          is(instanceOf(MissingClaimException.class)));
     }
   }
 
@@ -96,8 +100,9 @@ public class JwtServiceTest {
     try {
       service.parse(jwt);
       fail();
-    } catch (Exception e) {
-      assertThat(e.getCause(), is(instanceOf(IncorrectClaimException.class)));
+    } catch (Exception exception) {
+      assertThat(exception.getCause(),
+          is(instanceOf(IncorrectClaimException.class)));
     }
   }
 
@@ -111,8 +116,9 @@ public class JwtServiceTest {
     try {
       service.parse(jwt);
       fail();
-    } catch (Exception e) {
-      assertThat(e.getCause(), is(instanceOf(ExpiredJwtException.class)));
+    } catch (Exception exception) {
+      assertThat(exception.getCause(),
+          is(instanceOf(ExpiredJwtException.class)));
     }
   }
 
@@ -125,8 +131,8 @@ public class JwtServiceTest {
     try {
       service.parse(jwt);
       fail();
-    } catch (Exception e) {
-      assertThat(e, is(instanceOf(MissingClaimException.class)));
+    } catch (Exception exception) {
+      assertThat(exception, is(instanceOf(MissingClaimException.class)));
     }
   }
 
@@ -140,8 +146,8 @@ public class JwtServiceTest {
     try {
       service.parse(jwt);
       fail();
-    } catch (Exception e) {
-      assertThat(e, is(instanceOf(MissingClaimException.class)));
+    } catch (Exception exception) {
+      assertThat(exception, is(instanceOf(MissingClaimException.class)));
     }
   }
 
@@ -152,7 +158,7 @@ public class JwtServiceTest {
     String jwt = service.generate("1", "admin@myco.io", roles);
     JwtUser userClaim = service.parse(jwt);
     assertThat(userClaim, notNullValue());
-    assertThat(userClaim.getUserAccountId(), is(1l));
+    assertThat(userClaim.getUserAccountId(), is(1L));
     Collection<? extends GrantedAuthority> authorities =
         userClaim.getAuthorities();
     assertTrue(authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN")));
@@ -164,7 +170,7 @@ public class JwtServiceTest {
   public void refresh() {
     Date plus10Minutes = new DateTime().plusMinutes(10).toDate();
     String jwt = service.generate("1", "admin@myco.io",
-        Collections.<String> emptySet(), plus10Minutes);
+        Collections.<String>emptySet(), plus10Minutes);
     String refreshedJwt = service.refresh(jwt);
     assertThat(refreshedJwt, notNullValue());
 

@@ -2,13 +2,7 @@ package com.keenvil.security.jwt;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-import java.io.IOException;
-
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
+import com.keenvil.security.jwt.JwtService.JwtUser;
 
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
@@ -18,25 +12,30 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 
-import com.keenvil.security.jwt.JwtService.JwtUser;
+import java.io.IOException;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 
 /** Filter to authenticate JSON Web Tokens.
- * 
  *  This filter looks for the JWT as a header parameter, parse it and creates
  *  an Authentication which is placed in the Spring Security Context Holder
  *  for future uses.
  */
 public class JwtAuthenticationFilter
-  extends UsernamePasswordAuthenticationFilter {
+    extends UsernamePasswordAuthenticationFilter {
 
   private static Logger log =
       getLogger(UsernamePasswordAuthenticationFilter.class);
 
   private JwtService jwtService;
 
-  public JwtAuthenticationFilter(final JwtService aJwtService) {
-    Validate.notNull(aJwtService);
-    jwtService = aJwtService;
+  public JwtAuthenticationFilter(final JwtService theJwtService) {
+    Validate.notNull(theJwtService);
+    jwtService = theJwtService;
   }
 
   @Override

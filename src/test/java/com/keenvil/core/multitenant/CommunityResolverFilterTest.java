@@ -5,12 +5,12 @@ import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 
-import javax.servlet.http.HttpServletRequest;
+import com.keenvil.core.multitenant.CommunityResolverFilter;
 
 import org.easymock.TestSubject;
 import org.junit.Test;
 
-import com.keenvil.core.multitenant.CommunityResolverFilter;
+import javax.servlet.http.HttpServletRequest;
 
 public class CommunityResolverFilterTest {
 

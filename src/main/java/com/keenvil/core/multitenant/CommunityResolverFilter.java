@@ -2,11 +2,11 @@ package com.keenvil.core.multitenant;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.slf4j.Logger;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /** Resolves the selected community id for this request.
  * 

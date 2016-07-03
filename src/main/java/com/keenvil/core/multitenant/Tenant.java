@@ -54,27 +54,27 @@ public class Tenant {
     this.isDefault = isDefault;
   }
 
-  public void setName(String aName) {
-    Validate.notBlank(aName, "Name cannot be empty.");
-    name = aName;
+  public void setName(String theName) {
+    Validate.notBlank(theName, "Name cannot be empty.");
+    name = theName;
   }
 
-  public void setUrl(String aUrl) {
-    Validate.notBlank(aUrl, "Url cannot be empty.");
-    url = aUrl;
+  public void setUrl(String theUrl) {
+    Validate.notBlank(theUrl, "Url cannot be empty.");
+    url = theUrl;
   }
 
-  public void setUsername(String aUsername) {
-    Validate.notBlank(aUsername, "Username cannot be empty.");
-    username = aUsername;
+  public void setUsername(String theUsername) {
+    Validate.notBlank(theUsername, "Username cannot be empty.");
+    username = theUsername;
   }
 
-  public void setPassword(String aPassword) {
-    password = aPassword;
+  public void setPassword(String thePassword) {
+    password = thePassword;
   }
 
-  public void setDriverClassName(String aDriverClassName) {
-    Validate.notBlank(aDriverClassName, "Driver cannot be empty.");
-    driverClassName = aDriverClassName;
+  public void setDriverClassName(String theDriverClassName) {
+    Validate.notBlank(theDriverClassName, "Driver cannot be empty.");
+    driverClassName = theDriverClassName;
   }
 }

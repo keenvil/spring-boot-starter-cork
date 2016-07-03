@@ -2,13 +2,13 @@ package com.keenvil.core.multitenant;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-import java.util.Optional;
-
 import org.hibernate.context.spi.CurrentTenantIdentifierResolver;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
+
+import java.util.Optional;
 
 /** Resolves the Community Id for this requests.
  * 

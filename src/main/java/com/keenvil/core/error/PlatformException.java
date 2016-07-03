@@ -1,12 +1,12 @@
 package com.keenvil.core.error;
 
-import java.util.List;
-
 import org.springframework.validation.ObjectError;
+
+import java.util.List;
 
 /** Platform common errors.
  * <p>Platform common errors are application common errors than can be reused
- * across the platform.
+ * across the platform.</p>
  */
 @SuppressWarnings("serial")
 public class PlatformException extends RuntimeException {

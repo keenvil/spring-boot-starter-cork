@@ -1,16 +1,18 @@
 package com.keenvil.core.multitenant;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
 import static com.keenvil.core.multitenant.CurrentCommunityIdentifierResolver.DEFAULT_TENANT;
-import static org.easymock.EasyMock.*;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertThat;
 
 import org.easymock.TestSubject;
 import org.junit.Test;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
-
-import com.keenvil.core.multitenant.CurrentCommunityIdentifierResolver;
 
 public class CurrentCommunityIdentifierResolverTest {
 

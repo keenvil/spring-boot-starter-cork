@@ -1,9 +1,5 @@
 package com.keenvil.core.multitenant;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
@@ -11,6 +7,11 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.sql.DataSource;
 
 /** Multi tenant/community configuration.
  *
@@ -27,15 +28,17 @@ public class MultitenancyConfiguration {
   private MultitenancyConfigurationProperties multitenancyProperties;
 
 
+  /** Multi tenant connection provider bean.
+   * @return the tenant connection provider bean.
+   */
   @Bean(name = "dataSourceBasedCommunityConnectionProvider")
   public DataSourceBasedCommunityConnectionProvider
       dataSourceBasedMultiTenantConnectionProvider() {
     Map<String, DataSource> dataSources = new HashMap<String, DataSource>();
     
-    multitenancyProperties
-      .getTenants()
-      .stream()
-      .forEach(tc -> dataSources.put(tc.getName(),
+    multitenancyProperties.getTenants()
+        .stream()
+        .forEach(tc -> dataSources.put(tc.getName(),
           DataSourceBuilder.create()
             .driverClassName(tc.getDriverClassName())
             .username(tc.getUsername())
@@ -49,8 +52,8 @@ public class MultitenancyConfiguration {
   @Bean
   @DependsOn("dataSourceBasedCommunityConnectionProvider")
   public DataSource defaultDataSource() {
-      return dataSourceBasedMultiTenantConnectionProvider()
-          .getDefaultDataSource();
+    return dataSourceBasedMultiTenantConnectionProvider()
+        .getDefaultDataSource();
   }
 
   @Bean

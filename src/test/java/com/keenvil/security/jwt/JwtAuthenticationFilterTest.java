@@ -1,12 +1,10 @@
 package com.keenvil.security.jwt;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
-
-import java.io.IOException;
-import java.util.Collections;
-
-import javax.servlet.ServletException;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -16,8 +14,10 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import com.keenvil.security.jwt.JwtAuthenticationFilter;
-import com.keenvil.security.jwt.JwtService;
+import java.io.IOException;
+import java.util.Collections;
+
+import javax.servlet.ServletException;
 
 public class JwtAuthenticationFilterTest {
 
@@ -56,7 +56,8 @@ public class JwtAuthenticationFilterTest {
     try {
       filter.doFilter(request, response, chain);
       fail();
-    } catch (Exception e) {
+    } catch (Exception exception) {
+      assertThat(exception, notNullValue());
     }
   }
 
@@ -65,7 +66,8 @@ public class JwtAuthenticationFilterTest {
     MockHttpServletRequest request = new MockHttpServletRequest();
     MockHttpServletResponse response = new MockHttpServletResponse();
     request.addHeader(JwtService.X_AUTHORIZATION,
-        jwtService.generate("1", "user@myco.io", Collections.<String> emptySet()));
+        jwtService.generate("1", "user@myco.io",
+            Collections.<String>emptySet()));
     MockFilterChain chain = new MockFilterChain();
 
     filter.doFilter(request, response, chain);
