@@ -41,7 +41,7 @@ public class JwtServiceTest {
     Set<String> roles = new HashSet<String>();
     Collections.addAll(roles, "USER", "ADMIN");
 
-    String jwt = service.generate("1", "admin@myco.io", roles, expirationDate);
+    String jwt = service.generate("1", "admin@keenvil.com", roles, expirationDate);
     assertThat(jwt, notNullValue());
 
     Jwt<JwsHeader, Claims> parsed =
@@ -155,7 +155,7 @@ public class JwtServiceTest {
   public void parse() {
     Set<String> roles = new HashSet<String>();
     Collections.addAll(roles, "USER", "ADMIN");
-    String jwt = service.generate("1", "admin@myco.io", roles);
+    String jwt = service.generate("1", "admin@keenvil.com", roles);
     JwtUser userClaim = service.parse(jwt);
     assertThat(userClaim, notNullValue());
     assertThat(userClaim.getUserAccountId(), is(1L));
@@ -169,7 +169,7 @@ public class JwtServiceTest {
   @Test
   public void refresh() {
     Date plus10Minutes = new DateTime().plusMinutes(10).toDate();
-    String jwt = service.generate("1", "admin@myco.io",
+    String jwt = service.generate("1", "admin@keenvil.com",
         Collections.<String>emptySet(), plus10Minutes);
     String refreshedJwt = service.refresh(jwt);
     assertThat(refreshedJwt, notNullValue());

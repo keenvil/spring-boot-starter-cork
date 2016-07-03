@@ -66,7 +66,7 @@ public class JwtAuthenticationFilterTest {
     MockHttpServletRequest request = new MockHttpServletRequest();
     MockHttpServletResponse response = new MockHttpServletResponse();
     request.addHeader(JwtService.X_AUTHORIZATION,
-        jwtService.generate("1", "user@myco.io",
+        jwtService.generate("1", "user@keenvil.com",
             Collections.<String>emptySet()));
     MockFilterChain chain = new MockFilterChain();
 
@@ -75,6 +75,6 @@ public class JwtAuthenticationFilterTest {
     Authentication context =
         SecurityContextHolder.getContext().getAuthentication();
     assertThat(context, notNullValue());
-    assertThat(context.getName(), is("user@myco.io"));
+    assertThat(context.getName(), is("user@keenvil.com"));
   }
 }
