@@ -1,0 +1,6 @@
+spring:
+  application.name: commons
+  cloud.vault:
+    token: 9a63de21-8af7-311a-9a5a-151b6a0d4795
+    scheme: https
+    endpoint: https://vault.int.myaws.io:8200
