@@ -12,6 +12,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.cloud.aws.mail.simplemail.SimpleEmailServiceJavaMailSender;
 import org.springframework.mail.javamail.JavaMailSender;
 
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.context.annotation.PropertySource;
+
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClient;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
@@ -19,9 +22,13 @@ import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
 
-
 @Configuration
 public class KeenvilAutoConfiguration {
+
+  @Bean
+  public static PropertySourcesPlaceholderConfigurer propertyConfigIn() {
+    return new PropertySourcesPlaceholderConfigurer();
+  }
 
   @Value("${cloud.aws.credentials.accessKey}")
   private String accessKey;
@@ -33,23 +40,26 @@ public class KeenvilAutoConfiguration {
   private String region;
 
   @Bean
-  @ConditionalOnMissingBean
-  public BasicAWSCredentials basicAWSCredentials() {
+  public AWSCredentials basicAWSCredentials() {
     return new BasicAWSCredentials(accessKey, secretKey);
   }
 
   @Bean
-  @ConditionalOnMissingBean
-  AmazonSimpleEmailService amazonSimpleEmailService(AWSCredentials credentials) {
+  public AmazonSimpleEmailService amazonSimpleEmailService(AWSCredentials credentials) {
     AmazonSimpleEmailService amazonSimpleEmailService = new AmazonSimpleEmailServiceClient(credentials);
-    amazonSimpleEmailService.setRegion(Region.getRegion(Regions.US_EAST_1));
+    amazonSimpleEmailService.setRegion(Region.getRegion(Regions.valueOf(region)));
     return amazonSimpleEmailService;
   }
 
   @Bean
-  @ConditionalOnMissingBean
-  JavaMailSender mailSender(AmazonSimpleEmailService amazonSimpleEmailService) {
+  public JavaMailSender mailSender(AmazonSimpleEmailService amazonSimpleEmailService) {
     return new SimpleEmailServiceJavaMailSender(amazonSimpleEmailService);
+  }
+
+  @Bean
+  @ConditionalOnMissingBean
+  public EmailService emailService() {
+    return new EmailService();
   }
 
   @Bean

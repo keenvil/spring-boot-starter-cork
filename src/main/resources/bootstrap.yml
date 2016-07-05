@@ -1,6 +1,7 @@
 spring:
-  application.name: commons
+  application.name: aws
   cloud.vault:
-    token: 9a63de21-8af7-311a-9a5a-151b6a0d4795
-    scheme: https
-    endpoint: https://vault.int.myaws.io:8200
+    token: 8a5d33b4-3397-9d73-9778-cb6b158a98c9
+    scheme: http
+    host: vault.int.myaws.io
+    port: 8200

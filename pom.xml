@@ -165,12 +165,17 @@
       <artifactId>mailapi</artifactId>
       <version>1.4.3</version>
       <exclusions>
-        <!-- exclusion because we are running on Java 1.7 that includes the activation API by default-->
+        <!-- exclusion because we are running on Java 1.8 that includes the activation API by default-->
         <exclusion>
           <artifactId>activation</artifactId>
           <groupId>javax.activation</groupId>
         </exclusion>
       </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>com.sun.mail</groupId>
+      <artifactId>javax.mail</artifactId>
+      <version>1.5.5</version>
     </dependency>
   </dependencies>
 
