@@ -41,8 +41,6 @@ public class KeenvilAutoConfiguration {
 
   @Bean
   public AWSCredentials basicAWSCredentials() {
-    System.out.println("Access Key is: " + accessKey);
-    System.out.println("Secret Key is: " + secretKey);
     return new BasicAWSCredentials(accessKey, secretKey);
   }
 
