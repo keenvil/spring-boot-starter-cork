@@ -30,10 +30,10 @@ public class KeenvilAutoConfiguration {
     return new PropertySourcesPlaceholderConfigurer();
   }
 
-  @Value("${cloud.aws.credentials.accessKey}")
+  @Value("${access_key}")
   private String accessKey;
 
-  @Value("${cloud.aws.credentials.secretKey}")
+  @Value("${secret_key}")
   private String secretKey;
 
   @Value("${cloud.aws.region}")
@@ -41,6 +41,8 @@ public class KeenvilAutoConfiguration {
 
   @Bean
   public AWSCredentials basicAWSCredentials() {
+    System.out.println("Access Key is: " + accessKey);
+    System.out.println("Secret Key is: " + secretKey);
     return new BasicAWSCredentials(accessKey, secretKey);
   }
 
