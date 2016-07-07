@@ -41,7 +41,7 @@ public class EmailService {
     log.trace("Entering sendTextMessage.");
 
     Validate.notEmpty(from, "From cannot be empty");
-    Validate.notEmpty(to, , "To cannot be empty");
+    Validate.notEmpty(to, "To cannot be empty");
     Validate.notEmpty(subject, "Subject cannot be empty");
     Validate.notEmpty(text, "Text cannot be empty");
 
@@ -63,7 +63,7 @@ public class EmailService {
     log.trace("Entering sendHTMLMessage.");
 
     Validate.notEmpty(from, "From cannot be empty");
-    Validate.notEmpty(to, , "To cannot be empty");
+    Validate.notEmpty(to, "To cannot be empty");
     Validate.notEmpty(subject, "Subject cannot be empty");
     Validate.notEmpty(HTMLContent, "HTMLContent cannot be empty");
 
