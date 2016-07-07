@@ -25,11 +25,6 @@ import com.amazonaws.auth.BasicAWSCredentials;
 @Configuration
 public class KeenvilAutoConfiguration {
 
-  @Bean
-  public static PropertySourcesPlaceholderConfigurer propertyConfigIn() {
-    return new PropertySourcesPlaceholderConfigurer();
-  }
-
   @Value("${access_key}")
   private String accessKey;
 
@@ -40,19 +35,28 @@ public class KeenvilAutoConfiguration {
   private String region;
 
   @Bean
+  public static PropertySourcesPlaceholderConfigurer propertyConfigIn() {
+    return new PropertySourcesPlaceholderConfigurer();
+  }
+
+  @Bean
   public AWSCredentials basicAWSCredentials() {
     return new BasicAWSCredentials(accessKey, secretKey);
   }
 
   @Bean
-  public AmazonSimpleEmailService amazonSimpleEmailService(AWSCredentials credentials) {
-    AmazonSimpleEmailService amazonSimpleEmailService = new AmazonSimpleEmailServiceClient(credentials);
-    amazonSimpleEmailService.setRegion(Region.getRegion(Regions.valueOf(region)));
+  public AmazonSimpleEmailService amazonSimpleEmailService(
+      AWSCredentials credentials) {
+    AmazonSimpleEmailService amazonSimpleEmailService = 
+        new AmazonSimpleEmailServiceClient(credentials);
+    amazonSimpleEmailService.setRegion(Region.getRegion(Regions
+        .valueOf(region)));
     return amazonSimpleEmailService;
   }
 
   @Bean
-  public JavaMailSender mailSender(AmazonSimpleEmailService amazonSimpleEmailService) {
+  public JavaMailSender mailSender(
+      AmazonSimpleEmailService amazonSimpleEmailService) {
     return new SimpleEmailServiceJavaMailSender(amazonSimpleEmailService);
   }
 

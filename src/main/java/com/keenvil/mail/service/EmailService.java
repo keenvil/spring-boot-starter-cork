@@ -40,10 +40,10 @@ public class EmailService {
 
     log.trace("Entering sendTextMessage.");
 
-    Validate.notEmpty(from);
-    Validate.notEmpty(to);
-    Validate.notEmpty(subject);
-    Validate.notEmpty(text);
+    Validate.notEmpty(from, "From cannot be empty");
+    Validate.notEmpty(to, , "To cannot be empty");
+    Validate.notEmpty(subject, "Subject cannot be empty");
+    Validate.notEmpty(text, "Text cannot be empty");
 
     sendEmail(from, to, subject, text, false);
 
@@ -62,10 +62,10 @@ public class EmailService {
 
     log.trace("Entering sendHTMLMessage.");
 
-    Validate.notEmpty(from);
-    Validate.notEmpty(to);
-    Validate.notEmpty(subject);
-    Validate.notEmpty(HTMLContent);
+    Validate.notEmpty(from, "From cannot be empty");
+    Validate.notEmpty(to, , "To cannot be empty");
+    Validate.notEmpty(subject, "Subject cannot be empty");
+    Validate.notEmpty(HTMLContent, "HTMLContent cannot be empty");
 
     sendEmail(from, to, subject, HTMLContent, true);
 
@@ -83,12 +83,16 @@ public class EmailService {
    * @param isHTML A boolean indicating if the content is HTML or plain text.
    */
   private void sendEmail(final String from, final String[] to,
-                         final String subject, final String content,
-                         final boolean isHTML){
+      final String subject, final String content, final boolean isHTML) {
+
+    log.trace("Entering sendEmail");
 
     MimeMessage message = mailSender.createMimeMessage();
     try {
-
+      log.debug(String.format(
+          "Creating MimeMessage. from: %s to: %s subject: %s content: %s",
+          from, to, subject, content));
+      
       MimeMessageHelper helper = new MimeMessageHelper(message, false, "utf-8");
 
       helper.setFrom(from);
@@ -101,7 +105,9 @@ public class EmailService {
       throw new RuntimeException("Error Building Text Message", me);
     }
 
+    log.debug("Sending email Message");
     mailSender.send(message);
 
+    log.trace("Leaving sendEmail");
   }
 }
