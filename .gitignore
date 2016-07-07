@@ -19,4 +19,10 @@ hs_err_pid*
 .project
 .settings
 target
+
+# Intellij Files#
+.idea
+*.iml
+
 .checkstyle
+
