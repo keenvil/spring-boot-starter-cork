@@ -93,6 +93,7 @@ public class KeenvilAutoConfiguration {
    * THYMELEAF: Template Engine (Spring4-specific version).
    */
   @Bean
+  @ConditionalOnMissingBean
   public SpringTemplateEngine templateEngine() {
     SpringTemplateEngine templateEngine = new SpringTemplateEngine();
     templateEngine.addTemplateResolver(emailTemplateResolver());
