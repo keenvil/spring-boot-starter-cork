@@ -22,6 +22,12 @@ import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
 
+import org.thymeleaf.spring4.SpringTemplateEngine;
+import org.thymeleaf.spring4.view.ThymeleafViewResolver;
+import org.thymeleaf.templatemode.TemplateMode;
+import org.thymeleaf.templateresolver.ITemplateResolver;
+import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
+
 @Configuration
 public class KeenvilAutoConfiguration {
 
@@ -39,6 +45,7 @@ public class KeenvilAutoConfiguration {
     return new PropertySourcesPlaceholderConfigurer();
   }
 
+  /** AWS SES Configuration */
   @Bean
   public AWSCredentials basicAWSCredentials() {
     return new BasicAWSCredentials(accessKey, secretKey);
@@ -66,6 +73,8 @@ public class KeenvilAutoConfiguration {
     return new EmailService();
   }
 
+  /** Security Configuration */
+
   @Bean
   @ConditionalOnMissingBean
   public PlatformSecurityService securityService() {
@@ -76,5 +85,28 @@ public class KeenvilAutoConfiguration {
   @ConditionalOnMissingBean
   public JwtService jwtService() {
     return new JwtService();
+  }
+
+  /** Template Engine */
+
+  /**
+   * THYMELEAF: Template Engine (Spring4-specific version).
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public SpringTemplateEngine templateEngine() {
+    SpringTemplateEngine templateEngine = new SpringTemplateEngine();
+    templateEngine.addTemplateResolver(emailTemplateResolver());
+    return templateEngine;
+  }
+
+  /**
+   * THYMELEAF: Template Resolver for email templates.
+   */
+  private ClassLoaderTemplateResolver emailTemplateResolver() {
+    ClassLoaderTemplateResolver templateResolver = new ClassLoaderTemplateResolver();
+    templateResolver.setPrefix("/mail/");
+    templateResolver.setTemplateMode(TemplateMode.HTML);
+    return templateResolver;
   }
 }
