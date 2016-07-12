@@ -1,8 +1,8 @@
-package com.keenvil.security.jwt;
+package com.keenvil.web.security.jwt;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-import com.keenvil.security.jwt.JwtService.JwtUser;
+import com.keenvil.web.security.jwt.JwtService.JwtUser;
 
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;

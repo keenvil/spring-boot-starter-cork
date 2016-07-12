@@ -1,15 +1,14 @@
-package com.keenvil.security;
+package com.keenvil.web.security;
 
-import com.keenvil.security.jwt.JwtAuthenticationEntryPoint;
-import com.keenvil.security.jwt.JwtAuthenticationFilter;
-import com.keenvil.security.jwt.JwtService;
+import com.keenvil.web.security.jwt.JwtAuthenticationEntryPoint;
+import com.keenvil.web.security.jwt.JwtAuthenticationFilter;
+import com.keenvil.web.security.jwt.JwtService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
 
 public class KeenvilWebSecurityConfigurerAdapter
     extends WebSecurityConfigurerAdapter {

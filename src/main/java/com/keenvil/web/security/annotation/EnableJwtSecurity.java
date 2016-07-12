@@ -1,4 +1,4 @@
-package com.keenvil.security.annotation;
+package com.keenvil.web.security.annotation;
 
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;

@@ -1,10 +1,13 @@
-package com.keenvil.security.jwt;
+package com.keenvil.web.security.jwt;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+
+import com.keenvil.web.security.jwt.JwtAuthenticationFilter;
+import com.keenvil.web.security.jwt.JwtService;
 
 import org.junit.Before;
 import org.junit.Test;
