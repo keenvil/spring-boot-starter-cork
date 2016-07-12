@@ -1,0 +1,3 @@
+cloud:
+  aws:
+    region: US_EAST_1
