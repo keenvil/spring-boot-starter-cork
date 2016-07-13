@@ -1,26 +1,24 @@
 package com.keenvil.autoconfiguration;
 
-import com.keenvil.security.jwt.JwtService;
-import com.keenvil.security.service.PlatformSecurityService;
-import com.keenvil.mail.service.EmailService;
-
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
-import org.springframework.cloud.aws.mail.simplemail.SimpleEmailServiceJavaMailSender;
-import org.springframework.mail.javamail.JavaMailSender;
-
-import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
-import org.springframework.context.annotation.PropertySource;
-
-import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClient;
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClient;
+
+import com.keenvil.mail.service.EmailService;
+import com.keenvil.web.security.jwt.JwtService;
+import com.keenvil.web.security.service.PlatformSecurityService;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.cloud.aws.mail.simplemail.SimpleEmailServiceJavaMailSender;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+
+import org.springframework.mail.javamail.JavaMailSender;
 
 @Configuration
 public class KeenvilAutoConfiguration {
@@ -39,11 +37,18 @@ public class KeenvilAutoConfiguration {
     return new PropertySourcesPlaceholderConfigurer();
   }
 
+  /** Basic AWS Credentials.
+   * @return AWS bean credentials.
+   */
   @Bean
   public AWSCredentials basicAWSCredentials() {
     return new BasicAWSCredentials(accessKey, secretKey);
   }
 
+  /** Simple email service.
+   * @param credentials credentials.
+   * @return email service.
+   */
   @Bean
   public AmazonSimpleEmailService amazonSimpleEmailService(
       AWSCredentials credentials) {
@@ -66,7 +71,7 @@ public class KeenvilAutoConfiguration {
     return new EmailService();
   }
 
-  @Bean
+  @Bean(name = "securityService")
   @ConditionalOnMissingBean
   public PlatformSecurityService securityService() {
     return new PlatformSecurityService();

@@ -1,11 +1,11 @@
-package com.keenvil.security.service;
+package com.keenvil.web.security.service;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.Sets;
 
-import com.keenvil.security.jwt.JwtService.JwtUser;
+import com.keenvil.web.security.jwt.JwtService.JwtUser;
 
 import org.junit.Test;
 

@@ -1,6 +1,6 @@
-package com.keenvil.security.service;
+package com.keenvil.web.security.service;
 
-import com.keenvil.security.jwt.JwtService.JwtUser;
+import com.keenvil.web.security.jwt.JwtService.JwtUser;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestAttributes;

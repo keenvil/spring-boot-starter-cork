@@ -1,4 +1,4 @@
-package com.keenvil.security.jwt;
+package com.keenvil.web.security.jwt;
 
 import static org.slf4j.LoggerFactory.getLogger;
 

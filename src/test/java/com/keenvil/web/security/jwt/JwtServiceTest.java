@@ -1,4 +1,4 @@
-package com.keenvil.security.jwt;
+package com.keenvil.web.security.jwt;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
@@ -7,7 +7,8 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import com.keenvil.security.jwt.JwtService.JwtUser;
+import com.keenvil.web.security.jwt.JwtService;
+import com.keenvil.web.security.jwt.JwtService.JwtUser;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -41,7 +42,8 @@ public class JwtServiceTest {
     Set<String> roles = new HashSet<String>();
     Collections.addAll(roles, "USER", "ADMIN");
 
-    String jwt = service.generate("1", "admin@keenvil.com", roles, expirationDate);
+    String jwt = service.generate("1", "admin@keenvil.com", roles,
+        expirationDate);
     assertThat(jwt, notNullValue());
 
     Jwt<JwsHeader, Claims> parsed =
