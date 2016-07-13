@@ -80,17 +80,6 @@
       <version>4.3.0.RELEASE</version>
     </dependency>
 
-    <dependency>
-      <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-starter-aws</artifactId>
-      <version>${spring-cloud-aws.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-vault-starter-config</artifactId>
-      <version>1.0.0.BUILD-SNAPSHOT</version>
-    </dependency>
-
     <!-- Commons Utilities -->
     <dependency>
       <groupId>org.apache.commons</groupId>
@@ -158,24 +147,6 @@
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-core</artifactId>
       <version>4.3.11.Final</version>
-    </dependency>
-
-    <dependency>
-      <groupId>javax.mail</groupId>
-      <artifactId>mailapi</artifactId>
-      <version>1.4.3</version>
-      <exclusions>
-        <!-- exclusion because we are running on Java 1.8 that includes the activation API by default-->
-        <exclusion>
-          <artifactId>activation</artifactId>
-          <groupId>javax.activation</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>com.sun.mail</groupId>
-      <artifactId>javax.mail</artifactId>
-      <version>1.5.5</version>
     </dependency>
   </dependencies>
 

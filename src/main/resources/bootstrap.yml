@@ -1,7 +1,0 @@
-spring:
-  application.name: aws
-  cloud.vault:
-    token: 8a5d33b4-3397-9d73-9778-cb6b158a98c9
-    scheme: http
-    host: vault.int.myaws.io
-    port: 8200
