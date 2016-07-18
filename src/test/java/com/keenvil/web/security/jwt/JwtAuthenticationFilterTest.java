@@ -4,7 +4,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 
 import com.keenvil.web.security.jwt.JwtAuthenticationFilter;
 import com.keenvil.web.security.jwt.JwtService;
@@ -56,12 +55,9 @@ public class JwtAuthenticationFilterTest {
     request.addHeader(JwtService.X_AUTHORIZATION, "invalid");
     MockFilterChain chain = new MockFilterChain();
 
-    try {
-      filter.doFilter(request, response, chain);
-      fail();
-    } catch (Exception exception) {
-      assertThat(exception, notNullValue());
-    }
+    filter.doFilter(request, response, chain);
+    assertThat(SecurityContextHolder.getContext().getAuthentication(),
+        nullValue());
   }
 
   @Test

@@ -2,13 +2,14 @@ package com.keenvil.web.security.jwt;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
+import com.keenvil.core.error.PlatformException;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.IncorrectClaimException;
 import io.jsonwebtoken.JwsHeader;
 import io.jsonwebtoken.Jwt;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.MissingClaimException;
 import io.jsonwebtoken.SignatureAlgorithm;
 
@@ -140,6 +141,11 @@ public class JwtService {
     public boolean isEnabled() {
       return true;
     }
+
+    @Override
+    public String toString() {
+      return String.format("id: %s, username:%s", id, username);
+    }
   }
 
   /** Generates a JWT with default TTL, which can be used to access application
@@ -202,36 +208,36 @@ public class JwtService {
           .parseClaimsJws(jwt);
     } catch (MissingClaimException mce) {
       log.error("Issuer not present.");
-      throw new RuntimeException("Invalid JWT.", mce);
+      throw new PlatformException
+          .InvalidJwtToken("Invalid Token, issuer not present.", mce);
     } catch (IncorrectClaimException ice) {
       log.error("Unrecognized issuer.");
-      throw new RuntimeException("Invalid JWT.", ice);
+      throw new PlatformException
+          .InvalidJwtToken("Invalid Token, unrecognized issuer.", ice);
     } catch (ExpiredJwtException ee) {
       log.error("Expired jwt.");
-      throw new RuntimeException("Expired JWT.", ee);
+      throw new PlatformException.InvalidJwtToken("Token expired.", ee);
     } catch (Exception exception) {
       log.error("Error parsing JWT. ", exception);
-      throw new MalformedJwtException("Error parsing JWT.", exception);
+      throw new PlatformException.InvalidJwtToken("Error parsing Token.",
+          exception);
     }
 
     Claims claims = parsed.getBody();
 
     if (claims.getSubject() == null) {
       log.error("Subject not present.");
-      throw new MissingClaimException(
-          parsed.getHeader(), parsed.getBody(), "Subject not present.");
+      throw new PlatformException.InvalidJwtToken("Subject not present.");
     }
 
     if (claims.get(USERNAME) == null) {
       log.error("Username not present.");
-      throw new MissingClaimException(
-          parsed.getHeader(), parsed.getBody(), "Username not present.");
+      throw new PlatformException.InvalidJwtToken("Username not present.");
     }
 
     if (claims.get(ROLES) == null) {
       log.error("Roles not defined.");
-      throw new MissingClaimException(
-          parsed.getHeader(), parsed.getBody(), "Roles not defined.");
+      throw new PlatformException.InvalidJwtToken("Roles not defined.");
     }
 
     JwtUser jwtUser =

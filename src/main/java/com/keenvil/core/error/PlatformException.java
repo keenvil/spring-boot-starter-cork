@@ -19,11 +19,17 @@ public class PlatformException extends RuntimeException {
     super(message);
   }
 
+  public PlatformException(final String message, final Throwable throwable) {
+    super(message, throwable);
+  }
+
   /** Used to indicate that a user already exists into the platform.
    */
   public static class UserAlreadyExists extends PlatformException {
 
-    public UserAlreadyExists() { }
+    public UserAlreadyExists() {
+      super();
+    }
 
     public UserAlreadyExists(final String message) {
       super(message);
@@ -34,7 +40,9 @@ public class PlatformException extends RuntimeException {
    */
   public static class EntityNotFound extends PlatformException {
 
-    public EntityNotFound() { }
+    public EntityNotFound() {
+      super();
+    }
 
     public EntityNotFound(final String message) {
       super(message);
@@ -45,9 +53,11 @@ public class PlatformException extends RuntimeException {
    */
   public static class ValidationError extends PlatformException {
 
-    public List<ObjectError> validationErrors;
+    private List<ObjectError> validationErrors;
 
-    public ValidationError() { }
+    public ValidationError() {
+      super();
+    }
 
     public ValidationError(final List<ObjectError> someErrors) {
       validationErrors = someErrors;
@@ -63,7 +73,9 @@ public class PlatformException extends RuntimeException {
    */
   public static class Authorization extends PlatformException {
 
-    public Authorization() { }
+    public Authorization() {
+      super();
+    }
 
     public Authorization(final String message) {
       super(message);
@@ -74,10 +86,29 @@ public class PlatformException extends RuntimeException {
    */
   public static class InvalidCommunityId extends PlatformException {
 
-    public InvalidCommunityId() { }
+    public InvalidCommunityId() {
+      super();
+    }
 
     public InvalidCommunityId(final String message) {
       super(message);
+    }
+  }
+
+  /** Used to indicate that JSON Web Token is not valid.
+   */
+  public static class InvalidJwtToken extends PlatformException {
+
+    public InvalidJwtToken() {
+      super();
+    }
+
+    public InvalidJwtToken(final String message) {
+      super(message);
+    }
+
+    public InvalidJwtToken(final String message, final Throwable throwable) {
+      super(message, throwable);
     }
   }
 }
