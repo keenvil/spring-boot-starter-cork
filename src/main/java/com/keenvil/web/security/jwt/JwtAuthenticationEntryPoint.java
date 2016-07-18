@@ -57,8 +57,7 @@ public class JwtAuthenticationEntryPoint
       exception = platformException;
     }
 
-    PlatformError error = null;
-    error = new PlatformErrorBuilder()
+    PlatformError error = new PlatformErrorBuilder()
         .code("authenticationError")
         .httpStatus(HttpServletResponse.SC_UNAUTHORIZED)
         .title("Authentication error")

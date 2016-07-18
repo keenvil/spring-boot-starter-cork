@@ -57,8 +57,7 @@ public class JwtAuthenticationFilter
           && !token.isEmpty()
           && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-        JwtUser jwtUser = null;
-        jwtUser = jwtService.parse(token);
+        JwtUser jwtUser = jwtService.parse(token);
         if (log.isDebugEnabled()) {
           log.debug("User {} authenticated.", jwtUser.toString());
         }
@@ -72,7 +71,7 @@ public class JwtAuthenticationFilter
         authentication.setDetails(buildDetails);
         SecurityContextHolder.getContext().setAuthentication(authentication);
       }
-    } catch (PlatformException.InvalidJwtToken excepetion) {
+    } catch (PlatformException.InvalidJwtToken exception) {
       SecurityContextHolder.clearContext();
     }
     log.trace("Leaving JwtAuthenticationFilter.");

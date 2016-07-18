@@ -1,5 +1,6 @@
 package com.keenvil.core.error;
 
+import org.apache.commons.lang3.Validate;
 import org.springframework.validation.ObjectError;
 
 import java.util.List;
@@ -53,13 +54,10 @@ public class PlatformException extends RuntimeException {
    */
   public static class ValidationError extends PlatformException {
 
-    private List<ObjectError> validationErrors;
-
-    public ValidationError() {
-      super();
-    }
+    private List<ObjectError> validationErrors ;
 
     public ValidationError(final List<ObjectError> someErrors) {
+      Validate.notNull(someErrors, "Errors cannot be null.");
       validationErrors = someErrors;
     }
 
