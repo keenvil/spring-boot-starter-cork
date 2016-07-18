@@ -16,10 +16,11 @@ public class KeenvilWebSecurityConfigurerAdapter
   @Autowired
   private JwtService jwtService;
 
+  @Autowired
+  private JwtAuthenticationEntryPoint authenticationEntryPoint;
+
   @Override
   protected void configure(HttpSecurity http) throws Exception {
-    JwtAuthenticationEntryPoint authenticationEntryPoint =
-        new JwtAuthenticationEntryPoint();
     http.csrf().disable()
         .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint)
         .and()

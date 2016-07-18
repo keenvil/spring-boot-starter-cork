@@ -7,7 +7,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import com.keenvil.web.security.jwt.JwtService;
+import com.keenvil.core.error.PlatformException;
 import com.keenvil.web.security.jwt.JwtService.JwtUser;
 
 import io.jsonwebtoken.Claims;
@@ -63,7 +63,7 @@ public class JwtServiceTest {
   }
 
   @Test
-  public void parse_usernameNotPresent() {
+  public void parseUsernameNotPresent() {
     String jwt = Jwts.builder()
         .setSubject("me")
         .setIssuer(JwtService.ISSUER)
@@ -74,12 +74,13 @@ public class JwtServiceTest {
       service.parse(jwt);
       fail();
     } catch (Exception exception) {
-      assertThat(exception, is(instanceOf(MissingClaimException.class)));
+      assertThat(exception,
+          is(instanceOf(PlatformException.InvalidJwtToken.class)));
     }
   }
 
   @Test
-  public void parse_issuerNotPresent() {
+  public void parseIssuerNotPresent() {
     String jwt = Jwts.builder()
         .setIssuedAt(new Date())
         .signWith(SignatureAlgorithm.HS256, JwtService.KEY)
@@ -94,7 +95,7 @@ public class JwtServiceTest {
   }
 
   @Test
-  public void parse_issuedByunrecognizedEntity() {
+  public void parseIssuedByunrecognizedEntity() {
     String jwt = Jwts.builder()
         .setIssuer("unrecognized")
         .signWith(SignatureAlgorithm.HS256, JwtService.KEY)
@@ -109,7 +110,7 @@ public class JwtServiceTest {
   }
 
   @Test
-  public void parse_expiredToke() {
+  public void parseExpiredToke() {
     String jwt = Jwts.builder()
         .setIssuer(JwtService.ISSUER)
         .setExpiration(new Date(1))
@@ -125,7 +126,7 @@ public class JwtServiceTest {
   }
 
   @Test
-  public void parse_noSubject() {
+  public void parseNoSubject() {
     String jwt = Jwts.builder()
         .setIssuer(JwtService.ISSUER)
         .signWith(SignatureAlgorithm.HS256, JwtService.KEY)
@@ -134,12 +135,13 @@ public class JwtServiceTest {
       service.parse(jwt);
       fail();
     } catch (Exception exception) {
-      assertThat(exception, is(instanceOf(MissingClaimException.class)));
+      assertThat(exception,
+          is(instanceOf(PlatformException.InvalidJwtToken.class)));
     }
   }
 
   @Test
-  public void parse_nullRoles() {
+  public void parseNullRoles() {
     String jwt = Jwts.builder()
         .setIssuer(JwtService.ISSUER)
         .setSubject("1")
@@ -149,8 +151,20 @@ public class JwtServiceTest {
       service.parse(jwt);
       fail();
     } catch (Exception exception) {
-      assertThat(exception, is(instanceOf(MissingClaimException.class)));
+      assertThat(exception,
+          is(instanceOf(PlatformException.InvalidJwtToken.class)));
     }
+  }
+
+  @Test
+  public void parseInvalidToken() throws Exception {
+    try {
+      service.parse("invalid");
+      fail();
+    } catch (Exception exception) {
+      assertThat(exception,
+          is(instanceOf(PlatformException.InvalidJwtToken.class)));
+    }    
   }
 
   @Test

@@ -2,6 +2,7 @@ package com.keenvil.web.security.jwt;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
+import com.keenvil.core.error.PlatformException;
 import com.keenvil.web.security.jwt.JwtService.JwtUser;
 
 import org.apache.commons.lang3.Validate;
@@ -22,8 +23,13 @@ import javax.servlet.http.HttpServletRequest;
 
 /** Filter to authenticate JSON Web Tokens.
  *  This filter looks for the JWT as a header parameter, parse it and creates
- *  an Authentication which is placed in the Spring Security Context Holder
+ *  an Authentication which is placed in the {@link SecurityContextHolder}
  *  for future uses.
+ * 
+ * <p>If the token is present but there is a problem parsing it, no
+ * Authentication is set in Spring Security Context Holder and
+ * {@link JwtAuthenticationEntryPoint} will be called at the end of the
+ * filter chain.</p>
  */
 public class JwtAuthenticationFilter
     extends UsernamePasswordAuthenticationFilter {
@@ -43,25 +49,32 @@ public class JwtAuthenticationFilter
       FilterChain chain) throws IOException, ServletException {
     log.trace("Entering JwtAuthenticationFilter.");
 
-    HttpServletRequest httpRequest = (HttpServletRequest) request;
-    String token = httpRequest.getHeader(JwtService.X_AUTHORIZATION);
+    try {
+      HttpServletRequest httpRequest = (HttpServletRequest) request;
+      String token = httpRequest.getHeader(JwtService.X_AUTHORIZATION);
 
-    if (token != null
-        && !token.isEmpty()
-        && SecurityContextHolder.getContext().getAuthentication() == null) {
+      if (token != null
+          && !token.isEmpty()
+          && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-      JwtUser jwtUser = jwtService.parse(token);
-      UsernamePasswordAuthenticationToken authentication =
-          new UsernamePasswordAuthenticationToken(jwtUser, null,
-              jwtUser.getAuthorities());
+        JwtUser jwtUser = jwtService.parse(token);
+        if (log.isDebugEnabled()) {
+          log.debug("User {} authenticated.", jwtUser.toString());
+        }
 
-      WebAuthenticationDetails buildDetails =
-          new WebAuthenticationDetailsSource().buildDetails(httpRequest);
-      authentication.setDetails(buildDetails);
-      SecurityContextHolder.getContext().setAuthentication(authentication);
+        UsernamePasswordAuthenticationToken authentication =
+            new UsernamePasswordAuthenticationToken(jwtUser, null,
+                jwtUser.getAuthorities());
+
+        WebAuthenticationDetails buildDetails =
+            new WebAuthenticationDetailsSource().buildDetails(httpRequest);
+        authentication.setDetails(buildDetails);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+      }
+    } catch (PlatformException.InvalidJwtToken exception) {
+      SecurityContextHolder.clearContext();
     }
-    chain.doFilter(request, response);
-
     log.trace("Leaving JwtAuthenticationFilter.");
-  }  
+    chain.doFilter(request, response);
+  }
 }

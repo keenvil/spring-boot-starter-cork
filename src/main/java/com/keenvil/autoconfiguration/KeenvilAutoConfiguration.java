@@ -1,5 +1,6 @@
 package com.keenvil.autoconfiguration;
 
+import com.keenvil.web.security.jwt.JwtAuthenticationEntryPoint;
 import com.keenvil.web.security.jwt.JwtService;
 import com.keenvil.web.security.service.PlatformSecurityService;
 
@@ -26,5 +27,11 @@ public class KeenvilAutoConfiguration {
   @ConditionalOnMissingBean
   public JwtService jwtService() {
     return new JwtService();
+  }
+
+  @Bean
+  @ConditionalOnMissingBean
+  public JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint() {
+    return new JwtAuthenticationEntryPoint();
   }
 }
