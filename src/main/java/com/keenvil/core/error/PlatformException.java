@@ -50,6 +50,19 @@ public class PlatformException extends RuntimeException {
     }
   }
 
+  /** Used to indicate that an entity already exists into the platform.
+   */
+  public static class EntityAlreadyExists extends PlatformException {
+
+    public EntityAlreadyExists() {
+      super();
+    }
+
+    public EntityAlreadyExists(final String message) {
+      super(message);
+    }
+  }
+
   /** Used to indicate that there was some validation errors in a API service.
    */
   public static class ValidationError extends PlatformException {
