@@ -44,7 +44,7 @@ public class PlatformSecurityServiceTest {
   public void hasntRoleInCommunity() {
     RequestAttributes attributes = createMock(RequestAttributes.class);
     expect(attributes.getAttribute("community-id",
-        RequestAttributes.SCOPE_REQUEST)).andReturn("KEENVIL");
+        RequestAttributes.SCOPE_REQUEST)).andReturn("KEENVIL").times(2);
     replay(attributes);
 
     RequestContextHolder.setRequestAttributes(attributes);
@@ -54,6 +54,23 @@ public class PlatformSecurityServiceTest {
     boolean hasCommunityRole = service.hasRoleInCommunity(jwtUser, "ADMIN");
 
     assertFalse(hasCommunityRole);
+    verify(attributes);
+  }
+
+  @Test
+  public void hasAdminRoleInCommunity() {
+    RequestAttributes attributes = createMock(RequestAttributes.class);
+    expect(attributes.getAttribute("community-id",
+        RequestAttributes.SCOPE_REQUEST)).andReturn("MYCO").times(2);
+    replay(attributes);
+
+    RequestContextHolder.setRequestAttributes(attributes);
+    HashSet<String> roles = Sets.newHashSet("RESIDENT_KEENVIL", "ADMIN_MYCO");
+    JwtUser jwtUser =
+        new JwtUser(1L, "admin@keenvil.com", roles);
+    boolean hasCommunityRole = service.hasRoleInCommunity(jwtUser, "RESIDENT");
+
+    assertTrue(hasCommunityRole);
     verify(attributes);
   }
 }
