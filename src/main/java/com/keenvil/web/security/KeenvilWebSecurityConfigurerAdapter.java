@@ -37,6 +37,7 @@ public class KeenvilWebSecurityConfigurerAdapter
           "/configuration/**",
           "/health",
           "/info",
+          "/status",
           "/v2/api-docs").permitAll()
           .anyRequest()
           .authenticated()
