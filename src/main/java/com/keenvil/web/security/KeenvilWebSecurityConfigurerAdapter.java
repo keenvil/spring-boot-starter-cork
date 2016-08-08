@@ -34,6 +34,8 @@ public class KeenvilWebSecurityConfigurerAdapter
           "/swagger-resources/**",
           "/webjars/springfox-swagger-ui/**",
           "/configuration/**",
+          "/health",
+          "/info",
           "/v2/api-docs").permitAll()
           .anyRequest()
           .authenticated()
