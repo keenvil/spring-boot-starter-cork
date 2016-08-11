@@ -30,7 +30,7 @@ public class KeenvilWebSecurityConfigurerAdapter
         .authorizeRequests()
         .antMatchers("/",
           "/account/auth",
-          "/residents/{\\d+}/validate",
+          "/account/validate",
           "/swagger-ui.html",
           "/swagger-resources/**",
           "/webjars/springfox-swagger-ui/**",
