@@ -31,11 +31,10 @@ public class KeenvilWebSecurityConfigurerAdapter
         .antMatchers("/",
           "/account/auth",
           "/account/validate",
-          "/swagger-ui.html",
-          "/swagger-resources/**",
-          "/webjars/springfox-swagger-ui/**",
           "/configuration/**",
-          "/v2/api-docs").permitAll()
+          "/health",
+          "/info",
+          "/status").permitAll()
           .anyRequest()
           .authenticated()
           .and()
