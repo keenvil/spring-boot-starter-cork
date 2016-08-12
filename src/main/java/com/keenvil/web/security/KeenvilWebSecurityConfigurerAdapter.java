@@ -30,7 +30,7 @@ public class KeenvilWebSecurityConfigurerAdapter
         .authorizeRequests()
         .antMatchers("/",
           "/account/auth",
-          "/residents/{\\d+}/validate",
+          "/account/validate",
           "/configuration/**",
           "/health",
           "/info",
