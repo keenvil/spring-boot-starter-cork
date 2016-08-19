@@ -39,7 +39,7 @@ public abstract class Localizable {
   public static final String FILTER_PARAM = "locale";
 
   // Definitely not the best place to put this constant. 
-  public static final String USER_LOCAlE = "X-User-Local";
+  public static final String USER_LOCALE = "X-User-Locale";
 
   @Column(name = "locale", nullable = false)
   private  String locale;
