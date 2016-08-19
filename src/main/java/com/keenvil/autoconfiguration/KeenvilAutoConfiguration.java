@@ -1,5 +1,6 @@
 package com.keenvil.autoconfiguration;
 
+import com.keenvil.internationalization.LocalizableAspect;
 import com.keenvil.web.security.jwt.JwtAuthenticationEntryPoint;
 import com.keenvil.web.security.jwt.JwtService;
 import com.keenvil.web.security.service.PlatformSecurityService;
@@ -33,5 +34,10 @@ public class KeenvilAutoConfiguration {
   @ConditionalOnMissingBean
   public JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint() {
     return new JwtAuthenticationEntryPoint();
+  }
+
+  @Bean
+  public LocalizableAspect localizableAspect() {
+    return new LocalizableAspect();
   }
 }

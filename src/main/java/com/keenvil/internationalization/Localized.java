@@ -1,28 +1,14 @@
 package com.keenvil.internationalization;
 
-import org.apache.commons.lang3.Validate;
-
-import javax.persistence.Column;
-import javax.persistence.MappedSuperclass;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Base class for objects that must be filtered by locale (like messages, tags,
- * etc.).
+ * Annotation to make a Rest Service localizable.
+ * <p>Please refer to {@link Localizable} for more information.</p>
  */
-@MappedSuperclass
-public abstract class Localized {
-
-  @Column(name = "locale", nullable = false)
-  private  String locale;
-
-  Localized() { }
-
-  public Localized(final String theLocale) {
-    Validate.notEmpty("Locale cannot be empty.");
-    locale = theLocale;
-  }
-
-  public String getLocale() {
-    return locale;
-  }
-}
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface Localized { }
