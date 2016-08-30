@@ -62,6 +62,9 @@ public class JwtAuthenticationFilter
           log.debug("User {} authenticated.", jwtUser.toString());
         }
 
+        httpRequest.setAttribute("X-Jwt-User", jwtUser);
+        httpRequest.setAttribute("X-User-Id", jwtUser.getUserAccountId());
+
         UsernamePasswordAuthenticationToken authentication =
             new UsernamePasswordAuthenticationToken(jwtUser, null,
                 jwtUser.getAuthorities());
