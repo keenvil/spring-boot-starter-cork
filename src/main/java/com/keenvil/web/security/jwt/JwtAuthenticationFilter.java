@@ -3,6 +3,7 @@ package com.keenvil.web.security.jwt;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import com.keenvil.core.error.PlatformException;
+import com.keenvil.user.LoggedIndividual;
 import com.keenvil.web.security.jwt.JwtService.JwtUser;
 
 import org.apache.commons.lang3.Validate;
@@ -30,6 +31,13 @@ import javax.servlet.http.HttpServletRequest;
  * Authentication is set in Spring Security Context Holder and
  * {@link JwtAuthenticationEntryPoint} will be called at the end of the
  * filter chain.</p>
+ * 
+ * <p>This filter sets the JwtUser and JwtUser Id as http requests
+ * headers for internal use. See {@link LoggedIndividual} for further
+ * information.</p>
+ * <p>Filter also sets Jwt token and Community in {@link JwtTokenHolder} to
+ * be available in a static way. It is used by Feign clients to forward
+ * Jwt token and Community in subsequent API calls.</p> 
  */
 public class JwtAuthenticationFilter
     extends UsernamePasswordAuthenticationFilter {
@@ -52,6 +60,7 @@ public class JwtAuthenticationFilter
     try {
       HttpServletRequest httpRequest = (HttpServletRequest) request;
       String token = httpRequest.getHeader(JwtService.X_AUTHORIZATION);
+      String community = httpRequest.getHeader("X-Community-Id");
 
       if (token != null
           && !token.isEmpty()
@@ -61,6 +70,9 @@ public class JwtAuthenticationFilter
         if (log.isDebugEnabled()) {
           log.debug("User {} authenticated.", jwtUser.toString());
         }
+
+        JwtTokenHolder.holdToken(token);
+        JwtTokenHolder.holdCommunity(community);
 
         httpRequest.setAttribute("X-Jwt-User", jwtUser);
         httpRequest.setAttribute("X-User-Id", jwtUser.getUserAccountId());
