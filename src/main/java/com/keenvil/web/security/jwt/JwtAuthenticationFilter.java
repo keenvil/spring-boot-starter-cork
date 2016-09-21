@@ -45,6 +45,10 @@ public class JwtAuthenticationFilter
   private static Logger log =
       getLogger(UsernamePasswordAuthenticationFilter.class);
 
+  public static final String X_JWT_USER = "X-Jwt-User";
+  
+  public static final String X_USER_ID = "X-User-Id";
+
   private JwtService jwtService;
 
   public JwtAuthenticationFilter(final JwtService theJwtService) {
@@ -74,8 +78,8 @@ public class JwtAuthenticationFilter
         JwtTokenHolder.holdToken(token);
         JwtTokenHolder.holdCommunity(community);
 
-        httpRequest.setAttribute("X-Jwt-User", jwtUser);
-        httpRequest.setAttribute("X-User-Id", jwtUser.getUserAccountId());
+        httpRequest.setAttribute(X_JWT_USER, jwtUser);
+        httpRequest.setAttribute(X_USER_ID, jwtUser.getUserAccountId());
 
         UsernamePasswordAuthenticationToken authentication =
             new UsernamePasswordAuthenticationToken(jwtUser, null,
