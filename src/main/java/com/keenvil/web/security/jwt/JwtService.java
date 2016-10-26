@@ -30,7 +30,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-/** Generates/Refreshes JSON Web Tokens and JWT Users which can be used to
+/**
+ * Generates/Refreshes JSON Web Tokens and JWT Users which can be used to
  * interact with application services.
  * Token encrypts: TBD Define what to we want to put in here
  */
@@ -39,10 +40,15 @@ public class JwtService {
 
   private static Logger log = getLogger(JwtService.class);
 
-
   public static final String X_AUTHORIZATION = "X-Authorization";
 
   private static final String USERNAME = "username";
+
+  private static final String FIRST_NAME = "firstName";
+
+  private static final String LAST_NAME = "lastName";
+
+  private static final String UNIT = "unit";
 
   private static final String ROLES = "roles";
 
@@ -66,25 +72,63 @@ public class JwtService {
     private String username;
     private Set<String> roles = new HashSet<String>();
 
+    private String firstName;
+
+    private String lastName;
+
+    private String unit;
+
     JwtUser() { }
 
-    /** Creates a JWT User.
+    /**
+     * Creates a JWT User.
      * @param theId the id,
-     * @param theUsername the user name,
+     * @param theFirstName first name.
+     * @param theLastName last name.
+     * @param theUnit unit.
+     * @param theUsername user name.
      * @param setOfRoles roles.
      */
-    public JwtUser(final Long theId, final String theUsername,
-        final Set<String> setOfRoles) {
+    public JwtUser(final Long theId, final String theFirstName,
+        final String theLastName, final String theUnit,
+        final String theUsername, final Set<String> setOfRoles) {
       Validate.notNull(theId);
+      Validate.notNull(theFirstName);
+      Validate.notNull(theLastName);
+      Validate.notNull(theUnit);
       Validate.notNull(theUsername);
       Validate.notNull(setOfRoles);
       id = theId;
+      firstName = theFirstName;
+      lastName = theLastName;
+      unit = theUnit;
       username = theUsername;
       roles = setOfRoles;
     }
 
     public Long getUserAccountId() {
       return id;
+    }
+
+    public String getFirstName() {
+      return firstName;
+    }
+
+    public String getLastName() {
+      return lastName;
+    }
+
+    public String getUnit() {
+      return unit;
+    }
+
+    public Set<String> getRoles() {
+      return Collections.unmodifiableSet(roles);
+    }
+
+    @Override
+    public String getUsername() {
+      return username;
     }
 
     @Override
@@ -95,12 +139,9 @@ public class JwtService {
       }
       return auths;
     }
-
-    public Set<String> getRoles() {
-      return Collections.unmodifiableSet(roles);
-    }
-
-    /** Return {@code true} if JWT User has an given role in a community.
+    
+    /**
+     * Return {@code true} if JWT User has an given role in a community.
      * @param role role to verify.
      * @param communityId community to verify.
      * @return whether the user has the given role in the given community.
@@ -117,10 +158,6 @@ public class JwtService {
       return null;
     }
 
-    @Override
-    public String getUsername() {
-      return username;
-    }
 
     @Override
     public boolean isAccountNonExpired() {
@@ -148,24 +185,38 @@ public class JwtService {
     }
   }
 
-  /** Generates a JWT with default TTL, which can be used to access application
+  /**
+   * Generates a JWT with default TTL, which can be used to access application
    * services.
    * @return the JWT.
    */
   public String generate(
       final String subject,
+      final String firstName,
+      final String lastName,
+      final String unit,
       final String username,
       final Set<String> roles) {
     Date ttl = DateTime.now().plusMinutes(minutes).toDate();
-    return generate(subject, username, roles, ttl);
+    return generate(subject, firstName, lastName, unit, username, roles, ttl);
   }
 
-  /** Generates a JWT which can be used to access application services.
+  /**
+   * Generates a JWT which can be used to access application services.
+   * @param subject subject.
+   * @param firstName first name.
+   * @param lastName last name.
+   * @param username user name.
+   * @param unit unit.
+   * @param roles roles.
    * @param expirationDate JWT expiration date.
    * @return the JWT.
    */
   public String generate(
       final String subject,
+      final String firstName,
+      final String lastName,
+      final String unit,
       final String username,
       final Set<String> roles,
       final Date expirationDate) {
@@ -181,6 +232,9 @@ public class JwtService {
         .setIssuedAt(today)
         .setExpiration(expirationDate)
         .setSubject(subject)
+        .claim(FIRST_NAME, firstName)
+        .claim(LAST_NAME, lastName)
+        .claim(UNIT, unit)
         .claim(USERNAME, username)
         .claim(ROLES, roles)
         .signWith(SignatureAlgorithm.HS256, KEY)
@@ -190,7 +244,8 @@ public class JwtService {
     return jwt;
   }
 
-  /** Parse a JWT and returns a JWT User to interact with the application
+  /**
+   * Parse a JWT and returns a JWT User to interact with the application
    *  services.
    * @param jwt the JWT to be parsed.
    * @return the JWT User.
@@ -230,6 +285,21 @@ public class JwtService {
       throw new PlatformException.InvalidJwtToken("Subject not present.");
     }
 
+    if (claims.get(FIRST_NAME) == null) {
+      log.error("First name not present.");
+      throw new PlatformException.InvalidJwtToken("First name not present.");
+    }
+
+    if (claims.get(LAST_NAME) == null) {
+      log.error("Last name not present.");
+      throw new PlatformException.InvalidJwtToken("Last name not present.");
+    }
+
+    if (claims.get(UNIT) == null) {
+      log.error("Unit not present.");
+      throw new PlatformException.InvalidJwtToken("Unit not present.");
+    }
+
     if (claims.get(USERNAME) == null) {
       log.error("Username not present.");
       throw new PlatformException.InvalidJwtToken("Username not present.");
@@ -242,14 +312,18 @@ public class JwtService {
 
     JwtUser jwtUser =
         new JwtUser(Long.valueOf(claims.getSubject()),
+            (String) claims.get(FIRST_NAME),
+            (String) claims.get(LAST_NAME),
+            (String) claims.get(UNIT),
             (String) claims.get(USERNAME),
-            (Set<String>) new HashSet((List<String>)claims.get(ROLES)));
+            (Set<String>) new HashSet((List<String>) claims.get(ROLES)));
 
     log.trace("Leaving parse.");
     return jwtUser;
   }
 
-  /** Refreshes a valid JWT.
+  /**
+   * Refreshes a valid JWT.
    * Generates a new JWT with an updated TTL.
    * @param jwt valid JWT to be regenerated
    * @return new JWT
@@ -267,6 +341,9 @@ public class JwtService {
         .setIssuedAt(today.toDate())
         .setExpiration(plusMinutes.toDate())
         .setSubject(jwtUser.getUserAccountId().toString())
+        .claim(FIRST_NAME, jwtUser.getFirstName())
+        .claim(LAST_NAME, jwtUser.getLastName())
+        .claim(UNIT, jwtUser.getUnit())
         .claim(USERNAME, jwtUser.getUsername())
         .claim(ROLES, jwtUser.getRoles())
         .signWith(SignatureAlgorithm.HS256, KEY)

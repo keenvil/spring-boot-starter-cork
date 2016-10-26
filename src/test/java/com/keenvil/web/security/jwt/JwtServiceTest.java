@@ -42,7 +42,8 @@ public class JwtServiceTest {
     Set<String> roles = new HashSet<String>();
     Collections.addAll(roles, "USER", "ADMIN");
 
-    String jwt = service.generate("1", "admin@keenvil.com", roles,
+    String jwt = service.generate("1", "Joe", "Average", "admin@keenvil.com",
+        "B-52", roles,
         expirationDate);
     assertThat(jwt, notNullValue());
 
@@ -171,7 +172,8 @@ public class JwtServiceTest {
   public void parse() {
     Set<String> roles = new HashSet<String>();
     Collections.addAll(roles, "USER", "ADMIN");
-    String jwt = service.generate("1", "admin@keenvil.com", roles);
+    String jwt = service.generate("1", "Joe", "Average", "B-52",
+        "admin@keenvil.com", roles);
     JwtUser userClaim = service.parse(jwt);
     assertThat(userClaim, notNullValue());
     assertThat(userClaim.getUserAccountId(), is(1L));
@@ -179,14 +181,15 @@ public class JwtServiceTest {
         userClaim.getAuthorities();
     assertTrue(authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN")));
     assertTrue(authorities.contains(new SimpleGrantedAuthority("ROLE_USER")));
+    assertThat(userClaim.getFirstName(), is("Joe"));
   }
 
   @SuppressWarnings("rawtypes")
   @Test
   public void refresh() {
     Date plus10Minutes = new DateTime().plusMinutes(10).toDate();
-    String jwt = service.generate("1", "admin@keenvil.com",
-        Collections.<String>emptySet(), plus10Minutes);
+    String jwt = service.generate("1",  "Joe", "Average", "B-52",
+        "admin@keenvil.com", Collections.<String>emptySet(), plus10Minutes);
     String refreshedJwt = service.refresh(jwt);
     assertThat(refreshedJwt, notNullValue());
 

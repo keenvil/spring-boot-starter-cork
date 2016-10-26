@@ -65,7 +65,7 @@ public class JwtAuthenticationFilterTest {
     MockHttpServletRequest request = new MockHttpServletRequest();
     MockHttpServletResponse response = new MockHttpServletResponse();
     request.addHeader(JwtService.X_AUTHORIZATION,
-        jwtService.generate("1", "user@keenvil.com",
+        jwtService.generate("1","Joe", "Average", "B-52", "user@keenvil.com",
             Collections.<String>emptySet()));
     MockFilterChain chain = new MockFilterChain();
 
