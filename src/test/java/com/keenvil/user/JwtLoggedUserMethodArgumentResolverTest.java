@@ -29,12 +29,14 @@ public class JwtLoggedUserMethodArgumentResolverTest {
   @Test
   @SuppressWarnings("unchecked")
   public void resolve() throws Exception {
-    JwtUser jwtUser = new JwtUser(1L, "user", Collections.EMPTY_SET);
+    JwtUser jwtUser = new JwtUser(1L,  "Joe", "Average", "B-52", "user",
+        Collections.EMPTY_SET);
     HttpServletRequest request = createMock(HttpServletRequest.class);
     expect(request.getAttribute(X_JWT_USER)).andReturn(jwtUser);
     
     NativeWebRequest nativeWebRequest = createMock(NativeWebRequest.class);
-    expect(nativeWebRequest.getNativeRequest(HttpServletRequest.class)).andReturn(request);
+    expect(nativeWebRequest.getNativeRequest(HttpServletRequest.class))
+      .andReturn(request);
     replay(request, nativeWebRequest);
 
     JwtUser resolveArgument =
@@ -49,7 +51,8 @@ public class JwtLoggedUserMethodArgumentResolverTest {
     expect(request.getAttribute(X_JWT_USER)).andReturn(null);
     
     NativeWebRequest nativeWebRequest = createMock(NativeWebRequest.class);
-    expect(nativeWebRequest.getNativeRequest(HttpServletRequest.class)).andReturn(request);
+    expect(nativeWebRequest.getNativeRequest(HttpServletRequest.class))
+      .andReturn(request);
     replay(request, nativeWebRequest);
 
     try {

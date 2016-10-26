@@ -19,7 +19,8 @@ public class JwtUserTest {
     Set<String> roles = new HashSet<String>();
     Collections.addAll(roles, "USER_default", "ADMIN_someCommunity");
 
-    JwtUser user = new JwtService.JwtUser(1L, "admin", roles);
+    JwtUser user = new JwtService.JwtUser(1L,  "Joe", "Average", "B-52",
+        "admin", roles);
     assertTrue(user.hasRoleInCommunity("USER", "default"));
     assertTrue(user.hasRoleInCommunity("ADMIN", "someCommunity"));
     assertFalse(user.hasRoleInCommunity("USER", "someCommunity"));
