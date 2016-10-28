@@ -25,7 +25,7 @@ public class StringToUuidConverterTest {
   }
 
   @Test
-  public void invlidPlainUuid() throws Exception {
+  public void invalidPlainUuid() throws Exception {
     try {
       converter.convert(null);
       fail();
