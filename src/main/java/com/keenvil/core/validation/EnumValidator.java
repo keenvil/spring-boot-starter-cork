@@ -26,7 +26,7 @@ public @interface EnumValidator {
    * 
    * @return enum class.
    */
-  Class<? extends Enum<?>> enumClazz();
+  Class<? extends Enum<?>> source();
 
   /**
    * Default error message.

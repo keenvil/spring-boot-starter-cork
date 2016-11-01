@@ -27,7 +27,7 @@ public class EnumValidatorImpl implements ConstraintValidator<EnumValidator, Str
   @SuppressWarnings("rawtypes")
   public void initialize(EnumValidator constraintAnnotation) {
     valueList = new ArrayList<String>();
-    Class<? extends Enum<?>> enumClass = constraintAnnotation.enumClazz();
+    Class<? extends Enum<?>> enumClass = constraintAnnotation.source();
 
     Enum[] enumValArr = enumClass.getEnumConstants();
 
