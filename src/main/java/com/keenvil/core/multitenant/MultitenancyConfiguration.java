@@ -27,7 +27,6 @@ public class MultitenancyConfiguration {
   @Autowired
   private MultitenancyConfigurationProperties multitenancyProperties;
 
-
   /** Multi tenant connection provider bean.
    * @return the tenant connection provider bean.
    */
@@ -60,5 +59,11 @@ public class MultitenancyConfiguration {
   public CurrentCommunityIdentifierResolver
       currentCommunityIdentifierResolver() {
     return new CurrentCommunityIdentifierResolver();
+  }
+
+  @Bean
+  public UrlPathVariableCommunityResolver
+    urlPathVariableCommunityResolver() {
+    return new UrlPathVariableCommunityResolver();
   }
 }
