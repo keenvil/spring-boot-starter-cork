@@ -22,7 +22,8 @@ import java.util.HashSet;
 public class PlatformSecurityServiceTest {
 
   @TestSubject
-  private PlatformSecurityService service = new PlatformSecurityService();
+  private PlatformSecurityService service =
+    new PlatformSecurityService(new RequestAttributeCommunityResolverHelper());
 
   @Test
   public void hasRoleInCommunity() {

@@ -1,7 +1,9 @@
 package com.keenvil.core.multitenant;
 
 
+import org.hibernate.context.spi.CurrentTenantIdentifierResolver;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -24,9 +26,11 @@ import javax.sql.DataSource;
 @EnableConfigurationProperties(MultitenancyConfigurationProperties.class)
 public class MultitenancyConfiguration {
 
+  @Value("${keenvil-boot-starter.community-resolver:''}")
+  private String communityResolver;
+
   @Autowired
   private MultitenancyConfigurationProperties multitenancyProperties;
-
 
   /** Multi tenant connection provider bean.
    * @return the tenant connection provider bean.
@@ -57,8 +61,11 @@ public class MultitenancyConfiguration {
   }
 
   @Bean
-  public CurrentCommunityIdentifierResolver
+  public CurrentTenantIdentifierResolver
       currentCommunityIdentifierResolver() {
+    if (communityResolver.equals("urlBased")) {
+      return new UrlPathVariableCommunityResolver();
+    }
     return new CurrentCommunityIdentifierResolver();
   }
 }

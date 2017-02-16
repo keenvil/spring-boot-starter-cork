@@ -1,33 +1,53 @@
 package com.keenvil.autoconfiguration;
 
-import com.keenvil.core.multitenant.CommunityResolverFilter;
-import com.keenvil.internationalization.LocalizableAspect;
-import com.keenvil.web.security.jwt.JwtAuthenticationEntryPoint;
-import com.keenvil.web.security.jwt.JwtService;
-import com.keenvil.web.security.jwt.JwtTokenHolder;
-import com.keenvil.web.security.service.PlatformSecurityService;
-
-import feign.RequestInterceptor;
-import feign.RequestTemplate;
-
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import com.keenvil.core.multitenant.CommunityResolverFilter;
+import com.keenvil.internationalization.LocalizableAspect;
+import com.keenvil.web.security.jwt.JwtAuthenticationEntryPoint;
+import com.keenvil.web.security.jwt.JwtService;
+import com.keenvil.web.security.jwt.JwtTokenHolder;
+import com.keenvil.web.security.service.PlatformSecurityService;
+import com.keenvil.web.security.service.RequestAttributeCommunityResolverHelper;
+import com.keenvil.web.security.service.UrlPathVariableCommunityResolverHelper;
+
+import feign.RequestInterceptor;
+import feign.RequestTemplate;
+
 @Configuration
 public class KeenvilAutoConfiguration {
 
+  @Value("${keenvil-boot-starter.community-resolver:''}")
+  private String communityResolver;
+  
   @Bean
   public static PropertySourcesPlaceholderConfigurer propertyConfigIn() {
     return new PropertySourcesPlaceholderConfigurer();
   }
 
-  @Bean(name = "securityService")
+  @Bean
   @ConditionalOnMissingBean
+  public UrlPathVariableCommunityResolverHelper
+    urlPathVariableCommunityResolverHelper() {
+    return new UrlPathVariableCommunityResolverHelper();
+  }
+
+  @Bean(name = "securityService")
   public PlatformSecurityService securityService() {
-    return new PlatformSecurityService();
+    if (communityResolver.equals("urlBased")) {
+      UrlPathVariableCommunityResolverHelper helper =
+          new UrlPathVariableCommunityResolverHelper();
+      return new PlatformSecurityService(helper);
+    }
+    
+    RequestAttributeCommunityResolverHelper helper =
+        new RequestAttributeCommunityResolverHelper();
+    return new PlatformSecurityService(helper);
   }
 
   @Bean
