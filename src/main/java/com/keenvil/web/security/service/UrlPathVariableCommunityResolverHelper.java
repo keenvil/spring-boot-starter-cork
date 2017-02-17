@@ -2,6 +2,8 @@ package com.keenvil.web.security.service;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
+import java.util.Arrays;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
@@ -19,15 +21,6 @@ public class UrlPathVariableCommunityResolverHelper
 
   private static Logger log =
       getLogger(UrlPathVariableCommunityResolverHelper.class);
-  
-  /** Uri prefix to the community id position. */
-  private static final int C_URI_COMPONENT = 1;
-
-  /** Community id position in the uri. */
-  private static final int COMMUNITY_URI_COMPONENT = 2;
-
-  /** Minimum uri length components. */
-  private static final int MINIMUM_URI_COMPONENTS = 4;
 
   /** Default tenant. */
   public static final String DEFAULT_TENANT = "default";
@@ -37,13 +30,11 @@ public class UrlPathVariableCommunityResolverHelper
     if (attributes != null) {
       HttpServletRequest request =
           ((ServletRequestAttributes) attributes).getRequest();
-      String requestURI = request.getRequestURI();
-      String[] uriComponents = requestURI.split("/");
+      String[] uriComponents = request.getRequestURI().split("/");
+      int delimiter = Arrays.binarySearch(uriComponents, "c");
 
-      if (uriComponents.length >= MINIMUM_URI_COMPONENTS
-          && uriComponents[C_URI_COMPONENT] != null
-          && uriComponents[C_URI_COMPONENT].equals("c")) {
-        String communityId = requestURI.split("/")[COMMUNITY_URI_COMPONENT];
+      if (delimiter > 0 && uriComponents.length > delimiter) {
+        String communityId = uriComponents[delimiter + 1];
         log.debug("Resolving Cummunity Id: {}", communityId);
         return communityId;        
       }
