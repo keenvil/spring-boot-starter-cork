@@ -19,8 +19,12 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 public class UrlPathVariableCommunityResolverHelper 
   implements CummunityResolverHelper {
 
+
   private static Logger log =
       getLogger(UrlPathVariableCommunityResolverHelper.class);
+
+  /** Community Id delimiter. */
+  private static final String COMMUNITYID_DELIMITER = "c";
 
   /** Default tenant. */
   public static final String DEFAULT_TENANT = "default";
@@ -31,7 +35,7 @@ public class UrlPathVariableCommunityResolverHelper
       HttpServletRequest request =
           ((ServletRequestAttributes) attributes).getRequest();
       String[] uriComponents = request.getRequestURI().split("/");
-      int delimiter = Arrays.binarySearch(uriComponents, "c");
+      int delimiter = Arrays.binarySearch(uriComponents, COMMUNITYID_DELIMITER);
 
       if (delimiter > 0 && uriComponents.length > delimiter) {
         String communityId = uriComponents[delimiter + 1];
