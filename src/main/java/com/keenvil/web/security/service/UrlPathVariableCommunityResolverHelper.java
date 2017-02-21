@@ -2,10 +2,9 @@ package com.keenvil.web.security.service;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-import java.util.Arrays;
-
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestAttributes;
@@ -35,9 +34,9 @@ public class UrlPathVariableCommunityResolverHelper
       HttpServletRequest request =
           ((ServletRequestAttributes) attributes).getRequest();
       String[] uriComponents = request.getRequestURI().split("/");
-      int delimiter = Arrays.binarySearch(uriComponents, COMMUNITYID_DELIMITER);
+      int delimiter = ArrayUtils.indexOf(uriComponents, COMMUNITYID_DELIMITER);
 
-      if (delimiter > 0 && uriComponents.length > delimiter) {
+      if (delimiter > 0 && uriComponents.length > (delimiter + 1)) {
         String communityId = uriComponents[delimiter + 1];
         log.debug("Resolving Cummunity Id: {}", communityId);
         return communityId;        
