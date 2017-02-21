@@ -4,6 +4,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestAttributes;
@@ -17,17 +18,12 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 public class UrlPathVariableCommunityResolverHelper 
   implements CummunityResolverHelper {
 
+
   private static Logger log =
       getLogger(UrlPathVariableCommunityResolverHelper.class);
-  
-  /** Uri prefix to the community id position. */
-  private static final int C_URI_COMPONENT = 1;
 
-  /** Community id position in the uri. */
-  private static final int COMMUNITY_URI_COMPONENT = 2;
-
-  /** Minimum uri length components. */
-  private static final int MINIMUM_URI_COMPONENTS = 4;
+  /** Community Id delimiter. */
+  private static final String COMMUNITYID_DELIMITER = "c";
 
   /** Default tenant. */
   public static final String DEFAULT_TENANT = "default";
@@ -37,13 +33,11 @@ public class UrlPathVariableCommunityResolverHelper
     if (attributes != null) {
       HttpServletRequest request =
           ((ServletRequestAttributes) attributes).getRequest();
-      String requestURI = request.getRequestURI();
-      String[] uriComponents = requestURI.split("/");
+      String[] uriComponents = request.getRequestURI().split("/");
+      int delimiter = ArrayUtils.indexOf(uriComponents, COMMUNITYID_DELIMITER);
 
-      if (uriComponents.length >= MINIMUM_URI_COMPONENTS
-          && uriComponents[C_URI_COMPONENT] != null
-          && uriComponents[C_URI_COMPONENT].equals("c")) {
-        String communityId = requestURI.split("/")[COMMUNITY_URI_COMPONENT];
+      if (delimiter > 0 && uriComponents.length > (delimiter + 1)) {
+        String communityId = uriComponents[delimiter + 1];
         log.debug("Resolving Cummunity Id: {}", communityId);
         return communityId;        
       }

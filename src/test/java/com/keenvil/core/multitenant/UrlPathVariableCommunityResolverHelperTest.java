@@ -68,4 +68,19 @@ public class UrlPathVariableCommunityResolverHelperTest {
     assertThat(tenant, is("default"));
     PowerMock.verify(attributes);
   }
+
+  @Test
+  public void resolveWithoutCommunityName() {
+    ServletRequestAttributes attributes =
+        PowerMock.createMock(ServletRequestAttributes.class);
+    MockHttpServletRequest request =
+          new MockHttpServletRequest("GET", "/primary/something/c");
+    expect(attributes.getRequest()).andReturn(request);
+    RequestContextHolder.setRequestAttributes(attributes);
+    PowerMock.replay(attributes);
+
+    String tenant = helper.resolve();
+    assertThat(tenant, is("default"));
+    PowerMock.verify(attributes);
+  }
 }
