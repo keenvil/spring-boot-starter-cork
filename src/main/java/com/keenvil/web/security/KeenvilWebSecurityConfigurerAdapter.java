@@ -1,6 +1,7 @@
 package com.keenvil.web.security;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,9 +34,9 @@ public class KeenvilWebSecurityConfigurerAdapter
     endpoints.add("/info");
     endpoints.add("/status");
     
-    String notSecurized = getNotSecurizedEndpoint();
-    if (notSecurized != null && !notSecurized.isEmpty()) {
-      endpoints.add(notSecurized);
+    List<String> excluded = excludeFromAuthentication();
+    if (excluded != null && !excluded.isEmpty()) {
+      endpoints.addAll(excluded);
     }
 
     http.csrf().disable()
@@ -63,11 +64,13 @@ public class KeenvilWebSecurityConfigurerAdapter
   }
 
   /**
-   * Gets the not securized end points for a securized module.
+   * Gets list of end points that must be excluded from authentication 
+   * from a application in the form of AntMatchers.
    * 
-   * @return securized end points as AntMatchers.
+   * @return The list of endpoints in the form of AntMatchers.
    */
-  public String getNotSecurizedEndpoint() {
-    return "";
+  @SuppressWarnings("unchecked")
+  public List<String> excludeFromAuthentication() {
+    return Collections.EMPTY_LIST;
   }
 }
