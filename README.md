@@ -35,6 +35,7 @@ You will need the following things properly installed on your computer.
 
 </settings>
 ```
+
 * `mvn clean install`
 
 ## Building
