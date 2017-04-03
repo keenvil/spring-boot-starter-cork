@@ -56,6 +56,7 @@ public class JwtService {
   @Value("${jwt.ttl:120}")
   private int minutes = 120;
 
+
   /** TODO(mario-AC-25): Externalize in Vault. */
   static final String KEY = "&....#$[myCo-key]#$....&";
   
