@@ -53,8 +53,8 @@ public class JwtService {
   private static final String ROLES = "roles";
 
   /** JWT time to live in minutes. */
-  @Value("${jwt.ttl:15}")
-  private int minutes = 15;
+  @Value("${jwt.ttl:120}")
+  private int minutes = 120;
 
   /** TODO(mario-AC-25): Externalize in Vault. */
   static final String KEY = "&....#$[myCo-key]#$....&";
