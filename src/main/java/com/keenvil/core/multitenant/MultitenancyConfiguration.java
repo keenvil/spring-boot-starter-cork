@@ -60,6 +60,11 @@ public class MultitenancyConfiguration {
         .getDefaultDataSource();
   }
 
+  /**
+   * Current Tenant identifier configuration.
+   * 
+   * @return identifier.
+   */
   @Bean
   public CurrentTenantIdentifierResolver
       currentCommunityIdentifierResolver() {

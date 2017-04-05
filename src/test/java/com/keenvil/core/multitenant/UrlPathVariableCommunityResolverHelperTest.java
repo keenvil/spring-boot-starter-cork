@@ -1,8 +1,8 @@
 package com.keenvil.core.multitenant;
 
-import static org.junit.Assert.*;
-import static org.hamcrest.CoreMatchers.*;
-import static org.easymock.EasyMock.*;
+import static org.easymock.EasyMock.expect;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 import org.easymock.TestSubject;
 import org.junit.Test;
@@ -22,7 +22,7 @@ public class UrlPathVariableCommunityResolverHelperTest {
 
   @TestSubject
   private UrlPathVariableCommunityResolverHelper helper =
-    new UrlPathVariableCommunityResolverHelper();
+      new UrlPathVariableCommunityResolverHelper();
 
   @Test
   public void resolveTenant() {

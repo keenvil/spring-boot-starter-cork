@@ -14,14 +14,20 @@ import java.util.UUID;
 @RunWith(EasyMockRunner.class)
 public class StringToUuidConverterTest {
 
+  private static final String STRING_UUID = "12345678123443211423210987654321";
+
+  private static final String STRING_UUID_WITH_DASHES =
+      "12345678-1234-4321-1423-210987654321";
+
   @TestSubject
   private StringToUuidConverter converter = new StringToUuidConverter();
 
   @Test
   public void convert() {
-    UUID uuid = converter.convert("12345678123443211423210987654321");
-    assertThat(uuid.toString(), is("12345678-1234-4321-1423-210987654321"));
-
+    UUID uuid = converter.convert(STRING_UUID);
+    assertThat(uuid.toString(), is(STRING_UUID_WITH_DASHES));
+    uuid = converter.convert(STRING_UUID_WITH_DASHES);
+    assertThat(uuid.toString(), is(STRING_UUID_WITH_DASHES));
   }
 
   @Test
@@ -30,7 +36,7 @@ public class StringToUuidConverterTest {
       converter.convert(null);
       fail();
     } catch (NullPointerException exception) {
-      assertThat(exception.getMessage(), is("Plain UUID cannot be null."));
+      assertThat(exception.getMessage(), is("Plain UUID cannot be empty."));
     }
 
     try {

@@ -33,10 +33,15 @@ public class KeenvilAutoConfiguration {
   @Bean
   @ConditionalOnMissingBean
   public UrlPathVariableCommunityResolverHelper
-    urlPathVariableCommunityResolverHelper() {
+      urlPathVariableCommunityResolverHelper() {
     return new UrlPathVariableCommunityResolverHelper();
   }
 
+  /**
+   * Security service configuration.
+   * 
+   * @return security service.
+   */
   @Bean(name = "securityService")
   public PlatformSecurityService securityService() {
     if (communityResolver.equals("urlBased")) {

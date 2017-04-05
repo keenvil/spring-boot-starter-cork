@@ -18,13 +18,13 @@ import com.keenvil.web.security.service.UrlPathVariableCommunityResolverHelper;
  * 
  * <p>/c/{community_id}/...</p>
  * 
- * If no community was defined, returns a default tenant
+ * <p>If no community was defined, returns a default tenant
  * identifier. This is mandatory since, Hibernate needs a default tenant to
  * run.</p>
  */
 @Component
 public class UrlPathVariableCommunityResolver
-  implements CurrentTenantIdentifierResolver {
+    implements CurrentTenantIdentifierResolver {
 
   private static Logger log =
       getLogger(CurrentTenantIdentifierResolver.class);

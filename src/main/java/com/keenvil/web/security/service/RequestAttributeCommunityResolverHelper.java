@@ -9,7 +9,7 @@ import org.springframework.web.context.request.RequestContextHolder;
  */
 @Component
 public class RequestAttributeCommunityResolverHelper
-  implements CummunityResolverHelper {
+    implements CummunityResolverHelper {
 
   /** Attribute name. */
   private static final String COMMUNITY_ID = "community-id";

@@ -1,8 +1,11 @@
 package com.keenvil.web.security.service;
 
-import static org.junit.Assert.*;
-import static org.hamcrest.CoreMatchers.*;
-import static org.easymock.EasyMock.*;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 import org.easymock.EasyMockRunner;
 import org.easymock.TestSubject;
@@ -16,7 +19,7 @@ public class RequestAttributeCommunityResolverHelperTest {
 
   @TestSubject
   private RequestAttributeCommunityResolverHelper helper =
-    new RequestAttributeCommunityResolverHelper();
+      new RequestAttributeCommunityResolverHelper();
 
   @Test
   public void test() {
