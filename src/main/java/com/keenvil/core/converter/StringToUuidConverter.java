@@ -16,7 +16,8 @@ public class StringToUuidConverter implements Converter<String, UUID> {
 
   @Override
   public UUID convert(String plainUuid) {
-    Validate.notNull(plainUuid, "Plain UUID cannot be null.");
+    Validate.notEmpty(plainUuid, "Plain UUID cannot be empty.");
+    plainUuid = plainUuid.replace("-", "");
     Validate.isTrue(plainUuid.length() == 32, "Plain UUID length must be 32.");
     
     String uuid = plainUuid.substring(0, 8)
