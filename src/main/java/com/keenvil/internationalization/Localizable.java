@@ -29,7 +29,7 @@ import javax.persistence.MappedSuperclass;
 @FilterDef(name = Localizable.FILTER_NAME, parameters = {
       @ParamDef(name = Localizable.FILTER_PARAM, type = "string")
     })
-@Filters( {
+@Filters({
       @Filter(name = Localizable.FILTER_NAME, condition = ":locale = locale")
     })
 public abstract class Localizable {

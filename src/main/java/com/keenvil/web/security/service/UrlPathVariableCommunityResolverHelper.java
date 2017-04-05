@@ -16,7 +16,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  */
 @Component
 public class UrlPathVariableCommunityResolverHelper 
-  implements CummunityResolverHelper {
+    implements CummunityResolverHelper {
 
 
   private static Logger log =
@@ -28,6 +28,7 @@ public class UrlPathVariableCommunityResolverHelper
   /** Default tenant. */
   public static final String DEFAULT_TENANT = "default";
   
+  @Override
   public String resolve() {
     RequestAttributes attributes = RequestContextHolder.getRequestAttributes();
     if (attributes != null) {

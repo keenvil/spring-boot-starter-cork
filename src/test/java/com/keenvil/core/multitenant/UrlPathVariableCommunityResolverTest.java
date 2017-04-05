@@ -19,7 +19,7 @@ public class UrlPathVariableCommunityResolverTest {
 
   @TestSubject
   private UrlPathVariableCommunityResolver resolver =
-    new UrlPathVariableCommunityResolver();
+      new UrlPathVariableCommunityResolver();
 
   @Mock
   private UrlPathVariableCommunityResolverHelper helper;

@@ -23,7 +23,8 @@ public class PlatformSecurityServiceTest {
 
   @TestSubject
   private PlatformSecurityService service =
-    new PlatformSecurityService(new RequestAttributeCommunityResolverHelper());
+      new PlatformSecurityService(
+          new RequestAttributeCommunityResolverHelper());
 
   @Test
   public void hasRoleInCommunity() {

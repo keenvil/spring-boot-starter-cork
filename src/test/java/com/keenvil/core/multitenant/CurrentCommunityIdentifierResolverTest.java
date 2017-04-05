@@ -30,7 +30,7 @@ public class CurrentCommunityIdentifierResolverTest {
 
     String tenant = resolver.resolveCurrentTenantIdentifier();
     assertThat(tenant, notNullValue());
-    verify( attributes);
+    verify(attributes);
   }
 
   @Test
@@ -52,7 +52,7 @@ public class CurrentCommunityIdentifierResolverTest {
     String identifier = resolver.resolveCurrentTenantIdentifier();
     assertThat(identifier, is(DEFAULT_TENANT));
 
-    verify( attributes);
+    verify(attributes);
   }
 
   @Test
@@ -66,6 +66,6 @@ public class CurrentCommunityIdentifierResolverTest {
     String identifier = resolver.resolveCurrentTenantIdentifier();
     assertThat(identifier, is(DEFAULT_TENANT));
 
-    verify( attributes);
+    verify(attributes);
   }
 }
