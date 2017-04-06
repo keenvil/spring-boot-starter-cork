@@ -4,7 +4,6 @@ package com.keenvil.core.multitenant;
 import org.hibernate.context.spi.CurrentTenantIdentifierResolver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -44,10 +43,13 @@ public class MultitenancyConfiguration {
         .stream()
         .forEach(tc -> dataSources.put(tc.getName(),
           DataSourceBuilder.create()
-            .driverClassName(tc.getDriverClassName())
-            .username(tc.getUsername())
-            .password(tc.getPassword())
-            .url(tc.getUrl()).build()));
+              .driverClassName(tc.getDriverClassName())
+              .username(tc.getUsername())
+              .password(tc.getPassword())
+              .url(tc.getUrl())
+              .putAll(tc.getDataSourceProperties())
+              .build()
+            ));
     
     return new DataSourceBasedCommunityConnectionProvider(
         multitenancyProperties.getDefaultTenant().getName(), dataSources);
