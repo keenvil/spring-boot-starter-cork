@@ -1,10 +1,13 @@
 package com.keenvil.core.multitenant;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.sql.DataSource;
 
+import org.slf4j.Logger;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.boot.bind.RelaxedDataBinder;
@@ -25,6 +28,8 @@ import org.springframework.util.ClassUtils;
  * {@code @ConfigurationProperties}.</p>
  */
 public class DataSourceBuilder {
+
+  private static Logger log = getLogger(DataSourceBuilder.class);
 
   private static final String[] DATA_SOURCE_TYPE_NAMES = new String[] {
       "org.apache.tomcat.jdbc.pool.DataSource",
@@ -103,8 +108,18 @@ public class DataSourceBuilder {
     return this;
   }
 
+  /**
+   * Put extra data source configuration properties.
+   * 
+   * @param theProperties extra data source configuration properties.
+   * @return this builder.
+   */
   public DataSourceBuilder putAll(final Map<String, String> theProperties) {
-    properties.putAll(theProperties);
+    if (theProperties != null) {
+      properties.putAll(theProperties);      
+    } else if (log.isDebugEnabled()) {
+      log.debug("Data surce extra properties is null.");
+    }
     return this;
   }
 
