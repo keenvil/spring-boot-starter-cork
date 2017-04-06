@@ -1,10 +1,13 @@
 package com.keenvil.core.multitenant;
 
+import java.util.Map;
+
 import org.apache.commons.lang3.Validate;
 
-/** Represents a tenant/community in the platform.
+/**
+ * Represents a tenant (in platform context a Community).
  * 
- * <p>Each Tenant has its own datasource to a different database schema.</p>
+ * <p>Each Tenant has its own datasource for each  database schema.</p>
  */
 public class Tenant {
 
@@ -19,6 +22,8 @@ public class Tenant {
   private String password;
 
   private String driverClassName;
+
+  private Map<String, String> dataSourceProperties;
 
   public Tenant() { }
 
@@ -76,5 +81,13 @@ public class Tenant {
   public void setDriverClassName(String theDriverClassName) {
     Validate.notBlank(theDriverClassName, "Driver cannot be empty.");
     driverClassName = theDriverClassName;
+  }
+
+  public void setDataSourceProperties(Map<String, String> theProperties) {
+    dataSourceProperties = theProperties;
+  }
+
+  public Map<String, String> getDataSourceProperties() {
+    return dataSourceProperties;
   }
 }
