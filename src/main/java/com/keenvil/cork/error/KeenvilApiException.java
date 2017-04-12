@@ -1,0 +1,169 @@
+package com.keenvil.cork.error;
+
+import java.util.List;
+
+import org.apache.commons.lang3.Validate;
+
+/**
+ * Keenvil API exceptions.
+ * 
+ * <p>Common Generic Exceptions provided here are the ones that must be used
+ * along Keenvil APIs. Each Module cannot not define his owns exceptions.</p>
+ *
+ */
+public class KeenvilApiException extends KeenvilException {
+
+  private static final long serialVersionUID = 1L;
+
+  /**
+   * Base API exception.
+   */
+  public KeenvilApiException() { 
+    super();
+  }
+
+  public KeenvilApiException(final String message) {
+    super(message);
+  }
+
+  public KeenvilApiException(final String message, final Throwable throwable) {
+    super(message, throwable);
+  }
+
+  /**
+   * Thrown when a service resource passed to a service has not been found.
+   * 
+   * <p>Commons examples of this situation are PUT/DELETE calls over a domain
+   * resource with a non existing or invalid resource id.</p>
+   *
+   */
+  public static class ResourceNotFound extends KeenvilApiException {
+
+    private static final long serialVersionUID = 1L;
+
+
+    public ResourceNotFound() {
+      super();
+    }
+
+    public ResourceNotFound(final String message) {
+      super(message);
+    }
+
+    
+    public ResourceNotFound(final String message, final Throwable throwable) {
+      super(message, throwable);
+    }
+  }
+
+  /**
+   * Thrown when a service tries to create an already existing resource.
+   * 
+   * <p>Commons examples of this situation are POST calls over a domain resource
+   * with id or fields already taken.</p>
+   */
+  public static class ResourceAlreadyExists extends KeenvilApiException {
+
+    private static final long serialVersionUID = 1L;
+
+    public ResourceAlreadyExists() {
+      super();
+    }
+
+    public ResourceAlreadyExists(final String message) {
+      super(message);
+    }
+
+    public ResourceAlreadyExists(final String message,
+        final Throwable throwable) {
+      super(message, throwable);
+    }
+  }
+
+  /**
+   * Throw when a service tries to modify a resource to an invalid state where
+   * a resource invariant is not meet.
+   * 
+   * <p>Commons examples of this situation are PUT calls over a domain resource
+   * with invalid fields values.</p>
+   * 
+   * <p>Payload for this exception are {@link KeenvilApiError} which gave
+   * more detail about invariants not meet.</p>
+   */
+  public static class InvalidResourceState extends KeenvilApiException {
+
+    private static final long serialVersionUID = 1L;
+
+    private List<KeenvilApiError> errors ;
+
+    public InvalidResourceState() {
+      super();
+    }
+
+    public InvalidResourceState(final String message) {
+      super(message);
+    }
+    
+    public InvalidResourceState(final String message,
+        final Throwable throwable) {
+      super(message, throwable);
+    }
+
+    public InvalidResourceState(final List<KeenvilApiError> theErrors) {
+      Validate.notNull(theErrors, "Errors cannot be null.");
+      errors = theErrors;
+    }
+    
+    public List<KeenvilApiError> getErrors() {
+      return errors;
+    }
+  }
+
+  /** 
+   * Throw when there was a problem trying to authenticate a user into
+   * the platform.
+   * 
+   * <p>Commons examples of this situation are POST calls to the authentication
+   * service with invalid credentials.</p>
+   */
+  public static class Authorization extends KeenvilApiException {
+
+    private static final long serialVersionUID = 1L;
+
+    public Authorization() {
+      super();
+    }
+
+    public Authorization(final String message) {
+      super(message);
+    }
+
+    public Authorization(final String message, final Throwable throwable) {
+      super(message, throwable);
+    }
+  }
+
+  /**
+   * Thrown when a call to a resource is made with valid credentials but they
+   * can not grant access to the requested resource.
+   * 
+   * <p>Commons examples of this situation are calls to the resources with
+   * the wrong set of roles.</p>
+   */
+  public static class Forbidden extends KeenvilApiException {
+
+    private static final long serialVersionUID = 1L;
+
+    public Forbidden() {
+      super();
+    }
+
+    public Forbidden(final String message) {
+      super(message);
+    }
+
+    public Forbidden(final String message, final Throwable throwable) {
+      super(message, throwable);
+    }
+  }
+}
