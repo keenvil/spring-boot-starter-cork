@@ -1,13 +1,14 @@
-package com.keenvil.cork.multitenant;
+package com.keenvil.cork.multitenancy;
 
 import java.util.Map;
 
 import org.apache.commons.lang3.Validate;
 
 /**
- * Represents a tenant (in platform context a Community).
+ * Represents a Tenant, which in Keenvil context will be a Community.
  * 
- * <p>Each Tenant has its own datasource for each  database schema.</p>
+ * <p>Each Tenant has a name which identifies it, and its own data source
+ * configuration (url, username, password and data source properties).</p>
  */
 public class Tenant {
 

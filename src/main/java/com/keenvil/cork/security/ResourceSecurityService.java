@@ -2,18 +2,19 @@ package com.keenvil.cork.security;
 
 import org.springframework.stereotype.Service;
 
-import com.keenvil.cork.multitenant.CummunityResolverHelper;
+import com.keenvil.cork.multitenancy.CummunityResolver;
 import com.keenvil.cork.security.jwt.JwtUser;
 
-/** Security services to grant access to resources according to user principals.
+/**
+ * Security services to grant access to resources according to user principals.
  */
 @Service
 public class ResourceSecurityService {
 
-  private CummunityResolverHelper helper;
+  private CummunityResolver cummunityResolver;
 
-  public ResourceSecurityService(CummunityResolverHelper theHelper) {
-    helper = theHelper;
+  public ResourceSecurityService(CummunityResolver theCommunityResolver) {
+    cummunityResolver = theCommunityResolver;
   }
 
   /** Returns <code>true</code> if the given user has the given role or ADMIN
@@ -25,7 +26,7 @@ public class ResourceSecurityService {
    *     communities.
    */
   public boolean hasRoleInCommunity(final JwtUser jwtUser, String role) {
-    String communityId = helper.resolve();
+    String communityId = cummunityResolver.resolve();
     return jwtUser.hasRoleInCommunity(role, communityId)
         || hasAdminInCommunity(jwtUser);
   }
@@ -37,7 +38,7 @@ public class ResourceSecurityService {
    * @return whether the given user has ADMIN role in any of his communities.
    */
   public boolean hasAdminInCommunity(final JwtUser jwtUser) {
-    String communityId = helper.resolve();
+    String communityId = cummunityResolver.resolve();
     return jwtUser.hasRoleInCommunity("ADMIN", communityId);
   }
 }

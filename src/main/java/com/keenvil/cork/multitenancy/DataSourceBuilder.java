@@ -1,4 +1,4 @@
-package com.keenvil.cork.multitenant;
+package com.keenvil.cork.multitenancy;
 
 import static org.slf4j.LoggerFactory.getLogger;
 

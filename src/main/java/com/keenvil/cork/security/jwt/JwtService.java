@@ -55,7 +55,7 @@ public class JwtService {
   /** TODO(mario-AC-25): Externalize in Vault. */
   static final String ISSUER = "myCo-security-api";
 
-   /**
+  /**
    * Generates a JWT with default TTL, which can be used to access application
    * services.
    * @return the JWT.

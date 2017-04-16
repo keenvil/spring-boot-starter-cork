@@ -1,4 +1,4 @@
-package com.keenvil.cork.multitenant;
+package com.keenvil.cork.multitenancy;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -11,14 +11,7 @@ import org.springframework.stereotype.Component;
  * Resolves the Community Id for this requests.
  * 
  * <p>Resolves the community id which will be used to interact with the
- * platform. Community Id is defined as a uri path variable and accepted uri
- * must have the following pattern:
- * 
- * <p>/c/{community_id}/...</p>
- * 
- * <p>If no community was defined, returns a default tenant
- * identifier. This is mandatory since, Hibernate needs a default tenant to
- * run.</p>
+ * platform. Community Id is defined as a URI path variable.</p>
  */
 @Component
 public class UrlPathVariableCommunityResolver
@@ -32,11 +25,12 @@ public class UrlPathVariableCommunityResolver
   
   @Override
   public String resolveCurrentTenantIdentifier() {
-    log.trace("Entering resolveCurrentTenantIdentifier.");
+    log.trace("Entering UrlPathVariableCommunityResolver.");
 
     String communityId = helper.resolve();
 
-    log.trace("Leaving resolveCurrentTenantIdentifier with default tenant.");
+    log.trace("Leaving UrlPathVariableCommunityResolver with tenant {}.",
+        communityId);
     return communityId;
   }
 

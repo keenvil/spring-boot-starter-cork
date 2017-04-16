@@ -1,4 +1,4 @@
-package com.keenvil.cork.multitenant;
+package com.keenvil.cork.multitenancy;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -10,7 +10,8 @@ import org.springframework.web.context.request.RequestContextHolder;
 
 import java.util.Optional;
 
-/** Resolves the Community Id for this requests.
+/**
+ * Resolves the Community Id for this requests.
  * 
  * <p>Resolves the community id which will be used to interact with the
  * platform. If no community was defined, returns a default tenant
@@ -18,12 +19,11 @@ import java.util.Optional;
  * run.</p>
  */
 @Component
-public class CurrentCommunityIdentifierResolver 
+public class RequestAttributeCommunityResolver 
     implements CurrentTenantIdentifierResolver {
 
-
   private static Logger log =
-      getLogger(CurrentCommunityIdentifierResolver.class);
+      getLogger(RequestAttributeCommunityResolver.class);
 
   /** Attribute name for tenant/community. */
   private static final String COMMUNITY_ID = "community-id";

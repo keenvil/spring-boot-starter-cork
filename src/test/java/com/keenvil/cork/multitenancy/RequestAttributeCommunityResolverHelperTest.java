@@ -1,4 +1,4 @@
-package com.keenvil.cork.multitenant;
+package com.keenvil.cork.multitenancy;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
@@ -14,7 +14,7 @@ import org.junit.runner.RunWith;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 
-import com.keenvil.cork.multitenant.RequestAttributeCommunityResolverHelper;
+import com.keenvil.cork.multitenancy.RequestAttributeCommunityResolverHelper;
 
 @RunWith(EasyMockRunner.class)
 public class RequestAttributeCommunityResolverHelperTest {

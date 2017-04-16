@@ -8,9 +8,9 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.keenvil.cork.internationalization.LocalizableAspect;
-import com.keenvil.cork.multitenant.CommunityResolverFilter;
-import com.keenvil.cork.multitenant.RequestAttributeCommunityResolverHelper;
-import com.keenvil.cork.multitenant.UrlPathVariableCommunityResolverHelper;
+import com.keenvil.cork.multitenancy.RequestAttributeCommunityResolverHelper;
+import com.keenvil.cork.multitenancy.UrlPathVariableCommunityResolverHelper;
+import com.keenvil.cork.security.CommunityResolverFilter;
 import com.keenvil.cork.security.ResourceSecurityService;
 import com.keenvil.cork.security.jwt.JwtAuthenticationEntryPoint;
 import com.keenvil.cork.security.jwt.JwtService;
@@ -70,6 +70,8 @@ public class CorkAutoConfiguration {
   /**
    * Feign Request Intercepter in charge of forwarding Jwt Authentication
    * Token and Community to other services calls fired by the main call.
+   * TODO(mario): Review this interceptor since community header attribute
+   * is deprecated and there's services which do not need JWT.
    */
   @Bean
   @ConditionalOnMissingBean

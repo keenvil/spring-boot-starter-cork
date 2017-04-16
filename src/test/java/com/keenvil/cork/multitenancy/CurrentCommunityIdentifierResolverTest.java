@@ -1,6 +1,6 @@
-package com.keenvil.cork.multitenant;
+package com.keenvil.cork.multitenancy;
 
-import static com.keenvil.cork.multitenant.CurrentCommunityIdentifierResolver.DEFAULT_TENANT;
+import static com.keenvil.cork.multitenancy.RequestAttributeCommunityResolver.DEFAULT_TENANT;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
@@ -14,13 +14,13 @@ import org.junit.Test;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 
-import com.keenvil.cork.multitenant.CurrentCommunityIdentifierResolver;
+import com.keenvil.cork.multitenancy.RequestAttributeCommunityResolver;
 
 public class CurrentCommunityIdentifierResolverTest {
 
   @TestSubject
-  private CurrentCommunityIdentifierResolver resolver =
-      new CurrentCommunityIdentifierResolver();
+  private RequestAttributeCommunityResolver resolver =
+      new RequestAttributeCommunityResolver();
 
   @Test
   public void resolveTenant() {

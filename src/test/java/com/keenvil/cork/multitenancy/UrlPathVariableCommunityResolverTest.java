@@ -1,4 +1,4 @@
-package com.keenvil.cork.multitenant;
+package com.keenvil.cork.multitenancy;
 
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
@@ -12,7 +12,8 @@ import org.easymock.TestSubject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import com.keenvil.cork.multitenant.UrlPathVariableCommunityResolver;
+import com.keenvil.cork.multitenancy.UrlPathVariableCommunityResolver;
+import com.keenvil.cork.multitenancy.UrlPathVariableCommunityResolverHelper;
 
 @RunWith(EasyMockRunner.class)
 public class UrlPathVariableCommunityResolverTest {

@@ -1,4 +1,4 @@
-package com.keenvil.cork.multitenant;
+package com.keenvil.cork.multitenancy;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -11,9 +11,10 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-/** Datasource provider for multiple tenants/communities.
+/**
+ * Data Source provider for multiple tenants/communities.
  * 
- * <p>Provides a specific datasource for the community selected for this
+ * <p>Provides a specific data source for the community selected for this
  * request.</p>
  */
 @Component

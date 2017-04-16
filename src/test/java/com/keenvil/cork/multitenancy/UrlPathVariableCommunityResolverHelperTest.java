@@ -1,4 +1,4 @@
-package com.keenvil.cork.multitenant;
+package com.keenvil.cork.multitenancy;
 
 import static org.easymock.EasyMock.expect;
 import static org.hamcrest.CoreMatchers.is;
@@ -13,6 +13,8 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+
+import com.keenvil.cork.multitenancy.UrlPathVariableCommunityResolverHelper;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(ServletRequestAttributes.class)

@@ -8,7 +8,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.Sets;
-import com.keenvil.cork.multitenant.RequestAttributeCommunityResolverHelper;
+import com.keenvil.cork.multitenancy.RequestAttributeCommunityResolverHelper;
 import com.keenvil.cork.security.ResourceSecurityService;
 import com.keenvil.cork.security.jwt.JwtUser;
 

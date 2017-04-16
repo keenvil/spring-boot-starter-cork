@@ -1,4 +1,4 @@
-package com.keenvil.cork.multitenant;
+package com.keenvil.cork.multitenancy;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -12,12 +12,19 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
- * Encapsulates behavior to obtain the Community Id from the requested Uri.
+ * <p>Encapsulates behavior to get current request Community Id from the
+ * requested URI.</p>
+ * 
+ * <p>In order to be able to do that request URIs must match the pattern
+ * {@code [protocol]:[port]/[context]/c/{id}/[endpoint]}.</p>
+ * 
+ * <p>If no community was defined, returns a default Tenant identifier.
+ * This is mandatory since, Hibernate needs a default tenant to
+ * run.</p>
  */
 @Component
 public class UrlPathVariableCommunityResolverHelper 
-    implements CummunityResolverHelper {
-
+    extends CummunityResolver {
 
   private static Logger log =
       getLogger(UrlPathVariableCommunityResolverHelper.class);
@@ -30,6 +37,8 @@ public class UrlPathVariableCommunityResolverHelper
   
   @Override
   public String resolve() {
+    log.trace("Resolving Community Id with URL path variable resolver.");
+
     RequestAttributes attributes = RequestContextHolder.getRequestAttributes();
     if (attributes != null) {
       HttpServletRequest request =
@@ -39,11 +48,19 @@ public class UrlPathVariableCommunityResolverHelper
 
       if (delimiter > 0 && uriComponents.length > (delimiter + 1)) {
         String communityId = uriComponents[delimiter + 1];
-        log.debug("Resolving Cummunity Id: {}", communityId);
+        if (log.isDebugEnabled()) {
+          log.debug("Request made over Cummunity Id: {}", communityId);          
+        }
         return communityId;        
       }
     }
-    log.trace("Leaving resolveCurrentTenantIdentifier with default tenant.");
+    log.trace("Leaving UrlPathVariableCommunityResolverHelper with"
+        + " default tenant.");
+    return defaultTenant();
+  }
+
+  @Override
+  public String defaultTenant() {
     return DEFAULT_TENANT;
   }
 }

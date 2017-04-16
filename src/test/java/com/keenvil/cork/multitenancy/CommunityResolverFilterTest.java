@@ -1,4 +1,4 @@
-package com.keenvil.cork.multitenant;
+package com.keenvil.cork.multitenancy;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
@@ -8,7 +8,7 @@ import static org.easymock.EasyMock.verify;
 import org.easymock.TestSubject;
 import org.junit.Test;
 
-import com.keenvil.cork.multitenant.CommunityResolverFilter;
+import com.keenvil.cork.security.CommunityResolverFilter;
 
 import javax.servlet.http.HttpServletRequest;
 

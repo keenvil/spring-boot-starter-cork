@@ -1,4 +1,4 @@
-package com.keenvil.cork.multitenant;
+package com.keenvil.cork.multitenancy;
 
 
 import java.util.ArrayList;
@@ -12,33 +12,34 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import com.keenvil.cork.error.KeenvilException;
 
-/** Multi tenant/community datasource properties configuration.
+/**
+ * Multi Tenancy data source properties configuration.
  * 
- * <p>Any number of tenant/communities can be defined, but only one can be
- * set as default.</p>
+ * <p>Any number of tenant/communities can be defined, but only one can and must
+ * be set as default.</p>
  */
-@ConfigurationProperties(prefix = "multitenancy")
+@ConfigurationProperties(prefix = "keenvil.cork.multitenancy")
 public class MultitenancyConfigurationProperties {
 
   private List<Tenant> tenants;
 
   private Tenant defaultTenant;
 
-  public MultitenancyConfigurationProperties() { }
-
   /** Initialize tenants, check that there's just one default tenant.
    */
   @PostConstruct
   public void init() {
-    List<Tenant> defaults = tenants.stream()
-        .filter(tc -> tc.isDefault())
-        .collect(Collectors.toCollection(ArrayList::new));
-
-    if (defaults.size() != 1) {
-      throw new KeenvilException("Only one datasource must be set"
-          + " as default");
+    if (tenants != null) {
+      List<Tenant> defaults = tenants.stream()
+          .filter(tc -> tc.isDefault())
+          .collect(Collectors.toCollection(ArrayList::new));
+      
+      if (defaults.size() != 1) {
+        throw new KeenvilException("Only one datasource must be set"
+            + " as default");
+      }
+      defaultTenant = defaults.get(0);      
     }
-    defaultTenant = defaults.get(0);
   }
 
   public List<Tenant> getTenants() {
