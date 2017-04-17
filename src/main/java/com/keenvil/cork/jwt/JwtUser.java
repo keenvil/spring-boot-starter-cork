@@ -1,4 +1,4 @@
-package com.keenvil.cork.security.jwt;
+package com.keenvil.cork.jwt;
 
 import java.util.ArrayList;
 import java.util.Collection;

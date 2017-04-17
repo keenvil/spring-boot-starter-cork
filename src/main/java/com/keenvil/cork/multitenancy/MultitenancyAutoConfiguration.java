@@ -149,11 +149,7 @@ public class MultitenancyAutoConfiguration {
    * @return identifier resolver.
    */
   @Bean
-  public CurrentTenantIdentifierResolver
-      currentCommunityIdentifierResolver() {
-    if (communityResolver.equals("urlBased")) {
-      return new UrlPathVariableCommunityResolver();
-    }
-    return new RequestAttributeCommunityResolver();
+  public CurrentTenantIdentifierResolver currentCommunityIdentifierResolver() {
+    return new CurrentTenantResolver();
   }
 }

@@ -1,4 +1,4 @@
-package com.keenvil.cork.security.jwt;
+package com.keenvil.cork.jwt;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -17,7 +17,8 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.keenvil.cork.error.KeenvilApiError;
 
-/** Called when {@link AuthenticationException} is thrown.
+/**
+ * Called when {@link AuthenticationException} is thrown.
  * 
  * <p>To get to this point one of two things happened:
  * <ul>

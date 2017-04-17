@@ -10,9 +10,9 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.keenvil.cork.security.jwt.JwtAuthenticationEntryPoint;
-import com.keenvil.cork.security.jwt.JwtAuthenticationFilter;
-import com.keenvil.cork.security.jwt.JwtService;
+import com.keenvil.cork.jwt.JwtAuthenticationEntryPoint;
+import com.keenvil.cork.jwt.JwtAuthenticationFilter;
+import com.keenvil.cork.jwt.JwtService;
 
 public class KeenvilWebSecurityConfigurerAdapter
     extends WebSecurityConfigurerAdapter {

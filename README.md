@@ -45,7 +45,7 @@ At this moment, Cork Multitencya provides only _shared database / separate schem
 ### Multitenancy Usage and Configuration
 
 #### Usage
-Cork Multitenancy provides a `@EnableMultitenancy` annotation to enable it. This annotation has a required `baseaPackage` option to configure module base package entities to be scanned in order to support data base multiple schemas.
+Cork Multitenancy provides a `@EnableMultitenancy` annotation to enable it. This annotation has a required `basePackages` option to configure module base packages entities to be scanned in order to support data base multiple schemas.
 
 ```java
 

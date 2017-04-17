@@ -1,4 +1,4 @@
-package com.keenvil.cork.security.jwt;
+package com.keenvil.cork.jwt;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -13,8 +13,8 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import com.keenvil.cork.security.jwt.JwtAuthenticationFilter;
-import com.keenvil.cork.security.jwt.JwtService;
+import com.keenvil.cork.jwt.JwtAuthenticationFilter;
+import com.keenvil.cork.jwt.JwtService;
 
 import java.io.IOException;
 import java.util.Collections;

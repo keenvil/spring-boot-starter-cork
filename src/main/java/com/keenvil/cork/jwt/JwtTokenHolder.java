@@ -1,4 +1,4 @@
-package com.keenvil.cork.security.jwt;
+package com.keenvil.cork.jwt;
 
 /**
  * Holder Object to obtain in statically way current Jwt User Token and

@@ -1,6 +1,6 @@
-package com.keenvil.cork.security.jwt;
+package com.keenvil.cork.jwt;
 
-import static com.keenvil.cork.security.jwt.JwtAuthenticationFilter.X_JWT_USER;
+import static com.keenvil.cork.jwt.JwtAuthenticationFilter.X_JWT_USER;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
@@ -16,9 +16,9 @@ import org.easymock.TestSubject;
 import org.junit.Test;
 import org.springframework.web.context.request.NativeWebRequest;
 
-import com.keenvil.cork.security.jwt.JwtInvalidTokenException;
-import com.keenvil.cork.security.jwt.JwtLoggedUserMethodArgumentResolver;
-import com.keenvil.cork.security.jwt.JwtUser;
+import com.keenvil.cork.jwt.JwtInvalidTokenException;
+import com.keenvil.cork.jwt.JwtLoggedUserMethodArgumentResolver;
+import com.keenvil.cork.jwt.JwtUser;
 
 public class JwtLoggedUserMethodArgumentResolverTest {
 

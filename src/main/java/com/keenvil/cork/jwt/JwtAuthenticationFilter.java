@@ -1,4 +1,4 @@
-package com.keenvil.cork.security.jwt;
+package com.keenvil.cork.jwt;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -18,10 +18,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 
-/** Filter to authenticate JSON Web Tokens.
- *  This filter looks for the JWT as a header parameter, parse it and creates
- *  an Authentication which is placed in the {@link SecurityContextHolder}
- *  for future uses.
+/** 
+ * Filter to authenticate JSON Web Tokens.
+ * 
+ * <p>This filter looks for the JWT as a header parameter, parse it and creates
+ * an Authentication object which is placed in the {@link SecurityContextHolder}
+ * for future uses.</p>
  * 
  * <p>If the token is present but there is a problem parsing it, no
  * Authentication is set in Spring Security Context Holder and
@@ -29,11 +31,13 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
  * filter chain.</p>
  * 
  * <p>This filter sets the JwtUser and JwtUser Id as http requests
- * headers for internal use. See {@link LoggedIndividual} for further
- * information.</p>
+ * headers for internal use.</p>
+ * 
  * <p>Filter also sets Jwt token and Community in {@link JwtTokenHolder} to
  * be available in a static way. It is used by Feign clients to forward
- * Jwt token and Community in subsequent API calls.</p> 
+ * Jwt token and Community in subsequent API calls.</p>
+ * See {@link LoggedIndividual}.
+ * See {@link JwtTokenHolder}.
  */
 public class JwtAuthenticationFilter
     extends UsernamePasswordAuthenticationFilter {

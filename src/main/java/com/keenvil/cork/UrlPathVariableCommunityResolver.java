@@ -1,4 +1,4 @@
-package com.keenvil.cork.multitenancy;
+package com.keenvil.cork;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -15,19 +15,20 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  * <p>Encapsulates behavior to get current request Community Id from the
  * requested URI.</p>
  * 
- * <p>In order to be able to do that request URIs must match the pattern
+ * <p>In order to do that, request URIs must match the following pattern
  * {@code [protocol]:[port]/[context]/c/{id}/[endpoint]}.</p>
  * 
  * <p>If no community was defined, returns a default Tenant identifier.
  * This is mandatory since, Hibernate needs a default tenant to
  * run.</p>
+ * TODO (mario): Review how to handle unknown Tenants. 
  */
 @Component
-public class UrlPathVariableCommunityResolverHelper 
-    extends CummunityResolver {
+public class UrlPathVariableCommunityResolver 
+    extends CommunityIdentifierResolver {
 
   private static Logger log =
-      getLogger(UrlPathVariableCommunityResolverHelper.class);
+      getLogger(UrlPathVariableCommunityResolver.class);
 
   /** Community Id delimiter. */
   private static final String COMMUNITYID_DELIMITER = "c";
@@ -49,7 +50,8 @@ public class UrlPathVariableCommunityResolverHelper
       if (delimiter > 0 && uriComponents.length > (delimiter + 1)) {
         String communityId = uriComponents[delimiter + 1];
         if (log.isDebugEnabled()) {
-          log.debug("Request made over Cummunity Id: {}", communityId);          
+          log.debug("Resolved Community id using URL path variable: {}",
+              communityId);          
         }
         return communityId;        
       }

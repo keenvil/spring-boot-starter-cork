@@ -1,11 +1,11 @@
-package com.keenvil.cork.security.jwt;
+package com.keenvil.cork.jwt;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.keenvil.cork.security.jwt.JwtUser;
+import com.keenvil.cork.jwt.JwtUser;
 
 import java.util.Collections;
 import java.util.HashSet;

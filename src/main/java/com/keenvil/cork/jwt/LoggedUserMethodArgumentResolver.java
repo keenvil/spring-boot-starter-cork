@@ -1,4 +1,4 @@
-package com.keenvil.cork.security.jwt;
+package com.keenvil.cork.jwt;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.web.bind.WebDataBinder;

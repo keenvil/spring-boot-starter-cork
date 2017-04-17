@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Import;
 /**
  * Enables Multi Tenancy support.
  * 
- * <p>Multi tenancy refers to aa architecture in which a single instance
+ * <p>Multi tenancy refers to an architecture in which a single instance
  * on a server, serves multiple tenants.</p>
  * 
  * <p>A tenant is a group of users who share a common access with specific

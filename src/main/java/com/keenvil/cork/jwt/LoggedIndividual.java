@@ -1,4 +1,4 @@
-package com.keenvil.cork.security.jwt;
+package com.keenvil.cork.jwt;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -15,4 +15,4 @@ import java.lang.annotation.Target;
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface JwtLoggedUser {}
+public @interface LoggedIndividual {}

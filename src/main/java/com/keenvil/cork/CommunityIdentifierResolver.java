@@ -1,9 +1,9 @@
-package com.keenvil.cork.multitenancy;
+package com.keenvil.cork;
 
 /**
  * Encapsulates Community resolution behavior. 
  */
-public abstract class CummunityResolver {
+public abstract class CommunityIdentifierResolver {
 
   /**
    * Returns current request Community Id.

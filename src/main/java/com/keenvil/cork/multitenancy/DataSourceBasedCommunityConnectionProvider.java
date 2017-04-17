@@ -45,7 +45,9 @@ public class DataSourceBasedCommunityConnectionProvider
 
   @Override
   protected DataSource selectDataSource(String tenantIdentifier) {
-    log.debug(tenantIdentifier);
+    if (log.isDebugEnabled()) {
+      log.debug("Selecting data source for tenant {}.", tenantIdentifier);      
+    }
     return dataSourceMapping.get(tenantIdentifier);
   }
 

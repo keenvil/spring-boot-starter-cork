@@ -2,8 +2,8 @@ package com.keenvil.cork.security;
 
 import org.springframework.stereotype.Service;
 
-import com.keenvil.cork.multitenancy.CummunityResolver;
-import com.keenvil.cork.security.jwt.JwtUser;
+import com.keenvil.cork.CommunityIdentifierResolver;
+import com.keenvil.cork.jwt.JwtUser;
 
 /**
  * Security services to grant access to resources according to user principals.
@@ -11,9 +11,9 @@ import com.keenvil.cork.security.jwt.JwtUser;
 @Service
 public class ResourceSecurityService {
 
-  private CummunityResolver cummunityResolver;
+  private CommunityIdentifierResolver cummunityResolver;
 
-  public ResourceSecurityService(CummunityResolver theCommunityResolver) {
+  public ResourceSecurityService(CommunityIdentifierResolver theCommunityResolver) {
     cummunityResolver = theCommunityResolver;
   }
 

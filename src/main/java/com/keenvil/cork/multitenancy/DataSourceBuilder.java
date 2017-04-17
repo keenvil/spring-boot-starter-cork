@@ -19,7 +19,7 @@ import org.springframework.util.ClassUtils;
  * {@link org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder}.
  * 
  * <p>Convenience class for building a {@link DataSource} with common
- * implementations andproperties. If Tomcat, HikariCP or Commons DBCP are on
+ * implementations properties. If Tomcat, HikariCP or Commons DBCP are on
  * the classpath one of them will be selected (in that order with Tomcat
  * first). In the interest of a uniform interface, and so that there can be a
  * fallback to an embedded database if one can be detected on the classpath,

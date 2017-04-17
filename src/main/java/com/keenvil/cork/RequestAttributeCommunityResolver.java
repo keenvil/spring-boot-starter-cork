@@ -1,4 +1,4 @@
-package com.keenvil.cork.multitenancy;
+package com.keenvil.cork;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -19,11 +19,11 @@ import org.springframework.web.context.request.RequestContextHolder;
  * run.</p>
  */
 @Component
-public class RequestAttributeCommunityResolverHelper
-    extends CummunityResolver {
+public class RequestAttributeCommunityResolver
+    extends CommunityIdentifierResolver {
 
   private static Logger log =
-      getLogger(UrlPathVariableCommunityResolverHelper.class);
+      getLogger(RequestAttributeCommunityResolver.class);
 
   /** Attribute name. */
   private static final String COMMUNITY_ID = "community-id";
@@ -39,19 +39,20 @@ public class RequestAttributeCommunityResolverHelper
     String communityId = (String) attributes.getAttribute(COMMUNITY_ID,
             RequestAttributes.SCOPE_REQUEST);
     if (communityId == null) {
-      log.trace("Leaving RequestAttributeCommunityResolverHelper with"
+      log.trace("Leaving RequestAttributeCommunityResolver with"
           + " default tenant.");
       return defaultTenant();
     }
 
     if (log.isDebugEnabled()) {
-      log.debug("Request made over Cummunity Id: {}", communityId);          
+      log.debug("Resolved Community id using Request Attribute: {}",
+          communityId);          
     }
     return communityId;
   }
 
   @Override
   public String defaultTenant() {
-    return defaultTenant();
+    return DEFAULT_TENANT;
   }
 }

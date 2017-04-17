@@ -1,5 +1,8 @@
-package com.keenvil.cork.security.jwt;
+package com.keenvil.cork.jwt;
 
+/**
+ * Jwt Invalid Token Exception.
+ */
 public class JwtInvalidTokenException extends RuntimeException {
 
   private static final long serialVersionUID = 1L;
@@ -12,5 +15,4 @@ public class JwtInvalidTokenException extends RuntimeException {
       final Throwable throwable) {
     super(meesage, throwable);
   }
-
 }

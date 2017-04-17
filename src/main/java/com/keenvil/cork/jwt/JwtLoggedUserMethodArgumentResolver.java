@@ -1,6 +1,6 @@
-package com.keenvil.cork.security.jwt;
+package com.keenvil.cork.jwt;
 
-import static com.keenvil.cork.security.jwt.JwtAuthenticationFilter.X_JWT_USER;
+import static com.keenvil.cork.jwt.JwtAuthenticationFilter.X_JWT_USER;
 
 import javax.servlet.http.HttpServletRequest;
 

@@ -14,14 +14,14 @@ import org.junit.runner.RunWith;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 
-import com.keenvil.cork.multitenancy.RequestAttributeCommunityResolverHelper;
+import com.keenvil.cork.RequestAttributeCommunityResolver;
 
 @RunWith(EasyMockRunner.class)
-public class RequestAttributeCommunityResolverHelperTest {
+public class RequestAttributeCommunityResolverTest {
 
   @TestSubject
-  private RequestAttributeCommunityResolverHelper helper =
-      new RequestAttributeCommunityResolverHelper();
+  private RequestAttributeCommunityResolver helper =
+      new RequestAttributeCommunityResolver();
 
   @Test
   public void test() {

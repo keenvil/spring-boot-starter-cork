@@ -7,30 +7,29 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.keenvil.cork.CommunityIdentifierResolver;
+
 /**
  * Resolves the Community Id for this requests.
  * 
- * <p>Resolves the community id which will be used to interact with the
- * platform. Community Id is defined as a URI path variable.</p>
+ * <p>Used by Hibernate to identify the data source to be used by a request.</p>
  */
 @Component
-public class UrlPathVariableCommunityResolver
+public class CurrentTenantResolver
     implements CurrentTenantIdentifierResolver {
 
-  private static Logger log =
-      getLogger(CurrentTenantIdentifierResolver.class);
+  private static Logger log = getLogger(CurrentTenantResolver.class);
   
   @Autowired
-  private UrlPathVariableCommunityResolverHelper helper;
+  private CommunityIdentifierResolver communityResolver;
   
   @Override
   public String resolveCurrentTenantIdentifier() {
-    log.trace("Entering UrlPathVariableCommunityResolver.");
+    log.trace("Entering CurrentTenantResolver.");
 
-    String communityId = helper.resolve();
+    String communityId = communityResolver.resolve();
 
-    log.trace("Leaving UrlPathVariableCommunityResolver with tenant {}.",
-        communityId);
+    log.trace("Leaving CurrentTenantResolver with tenant {}.", communityId);
     return communityId;
   }
 

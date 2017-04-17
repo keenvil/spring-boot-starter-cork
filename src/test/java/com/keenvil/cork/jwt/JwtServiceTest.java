@@ -1,4 +1,4 @@
-package com.keenvil.cork.security.jwt;
+package com.keenvil.cork.jwt;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
@@ -21,9 +21,9 @@ import org.junit.Test;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import com.keenvil.cork.security.jwt.JwtInvalidTokenException;
-import com.keenvil.cork.security.jwt.JwtService;
-import com.keenvil.cork.security.jwt.JwtUser;
+import com.keenvil.cork.jwt.JwtInvalidTokenException;
+import com.keenvil.cork.jwt.JwtService;
+import com.keenvil.cork.jwt.JwtUser;
 
 import java.util.Collection;
 import java.util.Collections;
