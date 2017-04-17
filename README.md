@@ -1,56 +1,96 @@
-# My Community Commons
-This README outlines the details of collaborating on
-Commons artifacts.
+# Keenvil Cork
+Cork is intended to encapsulate core Keenvil code. At this moment it offers support for:
+* Authentication/Authorization,
+* Multitenancy,
+* Jason Web Token (JWT),
+* Common Error handling,
+* i18n support,
+* Common code like validators and converters.
 
-Commons artifact is intended to be used by APIs (security, responses templates,
-etc.)
 ## Prerequisites - Development
 
 You will need the following things properly installed on your computer.
 
 * [Git](http://git-scm.com/)
-* [Maven](http://maven.apache.org)
-* [Java](http://java.com)
-* [MySQL](http://www.mysql.com/)
+* [Maven 3.3.9](http://maven.apache.org)
+* [Java - Oracle 1.8.0_121](http://java.com)
+* [MySQL - 5.7.17](http://www.mysql.com/)
 
-## Installation
+## Installation for developmet
 
-* You must be logge into the my-community VPN,
-* `git clone https://github.com/my-community/commons.git` this repository
-* change into the new directory: `cd commons`
-* `vim ~/.m2/settings.xml` and paste the following:
+### Getting the code
 ```
-<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
-      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
-                          https://maven.apache.org/xsd/settings-1.0.0.xsd">
-
-  <servers>
-    <server>
-      <id>nexus-snapshots</id>
-      <username>admin</username>
-      <password>tC3"XT1Q1o5}G2Q=D9M8Z1v7|kdmT9</password>
-    </server>
-  </servers>
-
-</settings>
+$ git clone https://github.com/keenvil/commons.git
 ```
 
-* `mvn clean install`
+### Building the code
+```
+$ mvn clean install
+```
+## Usage
+### Configuration
+In your Keenvil module pom file include:
+```
+    <dependency>
+      <groupId>com.keenvil</groupId>
+      <artifactId>spring-boot-starter-cork</artifactId>
+      <version>${keenvil-cork-starter.version}</version>
+    </dependency>
+```
 
-## Building
+## Cork Multitenancy
+Cork has support for multitency, that is, having Multiple Tenants running in only one module.
+At this moment, Cork Multitencya provides only _shared database / separate schema_ as data base approach. This is one shared data base with one separate schema for each tenant.
 
-* mvn clean install
+### Multitenancy Usage and Configuration
 
-## Deploying artifacts to Nexus
+#### Usage
+Cork Multitenancy provides a `@EnableMultitenancy` annotation to enable it. This annotation has a required `basePackages` option to configure module base packages entities to be scanned in order to support data base multiple schemas.
 
-* mvn deploy
+```java
 
-### CI Configuration
+@EnableMultitenancy(basePackages = "com.keenvil.guard.domain")
+public class GuardApiConfiguration
+    extends KeenvilWebSecurityConfigurerAdapter {
+}
+```
 
-Checkout Dockerfile
+#### Configuration
+```
+keenvil:
+  cork:
+    multitenancy:
+      tenants-strategy: SHARED-DB-SEPARATE-SCHEMAS
+      tenants:
+        -
+          name: primary
+          type: com.zaxxer.hikari.HikariDataSource
+          url: jdbc:h2:mem:guard-primary;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;INIT=RUNSCRIPT FROM 'src/main/resources/h2-schema.ddl'
+          username: sa
+          password:
+          driver-class-name: org.h2.Driver
+          default: true
+          dataSourceProperties:
+            connection-test-query: SELECT * FROM individuals
+            minimum-idle: 1
+            maximum-pool-size: 10
+            pool-name: PrimaryHikariCP
+            connectionTimeout: 1000
+```
 
-## Development
+* `multitenancy.tenants-strategy` (String, mandatory, _SHARED-DB-SEPARATE-SCHEMAS_), Data Base strategy for multiple tenants. *This property fires Multitenancy Auto Configuration* 
+* `multitenancy.tenants` (list, mandatory), list of Tenants with its information,
+    * `name` (string, mandatory), tenant name which MUST match Community id value. 
+    * `default` (boolean, mandatory) whether this is the default tenant or not. Only one default tenant MUST be defined.
+    * `url` (string, mandatory), data base URL,
+    * `username` (string, mandatory), data base username,
+    * `password` (string, mandatory), data base password,
+    * `driver` (string, mandatory), data base classs driver,
+    *  `datasourceProperties` (properties, optional), extra data base configuration properties.
+        * `connection-test-query` (string),
+        * `minimum-idle` (numeric),
+        * `maximum-pool-size` (numeric),
+        * `pool-name` (string),
+        * `connectionTimeout` (string)
 
-### Naming conventions
-* TBD: add checkstyle
+

@@ -8,9 +8,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.Sets;
-import com.keenvil.cork.multitenant.RequestAttributeCommunityResolverHelper;
+import com.keenvil.cork.RequestAttributeCommunityResolver;
+import com.keenvil.cork.jwt.JwtUser;
 import com.keenvil.cork.security.ResourceSecurityService;
-import com.keenvil.cork.security.jwt.JwtUser;
 
 import org.easymock.TestSubject;
 import org.junit.Test;
@@ -24,7 +24,7 @@ public class ResourceSecurityServiceTest {
   @TestSubject
   private ResourceSecurityService service =
       new ResourceSecurityService(
-          new RequestAttributeCommunityResolverHelper());
+          new RequestAttributeCommunityResolver());
 
   @Test
   public void hasRoleInCommunity() {

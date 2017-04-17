@@ -1,2 +1,4 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.keenvil.cork.CorkAutoConfiguration
+com.keenvil.cork.CorkAutoConfiguration,\
+com.keenvil.cork.multitenancy.MultitenancyAutoConfiguration,\
+com.keenvil.cork.jwt.JwtAutoConfiguration
