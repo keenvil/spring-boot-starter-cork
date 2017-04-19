@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.keenvil.cork.error.KeenvilApiError.KeenvilApiErrorBuilder;
+import com.keenvil.cork.error.KeenvilApiException.InvalidResourceState;
+import com.keenvil.cork.error.KeenvilApiException.ResourceAlreadyExists;
 import com.keenvil.cork.error.KeenvilApiException.ResourceNotFound;
 import com.keenvil.cork.error.KeenvilBusinessException.ValidationError;
 
@@ -34,6 +36,79 @@ public class KeenvilApiControllerAdvice {
   @Value("${spring.application.name}")
   private String name;
 
+  /**
+   * Gets the application name.
+   * 
+   * @return The application name.
+   */
+  protected String getName() {
+    return name;
+  }
+
+  @ExceptionHandler(ResourceNotFound.class)
+  @ResponseBody ResponseEntity<List<KeenvilApiError>> handleResourceNotFound(
+      final HttpServletRequest request,
+      final ResourceNotFound exception) {
+    List<KeenvilApiError> errors = new ArrayList<>();
+    KeenvilApiError error = new KeenvilApiErrorBuilder()
+          .code("resourceNotFound")
+          .httpStatus(HttpStatus.NOT_FOUND.value())
+          .title("Resource Not Found")
+          .detail(exception.getMessage())
+          .module(name)
+          .request(request)
+          .source(exception)
+          .build();
+    errors.add(error);
+
+    log.error("Platform Error: {}", error.toString());
+    return ResponseEntity
+        .status(HttpStatus.NOT_FOUND)
+        .body(errors);
+  }
+
+  @ExceptionHandler(ResourceAlreadyExists.class)
+  @ResponseBody ResponseEntity<List<KeenvilApiError>> handleResourceAlreadyExist(
+      final HttpServletRequest request,
+      final ResourceAlreadyExists exception) {
+    List<KeenvilApiError> errors = new ArrayList<>();
+    KeenvilApiError error = new KeenvilApiError.KeenvilApiErrorBuilder()
+          .code("resourceAlreadyExists")
+          .httpStatus(HttpStatus.CONFLICT.value())
+          .title("Resource Already Exists")
+          .detail(exception.getMessage())
+          .module(name)
+          .request(request)
+          .source(exception)
+          .build();
+    errors.add(error);
+
+    log.error("Platform Error: {}", error.toString());
+    return ResponseEntity
+        .status(HttpStatus.CONFLICT)
+        .body(errors);
+  }
+
+  @ExceptionHandler(InvalidResourceState.class)
+  @ResponseBody ResponseEntity<List<KeenvilApiError>> handleInvalidState(
+      final HttpServletRequest request,
+      final InvalidResourceState exception) {
+    List<KeenvilApiError> errors = new ArrayList<>();
+    KeenvilApiError error = new KeenvilApiError.KeenvilApiErrorBuilder()
+          .code("invalidResourceState")
+          .httpStatus(HttpStatus.PRECONDITION_FAILED.value())
+          .title("Invalid Resource State")
+          .detail(exception.getMessage())
+          .module(name)
+          .request(request)
+          .source(exception)
+          .build();
+    errors.add(error);
+
+    log.error("Platform Error: {}", error.toString());
+    return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errors);
+  }
+
   @ExceptionHandler(ValidationError.class)
   @ResponseBody ResponseEntity<List<KeenvilApiError>> handleValidationErrors(
       final HttpServletRequest request,
@@ -50,30 +125,31 @@ public class KeenvilApiControllerAdvice {
           .request(request)
           .source(exception)
           .build();
-
-      log.error("Platform Error: {}", apiError.toString());
       errors.add(apiError);
+      log.error("Platform Error: {}", apiError.toString());
     }
-    return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(errors);
+    return ResponseEntity
+        .status(HttpStatus.UNPROCESSABLE_ENTITY)
+        .body(errors);
   }
 
-  @ExceptionHandler(ResourceNotFound.class)
-  @ResponseBody ResponseEntity<List<KeenvilApiError>> handleEntityNotFound(
+  @ExceptionHandler(KeenvilApiException.class)
+  @ResponseBody ResponseEntity<List<KeenvilApiError>> handleApiException(
       final HttpServletRequest request,
-      final ResourceNotFound exception) {
+      final KeenvilApiException exception) {
     List<KeenvilApiError> errors = new ArrayList<>();
-    KeenvilApiError error = new KeenvilApiErrorBuilder()
-          .code("entityNotFound")
-          .httpStatus(HttpStatus.NOT_FOUND.value())
-          .title("Entity Not Found")
+    KeenvilApiError error = new KeenvilApiError.KeenvilApiErrorBuilder()
+          .code("internalServerError")
+          .httpStatus(HttpStatus.INTERNAL_SERVER_ERROR.value())
+          .title("Internal Server Error")
           .detail(exception.getMessage())
           .module(name)
           .request(request)
           .source(exception)
           .build();
+    errors.add(error);
 
     log.error("Platform Error: {}", error.toString());
-    errors.add(error);
-    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errors);
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errors);
   }
 }
