@@ -27,8 +27,6 @@ public class KeenvilWebSecurityConfigurerAdapter
   protected void configure(HttpSecurity http) throws Exception {
     List<String> endpoints = new ArrayList<String>();
     endpoints.add("/");
-    endpoints.add("/account/auth");
-    endpoints.add("/account/validate");
     endpoints.add("/configuration/**");
     endpoints.add("/health");
     endpoints.add("/info");
