@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
  * This class implements the functionality described in RFC 6238 (TOTP: Time
  * based one-time password algorithm) .
  * 
- * <p>This class lets generate a TOPT and authorize a TOTP generated with a
+ * <p>This class lets generate a TOTP and authorize a TOTP generated with a
  * particular secret key.</p>
  */
 @Component
