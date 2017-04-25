@@ -119,6 +119,27 @@ public class KeenvilApiException extends KeenvilException {
     }
   }
 
+  /**
+   * Thrown when a service gets an invalid argument as a parameter.
+   * 
+   * <p>There is some scenarios where method arguments cannot be validated
+   * with an predefined annotation.</p>
+   */
+  public static class InvalidArgument extends KeenvilApiException {
+
+    private static final long serialVersionUID = 1L;
+
+    public InvalidArgument() { }
+
+    public InvalidArgument(final String message) {
+      super(message);
+    }
+
+    public InvalidArgument(final String message, Throwable throwable) {
+      super(message, throwable);
+    }
+  }
+
   /** 
    * Throw when there was a problem trying to authenticate a user into
    * the platform.
