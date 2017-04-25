@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.keenvil.cork.error.KeenvilApiError.KeenvilApiErrorBuilder;
+import com.keenvil.cork.error.KeenvilApiException.Authorization;
+import com.keenvil.cork.error.KeenvilApiException.InvalidArgument;
 import com.keenvil.cork.error.KeenvilApiException.InvalidResourceState;
 import com.keenvil.cork.error.KeenvilApiException.ResourceAlreadyExists;
 import com.keenvil.cork.error.KeenvilApiException.ResourceNotFound;
@@ -43,6 +45,28 @@ public class KeenvilApiControllerAdvice {
    */
   protected String getName() {
     return name;
+  }
+
+  @ExceptionHandler(Authorization.class)
+  @ResponseBody ResponseEntity<List<KeenvilApiError>> handleAuthorization(
+      final HttpServletRequest request,
+      final Authorization exception) {
+    List<KeenvilApiError> errors = new ArrayList<>();
+    KeenvilApiError error = new KeenvilApiError.KeenvilApiErrorBuilder()
+          .code("unauthorized")
+          .httpStatus(HttpStatus.UNAUTHORIZED.value())
+          .title("Unauthorized")
+          .detail(exception.getMessage())
+          .module(getName())
+          .request(request)
+          .source(exception)
+          .build();
+    errors.add(error);
+
+    log.error("Platform Error: {}", error.toString());
+    return ResponseEntity
+        .status(HttpStatus.UNAUTHORIZED)
+        .body(errors);
   }
 
   @ExceptionHandler(ResourceNotFound.class)
@@ -132,6 +156,27 @@ public class KeenvilApiControllerAdvice {
         .status(HttpStatus.UNPROCESSABLE_ENTITY)
         .body(errors);
   }
+
+  @ExceptionHandler(InvalidArgument.class)
+  @ResponseBody ResponseEntity<List<KeenvilApiError>> handleInvalidArgument(
+      final HttpServletRequest request,
+      final InvalidArgument exception) {
+    List<KeenvilApiError> errors = new ArrayList<>();
+    KeenvilApiError error = new KeenvilApiError.KeenvilApiErrorBuilder()
+          .code("invalidArgument")
+          .httpStatus(HttpStatus.UNPROCESSABLE_ENTITY.value())
+          .title("Invalid Argument")
+          .detail(exception.getMessage())
+          .module(name)
+          .request(request)
+          .source(exception)
+          .build();
+    errors.add(error);
+
+    log.error("Platform Error: {}", error.toString());
+    return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(errors);
+  }
+
 
   @ExceptionHandler(KeenvilApiException.class)
   @ResponseBody ResponseEntity<List<KeenvilApiError>> handleApiException(
