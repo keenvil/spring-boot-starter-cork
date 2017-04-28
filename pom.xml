@@ -3,13 +3,14 @@
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
    http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.keenvil</groupId>
-  <artifactId>keenvil-spring-boot-starter</artifactId>
+  <artifactId>spring-boot-starter-cork</artifactId>
   <version>1.0.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <name>spring-boot-starter-keenvil</name>
+  <name>spring-boot-starter-cork</name>
   <description>Keenvil Spring Boot Core Module</description>
 
   <properties>
@@ -21,7 +22,7 @@
     <spring-core.version>4.3.3.RELEASE</spring-core.version>
     <spring-aspects.version>4.3.2.RELEASE</spring-aspects.version> 
     <spring-cloud-aws.version>1.1.0.RELEASE</spring-cloud-aws.version>
-    <feign-starter.version>1.1.0.RELEASE</feign-starter.version>
+    <feign-starter.version>1.1.6.RELEASE</feign-starter.version>
     <validation-api.version>1.0.0.GA</validation-api.version>
     <hibernate-validator.version>4.2.0.Final</hibernate-validator.version>
     <commons-lang3.version>3.4</commons-lang3.version>
@@ -69,6 +70,10 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-autoconfigure</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-jpa</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
