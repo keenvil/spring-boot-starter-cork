@@ -9,6 +9,7 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 
 import com.keenvil.cork.CorkConfigurationProperties.CommunityResolverStrategy;
 import com.keenvil.cork.internationalization.LocalizableAspect;
+import com.keenvil.cork.security.QrService;
 import com.keenvil.cork.security.ResourceSecurityService;
 
 @Configuration
@@ -45,5 +46,10 @@ public class CorkAutoConfiguration {
   @Bean
   public LocalizableAspect localizableAspect() {
     return new LocalizableAspect();
+  }
+
+  @Bean
+  public QrService qrService() {
+    return new QrService();
   }
 }
