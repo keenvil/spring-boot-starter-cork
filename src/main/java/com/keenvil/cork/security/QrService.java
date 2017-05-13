@@ -1,13 +1,16 @@
 package com.keenvil.cork.security;
 
-import net.glxn.qrgen.QRCode;
-import net.glxn.qrgen.image.ImageType;
+import java.io.ByteArrayOutputStream;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.ByteArrayOutputStream;
+import com.keenvil.cork.CorkConfigurationProperties;
+
+import net.glxn.qrgen.QRCode;
+import net.glxn.qrgen.image.ImageType;
 
 /**
  * Service to generate QR codes from given data.
@@ -15,7 +18,8 @@ import java.io.ByteArrayOutputStream;
 @Service
 public class QrService {
 
-  private static final String CHARSET = "UTF-8";
+  @Autowired
+  private CorkConfigurationProperties properties;
 
   /**
    * Generates a QR code from the given data encoded with Base64 algorithm.
@@ -24,10 +28,13 @@ public class QrService {
    * @return QR code as a String.
    */
   public String generateQr(final String data) {
+    QrServiceProperties qrGenerator = properties.getQrGenerator();
+    ImageType type = ImageType.valueOf(qrGenerator.getImageType());
     ByteArrayOutputStream qrCodeFile =
         QRCode.from(data)
-        .withCharset(CHARSET)
-        .to(ImageType.PNG)
+        .withCharset(qrGenerator.getCharset())
+        .withSize(qrGenerator.getImageWidth(), qrGenerator.getImageHeight())
+        .to(type)
         .stream();
     byte[] encodeBase64 = Base64.encodeBase64(qrCodeFile.toByteArray(), false);
     return StringUtils.newStringUtf8(encodeBase64);
