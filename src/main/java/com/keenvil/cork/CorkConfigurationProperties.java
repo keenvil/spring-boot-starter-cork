@@ -2,6 +2,8 @@ package com.keenvil.cork;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import com.keenvil.cork.security.QrServiceProperties;
+
 /**
  *  Cork general configuration properties.
  *  
@@ -17,6 +19,8 @@ public class CorkConfigurationProperties {
 
   private CommunityResolverStrategy communityResolver;
 
+  private QrServiceProperties qrGenerator;
+
   public CorkConfigurationProperties() { }
 
   public CommunityResolverStrategy getCommunityResolver() {
@@ -26,5 +30,13 @@ public class CorkConfigurationProperties {
   public void setCommunityResolver(
       CommunityResolverStrategy theCommunityResolver) {
     communityResolver = theCommunityResolver;
+  }
+
+  public QrServiceProperties getQrGenerator() {
+    return qrGenerator;
+  }
+
+  public void setQrGenerator(QrServiceProperties theqrGenerator) {
+    qrGenerator = theqrGenerator;
   }
 }
