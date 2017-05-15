@@ -2,6 +2,7 @@ package com.keenvil.cork;
 
 import org.hibernate.context.spi.CurrentTenantIdentifierResolver;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,6 +10,7 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 
 import com.keenvil.cork.CorkConfigurationProperties.CommunityResolverStrategy;
 import com.keenvil.cork.internationalization.LocalizableAspect;
+import com.keenvil.cork.security.QrService;
 import com.keenvil.cork.security.ResourceSecurityService;
 
 @Configuration
@@ -45,5 +47,10 @@ public class CorkAutoConfiguration {
   @Bean
   public LocalizableAspect localizableAspect() {
     return new LocalizableAspect();
+  }
+
+  @Bean
+  public QrService qrService() {
+    return new QrService();
   }
 }
