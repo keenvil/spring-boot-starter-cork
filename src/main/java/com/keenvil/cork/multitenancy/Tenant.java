@@ -26,10 +26,16 @@ public class Tenant {
 
   private Map<String, String> dataSourceProperties;
 
+  private String schemaName;
+
   public Tenant() { }
 
   public String getName() {
     return name;
+  }
+
+  public String getSchemaName() {
+    return schemaName;
   }
 
   public boolean isDefaultTenant() {
@@ -86,6 +92,10 @@ public class Tenant {
 
   public void setDataSourceProperties(Map<String, String> theProperties) {
     dataSourceProperties = theProperties;
+  }
+
+  public void setSchemaName(String theSchema) {
+    schemaName = theSchema;
   }
 
   public Map<String, String> getDataSourceProperties() {
