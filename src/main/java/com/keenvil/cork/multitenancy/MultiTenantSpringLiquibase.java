@@ -18,6 +18,16 @@ import liquibase.integration.spring.SpringLiquibase;
 import static org.slf4j.LoggerFactory.getLogger;
 
 
+/**
+ * A Liquibase wrapper suitable in multi-tenant environments where multiple
+ * data sources represent tenants. It utilizes {@link SpringLiquibase} per each
+ * data source. All the parameters are the same as for {@link SpringLiquibase}
+ * except of the data source definition - In this case it uses a list of
+ * Data sources where each item represents a schema or tenant.<br/>
+ *
+ * @see SpringLiquibase
+ *
+ */
 public class MultiTenantSpringLiquibase implements InitializingBean, ResourceLoaderAware {
 
   private static Logger log = getLogger(MultitenancyAutoConfiguration.class);
@@ -54,6 +64,12 @@ public class MultiTenantSpringLiquibase implements InitializingBean, ResourceLoa
     }
   }
 
+  /**
+   * Creates a new SpringLiquibase for each data source.
+   * @param dataSource The data source where the changes will be executed.
+   * @return The SpringLiquibase object that will interact with the given
+   * data source.
+   */
   private SpringLiquibase getSpringLiquibase(DataSource dataSource) {
     SpringLiquibase liquibase = new SpringLiquibase();
     liquibase.setChangeLog(changeLog);
