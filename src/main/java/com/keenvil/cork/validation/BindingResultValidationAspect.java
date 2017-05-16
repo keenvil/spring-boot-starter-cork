@@ -26,7 +26,7 @@ import com.keenvil.cork.error.KeenvilBusinessException.ValidationError;
 
 /**
  * Aspect which checks for annotated method with {@link ValidateRequestBody} to
- * validate is some business validation error has occurred.
+ * validate if some business validation error has occurred.
  * 
  * <p>Keenvil Controllers use {@link Valid} annotation and {@link BindingResult}
  * objects to validate API parameters. Using {@link ValidateRequestBody}</p>
