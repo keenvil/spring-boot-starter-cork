@@ -175,7 +175,6 @@ public class MultitenancyAutoConfiguration {
       ));
 
     multiTenantSpringLiquibase.setChangeLog(liquibaseChangelogUrl);
-    multiTenantSpringLiquibase.setContexts("development, production");
     multiTenantSpringLiquibase.setShouldRun(true);
 
     return multiTenantSpringLiquibase;
