@@ -5,10 +5,9 @@ import static org.hibernate.cfg.AvailableSettings.HBM2DDL_AUTO;
 import static org.hibernate.cfg.AvailableSettings.MULTI_TENANT;
 import static org.hibernate.cfg.AvailableSettings.MULTI_TENANT_CONNECTION_PROVIDER;
 import static org.hibernate.cfg.AvailableSettings.MULTI_TENANT_IDENTIFIER_RESOLVER;
+import static org.slf4j.LoggerFactory.getLogger;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
@@ -16,15 +15,13 @@ import javax.sql.DataSource;
 import org.hibernate.MultiTenancyStrategy;
 import org.hibernate.context.spi.CurrentTenantIdentifierResolver;
 import org.hibernate.engine.jdbc.connections.spi.MultiTenantConnectionProvider;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Conditional;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.*;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 
 /** Multi Tenancy Auto Configuration.
@@ -54,6 +51,8 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 @Conditional(value = MultitenancyCondition.class)
 public class MultitenancyAutoConfiguration {
 
+  private static Logger log = getLogger(MultitenancyAutoConfiguration.class);
+
   @Value("${keenvil-boot-starter.community-resolver:''}")
   private String communityResolver;
 
@@ -80,6 +79,9 @@ public class MultitenancyAutoConfiguration {
 
   @Autowired
   private JpaProperties jpaProperties;
+
+  @Value("${liquibase.changeLog}")
+  private String liquibaseChangelogUrl;
 
   /**
    * Multi Tenancy connection provider bean.
@@ -151,5 +153,30 @@ public class MultitenancyAutoConfiguration {
   @Bean
   public CurrentTenantIdentifierResolver currentCommunityIdentifierResolver() {
     return new CurrentTenantResolver();
+  }
+
+  @Bean(name = "liquibase")
+  @DependsOn("dataSourceBasedCommunityConnectionProvider")
+  public MultiTenantSpringLiquibase liquibase() {
+
+    MultiTenantSpringLiquibase multiTenantSpringLiquibase =
+        new MultiTenantSpringLiquibase();
+
+    multitenancyProperties.getTenants()
+      .stream()
+      .forEach(tc -> multiTenantSpringLiquibase.addDataSource(
+          DataSourceBuilder.create()
+              .driverClassName(tc.getDriverClassName())
+              .username(tc.getUsername())
+              .password(tc.getPassword())
+              .url(tc.getUrl())
+              .putAll(tc.getDataSourceProperties())
+              .build()
+      ));
+
+    multiTenantSpringLiquibase.setChangeLog(liquibaseChangelogUrl);
+    multiTenantSpringLiquibase.setShouldRun(true);
+
+    return multiTenantSpringLiquibase;
   }
 }

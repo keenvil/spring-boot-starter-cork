@@ -12,6 +12,7 @@ import com.keenvil.cork.CorkConfigurationProperties.CommunityResolverStrategy;
 import com.keenvil.cork.internationalization.LocalizableAspect;
 import com.keenvil.cork.security.QrService;
 import com.keenvil.cork.security.ResourceSecurityService;
+import com.keenvil.cork.validation.BindingResultValidationAspect;
 
 @Configuration
 @EnableConfigurationProperties(CorkConfigurationProperties.class)
@@ -48,6 +49,11 @@ public class CorkAutoConfiguration {
   public LocalizableAspect localizableAspect() {
     return new LocalizableAspect();
   }
+
+  @Bean
+  public BindingResultValidationAspect bindingResultValidationAspect() {
+    return new BindingResultValidationAspect();
+  } 
 
   @Bean
   public QrService qrService() {

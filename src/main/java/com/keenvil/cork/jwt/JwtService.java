@@ -68,6 +68,7 @@ public class JwtService {
       final String username,
       final Set<String> roles) {
     Date ttl = DateTime.now().plusMinutes(minutes).toDate();
+    log.info("Token Expiration TTL {}", minutes);
     return generate(subject, firstName, lastName, unit, username, roles, ttl);
   }
 
@@ -110,6 +111,7 @@ public class JwtService {
         .signWith(SignatureAlgorithm.HS256, KEY)
         .compact();
 
+    log.info("Token Expiration {}", expirationDate);
     log.trace("Leaving generate.");
     return jwt;
   }

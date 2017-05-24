@@ -32,6 +32,7 @@ public class Tenant {
     return name;
   }
 
+
   public boolean isDefaultTenant() {
     return isDefault;
   }
