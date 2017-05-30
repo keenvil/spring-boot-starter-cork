@@ -11,6 +11,8 @@ import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import com.keenvil.cork.jwt.JwtTokenHolder;
+
 /**
  * <p>Encapsulates behavior to get current request Community Id from the
  * requested URI.</p>
@@ -53,6 +55,7 @@ public class UrlPathVariableCommunityResolver
           log.debug("Resolved Community id using URL path variable: {}",
               communityId);          
         }
+        JwtTokenHolder.holdCommunity(communityId);
         return communityId;        
       }
     }
