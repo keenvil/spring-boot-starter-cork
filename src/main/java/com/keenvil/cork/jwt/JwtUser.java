@@ -28,6 +28,8 @@ public class JwtUser implements UserDetails {
 
   private String unit;
 
+  private String avatarUri;
+
   JwtUser() { }
 
   /**
@@ -56,6 +58,14 @@ public class JwtUser implements UserDetails {
     roles = setOfRoles;
   }
 
+  public JwtUser(final Long theId, final String theFirstName,
+      final String theLastName, final String theUnit,
+      final String theUsername, final Set<String> setOfRoles,
+      final String theAvatarUri) {
+    this(theId, theFirstName, theLastName, theUnit, theUsername, setOfRoles);
+    avatarUri = theAvatarUri;
+  }
+
   public Long getUserAccountId() {
     return id;
   }
@@ -79,6 +89,10 @@ public class JwtUser implements UserDetails {
   @Override
   public String getUsername() {
     return username;
+  }
+
+  public String getAvatarUri() {
+    return avatarUri;
   }
 
   @Override
