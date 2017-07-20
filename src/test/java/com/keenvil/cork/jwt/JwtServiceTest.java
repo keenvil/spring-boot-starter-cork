@@ -62,6 +62,16 @@ public class JwtServiceTest {
     assertThat(claims.getSubject(), is("1"));
     Collection<String> claimRoles = (List<String>)claims.get("roles");
     assertTrue(roles.containsAll(claimRoles) && claimRoles.containsAll(roles));
+
+    
+    jwt = service.generate("1", "Joe", "Average", "admin@keenvil.com",
+        "B-52", roles, expirationDate, "avatarUri");
+    parsed = Jwts.parser()
+          .setSigningKey(JwtService.KEY)
+          .parseClaimsJws(jwt);
+
+    claims = parsed.getBody();
+    assertThat(claims.get("avatarUri"), notNullValue());
   }
 
   @Test
@@ -174,7 +184,7 @@ public class JwtServiceTest {
     Set<String> roles = new HashSet<String>();
     Collections.addAll(roles, "USER", "ADMIN");
     String jwt = service.generate("1", "Joe", "Average", "B-52",
-        "admin@keenvil.com", roles);
+        "admin@keenvil.com", roles, "avatarUri");
     JwtUser userClaim = service.parse(jwt);
     assertThat(userClaim, notNullValue());
     assertThat(userClaim.getUserAccountId(), is(1L));
@@ -183,6 +193,8 @@ public class JwtServiceTest {
     assertTrue(authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN")));
     assertTrue(authorities.contains(new SimpleGrantedAuthority("ROLE_USER")));
     assertThat(userClaim.getFirstName(), is("Joe"));
+    assertThat(userClaim.getAvatarUri(), is("avatarUri"));
+    
   }
 
   @SuppressWarnings("rawtypes")

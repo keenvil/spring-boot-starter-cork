@@ -44,6 +44,8 @@ public class JwtService {
 
   private static final String ROLES = "roles";
 
+  private static final String AVATAR_URI = "avatarUri";
+
   /** JWT time to live in minutes. */
   @Value("${jwt.ttl:120}")
   private int minutes = 120;
@@ -69,7 +71,62 @@ public class JwtService {
       final Set<String> roles) {
     Date ttl = DateTime.now().plusMinutes(minutes).toDate();
     log.info("Token Expiration TTL {}", minutes);
-    return generate(subject, firstName, lastName, unit, username, roles, ttl);
+    return generate(subject,
+        firstName,
+        lastName,
+        unit,
+        username,
+        roles,
+        ttl,
+        null);
+  }
+
+  /**
+   * Generates a JWT with default TTL, which can be used to access application
+   * services with an expiration date.
+   * @return the JWT.
+   */
+  public String generate(
+      final String subject,
+      final String firstName,
+      final String lastName,
+      final String unit,
+      final String username,
+      final Set<String> roles,
+      final Date expirationDate) {
+    return generate(subject,
+        firstName,
+        lastName,
+        unit,
+        username,
+        roles,
+        expirationDate,
+        null);
+  }
+
+  /**
+   * Generates a JWT with default TTL, which can be used to access application
+   * services with an Avatar Uri.
+   * @return the JWT.
+   */
+  public String generate(
+      final String subject,
+      final String firstName,
+      final String lastName,
+      final String unit,
+      final String username,
+      final Set<String> roles,
+      final String avatarUri) {
+    Date ttl = DateTime.now().plusMinutes(minutes).toDate();
+    log.info("Token Expiration TTL {}", minutes);
+    return generate(subject,
+        firstName,
+        lastName,
+        unit,
+        username,
+        roles,
+        ttl,
+        avatarUri);
   }
 
   /**
@@ -81,6 +138,7 @@ public class JwtService {
    * @param unit unit.
    * @param roles roles.
    * @param expirationDate JWT expiration date.
+   * @param avatarUri Avatar Uri.
    * @return the JWT.
    */
   public String generate(
@@ -90,7 +148,8 @@ public class JwtService {
       final String unit,
       final String username,
       final Set<String> roles,
-      final Date expirationDate) {
+      final Date expirationDate,
+      final String avatarUri) {
     log.trace("Entering generate.");
 
     Validate.notEmpty(subject);
@@ -108,6 +167,7 @@ public class JwtService {
         .claim(UNIT, unit)
         .claim(USERNAME, username)
         .claim(ROLES, roles)
+        .claim(AVATAR_URI, avatarUri)
         .signWith(SignatureAlgorithm.HS256, KEY)
         .compact();
 
@@ -187,7 +247,8 @@ public class JwtService {
             (String) claims.get(LAST_NAME),
             (String) claims.get(UNIT),
             (String) claims.get(USERNAME),
-            (Set<String>) new HashSet((List<String>) claims.get(ROLES)));
+            (Set<String>) new HashSet((List<String>) claims.get(ROLES)),
+            (String) claims.get(AVATAR_URI));
 
     log.trace("Leaving parse.");
     return jwtUser;
