@@ -7,6 +7,18 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.joda.time.DateTime;
+import org.junit.Test;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.IncorrectClaimException;
@@ -15,22 +27,6 @@ import io.jsonwebtoken.Jwt;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MissingClaimException;
 import io.jsonwebtoken.SignatureAlgorithm;
-
-import org.joda.time.DateTime;
-import org.junit.Test;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-
-import com.keenvil.cork.jwt.JwtInvalidTokenException;
-import com.keenvil.cork.jwt.JwtService;
-import com.keenvil.cork.jwt.JwtUser;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 public class JwtServiceTest {
 
@@ -197,8 +193,20 @@ public class JwtServiceTest {
     
   }
 
-  @SuppressWarnings("rawtypes")
   @Test
+  @SuppressWarnings("rawtypes")
+  public void generateRefreshToken() throws Exception {
+    String refreshToken = service.generateRefresh("individual-id");
+    assertThat(refreshToken, notNullValue());
+
+    Jwt<JwsHeader, Claims> parseClaimsJwt = Jwts.parser()
+        .setSigningKey(JwtService.KEY)
+        .parseClaimsJws(refreshToken);
+    assertThat(parseClaimsJwt.getBody().getSubject(), is("individual-id"));
+  }
+
+  @Test
+  @SuppressWarnings("rawtypes")
   public void refresh() {
     Date plus10Minutes = new DateTime().plusMinutes(10).toDate();
     String jwt = service.generate("1",  "Joe", "Average", "B-52",
