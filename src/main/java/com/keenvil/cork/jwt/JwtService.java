@@ -13,6 +13,8 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.keenvil.cork.date.DateUtils;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.IncorrectClaimException;
@@ -56,6 +58,36 @@ public class JwtService {
   
   /** TODO(mario-AC-25): Externalize in Vault. */
   static final String ISSUER = "myCo-security-api";
+
+  public static class Token {
+
+    private String access;
+
+    private String refresh;
+
+    Token() { }
+
+    /**
+     * Token which encapsulates Access and Refresh Jwt.
+     * 
+     * @param theAccess Access Jwt.
+     * @param theRefresh Refresh Jwt.
+     */
+    public Token(String theAccess, String theRefresh) {
+      Validate.notEmpty(theAccess, "Access Jwt cannot be empty.");
+      Validate.notEmpty(theRefresh, "Access Jwt cannot be empty.");
+      access = theAccess;
+      refresh = theRefresh;
+    }
+
+    public String getAccess() {
+      return access;
+    }
+
+    public String getRefresh() {
+      return refresh;
+    }
+  }
 
   /**
    * Generates a JWT with default TTL, which can be used to access application
@@ -174,6 +206,55 @@ public class JwtService {
     log.info("Token Expiration {}", expirationDate);
     log.trace("Leaving generate.");
     return jwt;
+  }
+
+  /**
+   * Generates the Refresh Token.
+   * 
+   * @param subject Subject.
+   * @return Token.
+   */
+  public String generateRefresh(String subject) {
+    return Jwts.builder()
+        .setIssuer(ISSUER)
+        .setIssuedAt(DateUtils.nowInUtc())
+        .setSubject(subject)
+        .signWith(SignatureAlgorithm.HS256, KEY)
+        .compact();
+  }
+
+  /**
+   * Generates a complete Token (access token and refresh token).
+   * 
+   * @param subject subject.
+   * @param firstName first name.
+   * @param lastName last name.
+   * @param username user name.
+   * @param unit unit.
+   * @param roles roles.
+   * @param expirationDate JWT expiration date.
+   * @param avatarUri Avatar Uri.
+   * @return the JWT.
+   */
+  public Token generateToken(
+      final String subject,
+      final String firstName,
+      final String lastName,
+      final String unit,
+      final String username,
+      final Set<String> roles,
+      final Date expirationDate,
+      final String avatarUri) {
+    String access = generate(subject,
+        firstName,
+        lastName,
+        unit,
+        username,
+        roles,
+        expirationDate,
+        avatarUri);
+    String refresh = generateRefresh(subject);
+    return new Token(access, refresh);
   }
 
   /**
