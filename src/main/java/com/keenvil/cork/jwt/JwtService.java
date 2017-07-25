@@ -32,6 +32,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 @Service
 public class JwtService {
 
+
   private static Logger log = getLogger(JwtService.class);
 
   public static final String X_AUTHORIZATION = "X-Authorization";
@@ -45,6 +46,12 @@ public class JwtService {
   private static final String UNIT = "unit";
 
   private static final String ROLES = "roles";
+
+  private static final String TYPE = "type";
+
+  private static final String TYPE_ACCESS = "access";
+
+  private static final String TYPE_REFRESH = "refresh";
 
   private static final String AVATAR_URI = "avatarUri";
 
@@ -194,6 +201,7 @@ public class JwtService {
         .setIssuedAt(today)
         .setExpiration(expirationDate)
         .setSubject(subject)
+        .claim(TYPE, TYPE_ACCESS)
         .claim(FIRST_NAME, firstName)
         .claim(LAST_NAME, lastName)
         .claim(UNIT, unit)
@@ -219,6 +227,7 @@ public class JwtService {
         .setIssuer(ISSUER)
         .setIssuedAt(DateUtils.nowInUtc())
         .setSubject(subject)
+        .claim(TYPE, TYPE_REFRESH)
         .signWith(SignatureAlgorithm.HS256, KEY)
         .compact();
   }
@@ -268,29 +277,14 @@ public class JwtService {
     log.trace("Entering parse.");
 
     Validate.notNull(jwt);
-    Jwt<JwsHeader, Claims> parsed = null;
-    try {
-      parsed = Jwts.parser()
-          .requireIssuer(ISSUER)
-          .setSigningKey(JwtService.KEY)
-          .parseClaimsJws(jwt);
-    } catch (MissingClaimException mce) {
-      log.error("Issuer not present.");
-      throw new JwtInvalidTokenException("Invalid Token, issuer not present.",
-          mce);
-    } catch (IncorrectClaimException ice) {
-      log.error("Unrecognized issuer.");
-      throw new JwtInvalidTokenException("Invalid Token, unrecognized issuer.",
-          ice);
-    } catch (ExpiredJwtException ee) {
-      log.error("Expired jwt.");
-      throw new JwtInvalidTokenException("Token expired.", ee);
-    } catch (Exception exception) {
-      log.error("Error parsing JWT. ", exception);
-      throw new JwtInvalidTokenException("Error parsing Token.", exception);
-    }
-
+    Jwt<JwsHeader, Claims> parsed = parseClaims(jwt);
     Claims claims = parsed.getBody();
+
+    String tokenType = (String) claims.get(TYPE);
+    if (tokenType == null || !tokenType.equals(TYPE_ACCESS)) {
+      log.error("Subject not present.");
+      throw new JwtInvalidTokenException("Invalid access token.");
+    }
 
     if (claims.getSubject() == null) {
       log.error("Subject not present.");
@@ -364,5 +358,50 @@ public class JwtService {
 
     log.trace("Leaving refresh.");
     return refreshed;
+  }
+
+  /**
+   * Parse a refresh JWT.
+   * 
+   * @param refreshJwt Refresh JWT.
+   * @return JWT User.
+   */
+  @SuppressWarnings("rawtypes")
+  public JwtUser parseRefresh(final String refreshJwt) {
+    Jwt<JwsHeader, Claims> parseClaims = parseClaims(refreshJwt);
+    String type = (String) parseClaims.getBody().get(TYPE);
+
+    if (type == null || !type.equals(TYPE_REFRESH)) {
+      throw new JwtInvalidTokenException("Invalid refresh token.");
+    }
+
+    Long id = Long.valueOf(parseClaims.getBody().getSubject());
+    return new JwtUser(id);
+  }
+
+  @SuppressWarnings("rawtypes")
+  private Jwt<JwsHeader, Claims> parseClaims(String jwt) {
+    Jwt<JwsHeader, Claims> parsed = null;
+    try {
+      parsed = Jwts.parser()
+          .requireIssuer(ISSUER)
+          .setSigningKey(JwtService.KEY)
+          .parseClaimsJws(jwt);
+    } catch (MissingClaimException mce) {
+      log.error("Issuer not present.");
+      throw new JwtInvalidTokenException("Invalid Token, issuer not present.",
+          mce);
+    } catch (IncorrectClaimException ice) {
+      log.error("Unrecognized issuer.");
+      throw new JwtInvalidTokenException("Invalid Token, unrecognized issuer.",
+          ice);
+    } catch (ExpiredJwtException ee) {
+      log.error("Expired jwt.");
+      throw new JwtInvalidTokenException("Token expired.", ee);
+    } catch (Exception exception) {
+      log.error("Error parsing JWT. ", exception);
+      throw new JwtInvalidTokenException("Error parsing Token.", exception);
+    }
+    return parsed;
   }
 }
