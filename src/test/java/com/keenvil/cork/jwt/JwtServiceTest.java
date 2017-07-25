@@ -190,7 +190,42 @@ public class JwtServiceTest {
     assertTrue(authorities.contains(new SimpleGrantedAuthority("ROLE_USER")));
     assertThat(userClaim.getFirstName(), is("Joe"));
     assertThat(userClaim.getAvatarUri(), is("avatarUri"));
+  }
+
+  @Test
+  public void parseInvalid() {
+    String jwt = service.generateRefresh("1");
+    try {
+      service.parse(jwt);
+      fail();
+    } catch (JwtInvalidTokenException exception) {
+      assertThat(exception.getMessage(), is("Invalid access token."));
+    }
+  }
+
+  @Test
+  public void parseRefresh() {
+    Set<String> roles = new HashSet<String>();
+    Collections.addAll(roles, "USER", "ADMIN");
+    String jwt = service.generateRefresh("1");
     
+    JwtUser user = service.parseRefresh(jwt);
+    assertThat(user.getUserAccountId(), is(1L));
+  }
+
+  @Test
+  public void parseInvalidRefresh() {
+    Set<String> roles = new HashSet<String>();
+    Collections.addAll(roles, "USER", "ADMIN");
+    String jwt = service.generate("1", "Joe", "Average", "B-52",
+        "admin@keenvil.com", roles, "avatarUri");
+    
+    try {
+      service.parseRefresh(jwt);  
+      fail();
+    } catch (JwtInvalidTokenException exception) {
+      assertThat(exception.getMessage(), is("Invalid refresh token."));
+    }
   }
 
   @Test

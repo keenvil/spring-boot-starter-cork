@@ -32,6 +32,11 @@ public class JwtUser implements UserDetails {
 
   JwtUser() { }
 
+  public JwtUser(final Long theId) {
+    Validate.notNull(theId);
+    id = theId;
+  }
+
   /**
    * Creates a JWT User.
    * @param theId the id,
