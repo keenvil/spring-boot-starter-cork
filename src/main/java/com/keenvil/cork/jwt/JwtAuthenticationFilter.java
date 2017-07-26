@@ -90,7 +90,7 @@ public class JwtAuthenticationFilter
         authentication.setDetails(buildDetails);
         SecurityContextHolder.getContext().setAuthentication(authentication);
       }
-    } catch (JwtInvalidTokenException exception) {
+    } catch (JwtInvalidTokenException | JwtExpiredTokenException e) {
       SecurityContextHolder.clearContext();
     }
     log.trace("Leaving JwtAuthenticationFilter.");

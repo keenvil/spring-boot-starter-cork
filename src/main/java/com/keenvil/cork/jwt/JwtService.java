@@ -397,7 +397,7 @@ public class JwtService {
           ice);
     } catch (ExpiredJwtException ee) {
       log.error("Expired jwt.");
-      throw new JwtInvalidTokenException("Token expired.", ee);
+      throw new JwtExpiredTokenException("Token expired.", ee);
     } catch (Exception exception) {
       log.error("Error parsing JWT. ", exception);
       throw new JwtInvalidTokenException("Error parsing Token.", exception);
