@@ -19,6 +19,8 @@ import org.junit.Test;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
+import com.keenvil.cork.date.DateUtils;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.IncorrectClaimException;
@@ -194,7 +196,7 @@ public class JwtServiceTest {
 
   @Test
   public void parseInvalid() {
-    String jwt = service.generateRefresh("1");
+    String jwt = service.generateRefresh("1", DateUtils.nowPlusMinutesInUtc(1));
     try {
       service.parse(jwt);
       fail();
@@ -207,7 +209,7 @@ public class JwtServiceTest {
   public void parseRefresh() {
     Set<String> roles = new HashSet<String>();
     Collections.addAll(roles, "USER", "ADMIN");
-    String jwt = service.generateRefresh("1");
+    String jwt = service.generateRefresh("1", DateUtils.nowPlusMinutesInUtc(5));
     
     JwtUser user = service.parseRefresh(jwt);
     assertThat(user.getUserAccountId(), is(1L));
@@ -231,7 +233,8 @@ public class JwtServiceTest {
   @Test
   @SuppressWarnings("rawtypes")
   public void generateRefreshToken() throws Exception {
-    String refreshToken = service.generateRefresh("individual-id");
+    String refreshToken = service.generateRefresh("individual-id",
+        DateUtils.nowPlusMinutesInUtc(10));
     assertThat(refreshToken, notNullValue());
 
     Jwt<JwsHeader, Claims> parseClaimsJwt = Jwts.parser()
