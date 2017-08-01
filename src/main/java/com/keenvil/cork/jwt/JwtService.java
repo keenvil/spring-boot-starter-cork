@@ -70,7 +70,11 @@ public class JwtService {
 
     private String access;
 
+    private Date tokenTtl;
+
     private String refresh;
+
+    private Date refreshTokenTtl;
 
     Token() { }
 
@@ -80,19 +84,36 @@ public class JwtService {
      * @param theAccess Access Jwt.
      * @param theRefresh Refresh Jwt.
      */
-    public Token(String theAccess, String theRefresh) {
+    public Token(String theAccess,
+        Date theTokenTtl,
+        String theRefresh,
+        Date theRefreshTokenTtl) {
       Validate.notEmpty(theAccess, "Access Jwt cannot be empty.");
+      Validate.notNull(theTokenTtl, "Token ttl cannot be empty.");
       Validate.notEmpty(theRefresh, "Access Jwt cannot be empty.");
+      Validate.notNull(theRefreshTokenTtl,
+          "Refersh Token ttl cannot be empty.");
+      Validate.notEmpty(theAccess, "Access Jwt cannot be empty.");
       access = theAccess;
+      tokenTtl = theTokenTtl;
       refresh = theRefresh;
+      refreshTokenTtl = theRefreshTokenTtl;
     }
 
     public String getAccess() {
       return access;
     }
 
+    public Date getTokenTtl() {
+      return tokenTtl;
+    }
+
     public String getRefresh() {
       return refresh;
+    }
+
+    public Date getRefreshTokenTtl() {
+      return refreshTokenTtl;
     }
   }
 
@@ -222,11 +243,14 @@ public class JwtService {
    * @param subject Subject.
    * @return Token.
    */
-  public String generateRefresh(String subject) {
+  public String generateRefresh(
+      String subject,
+      Date ttl) {
     return Jwts.builder()
         .setIssuer(ISSUER)
         .setIssuedAt(DateUtils.nowInUtc())
         .setSubject(subject)
+        .setExpiration(ttl)
         .claim(TYPE, TYPE_REFRESH)
         .signWith(SignatureAlgorithm.HS256, KEY)
         .compact();
@@ -241,7 +265,8 @@ public class JwtService {
    * @param username user name.
    * @param unit unit.
    * @param roles roles.
-   * @param expirationDate JWT expiration date.
+   * @param tokenExpirationDate JWT expiration date.
+   * @param refreshExpirationDate JWT refresh expiration date.
    * @param avatarUri Avatar Uri.
    * @return the JWT.
    */
@@ -252,7 +277,8 @@ public class JwtService {
       final String unit,
       final String username,
       final Set<String> roles,
-      final Date expirationDate,
+      final Date tokenExpirationDate,
+      final Date refreshExpirationDate,
       final String avatarUri) {
     String access = generate(subject,
         firstName,
@@ -260,10 +286,13 @@ public class JwtService {
         unit,
         username,
         roles,
-        expirationDate,
+        tokenExpirationDate,
         avatarUri);
-    String refresh = generateRefresh(subject);
-    return new Token(access, refresh);
+    String refresh = generateRefresh(subject, refreshExpirationDate);
+    return new Token(access,
+        tokenExpirationDate,
+        refresh,
+        refreshExpirationDate);
   }
 
   /**
