@@ -47,6 +47,9 @@ public class JwtAuthenticationEntryPoint
 
     String token = request.getHeader(JwtService.X_AUTHORIZATION);
     Exception exception = authenticationException;
+    String code = "";
+    String title = null;
+    int responseStatus = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 
     try {
       if (token != null) {
@@ -54,12 +57,20 @@ public class JwtAuthenticationEntryPoint
       }
     } catch (JwtInvalidTokenException platformException) {
       exception = platformException;
+      code = "authenticationError";
+      title = "Authentication error";
+      responseStatus = HttpServletResponse.SC_FORBIDDEN;
+    } catch (JwtExpiredTokenException platformException) {
+      exception = platformException;
+      code = "tokenExpired";
+      title = "Authentication error";
+      responseStatus = HttpServletResponse.SC_UNAUTHORIZED;
     }
 
     KeenvilApiError error = new KeenvilApiError.KeenvilApiErrorBuilder()
-        .code("authenticationError")
-        .httpStatus(HttpServletResponse.SC_UNAUTHORIZED)
-        .title("Authentication error")
+        .code(code)
+        .httpStatus(responseStatus)
+        .title(title)
         .detail(exception.getMessage())
         .request(request)
         .source(exception)
@@ -67,7 +78,7 @@ public class JwtAuthenticationEntryPoint
 
     ObjectMapper mapper = new ObjectMapper();
     response.setContentType("application/json");
-    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+    response.setStatus(responseStatus);
     response.getOutputStream().println(mapper.writeValueAsString(error));
   }
 }

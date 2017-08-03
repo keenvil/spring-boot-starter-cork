@@ -13,6 +13,8 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.keenvil.cork.date.DateUtils;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.IncorrectClaimException;
@@ -30,6 +32,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 @Service
 public class JwtService {
 
+
   private static Logger log = getLogger(JwtService.class);
 
   public static final String X_AUTHORIZATION = "X-Authorization";
@@ -44,6 +47,12 @@ public class JwtService {
 
   private static final String ROLES = "roles";
 
+  private static final String TYPE = "type";
+
+  private static final String TYPE_ACCESS = "access";
+
+  private static final String TYPE_REFRESH = "refresh";
+
   private static final String AVATAR_URI = "avatarUri";
 
   /** JWT time to live in minutes. */
@@ -56,6 +65,57 @@ public class JwtService {
   
   /** TODO(mario-AC-25): Externalize in Vault. */
   static final String ISSUER = "myCo-security-api";
+
+  public static class Token {
+
+    private String access;
+
+    private Date tokenTtl;
+
+    private String refresh;
+
+    private Date refreshTokenTtl;
+
+    Token() { }
+
+    /**
+     * Token which encapsulates Access and Refresh Jwt.
+     * 
+     * @param theAccess Access Jwt.
+     * @param theRefresh Refresh Jwt.
+     */
+    public Token(String theAccess,
+        Date theTokenTtl,
+        String theRefresh,
+        Date theRefreshTokenTtl) {
+      Validate.notEmpty(theAccess, "Access Jwt cannot be empty.");
+      Validate.notNull(theTokenTtl, "Token ttl cannot be empty.");
+      Validate.notEmpty(theRefresh, "Access Jwt cannot be empty.");
+      Validate.notNull(theRefreshTokenTtl,
+          "Refersh Token ttl cannot be empty.");
+      Validate.notEmpty(theAccess, "Access Jwt cannot be empty.");
+      access = theAccess;
+      tokenTtl = theTokenTtl;
+      refresh = theRefresh;
+      refreshTokenTtl = theRefreshTokenTtl;
+    }
+
+    public String getAccess() {
+      return access;
+    }
+
+    public Date getTokenTtl() {
+      return tokenTtl;
+    }
+
+    public String getRefresh() {
+      return refresh;
+    }
+
+    public Date getRefreshTokenTtl() {
+      return refreshTokenTtl;
+    }
+  }
 
   /**
    * Generates a JWT with default TTL, which can be used to access application
@@ -162,6 +222,7 @@ public class JwtService {
         .setIssuedAt(today)
         .setExpiration(expirationDate)
         .setSubject(subject)
+        .claim(TYPE, TYPE_ACCESS)
         .claim(FIRST_NAME, firstName)
         .claim(LAST_NAME, lastName)
         .claim(UNIT, unit)
@@ -177,6 +238,64 @@ public class JwtService {
   }
 
   /**
+   * Generates the Refresh Token.
+   * 
+   * @param subject Subject.
+   * @return Token.
+   */
+  public String generateRefresh(
+      String subject,
+      Date ttl) {
+    return Jwts.builder()
+        .setIssuer(ISSUER)
+        .setIssuedAt(DateUtils.nowInUtc())
+        .setSubject(subject)
+        .setExpiration(ttl)
+        .claim(TYPE, TYPE_REFRESH)
+        .signWith(SignatureAlgorithm.HS256, KEY)
+        .compact();
+  }
+
+  /**
+   * Generates a complete Token (access token and refresh token).
+   * 
+   * @param subject subject.
+   * @param firstName first name.
+   * @param lastName last name.
+   * @param username user name.
+   * @param unit unit.
+   * @param roles roles.
+   * @param tokenExpirationDate JWT expiration date.
+   * @param refreshExpirationDate JWT refresh expiration date.
+   * @param avatarUri Avatar Uri.
+   * @return the JWT.
+   */
+  public Token generateToken(
+      final String subject,
+      final String firstName,
+      final String lastName,
+      final String unit,
+      final String username,
+      final Set<String> roles,
+      final Date tokenExpirationDate,
+      final Date refreshExpirationDate,
+      final String avatarUri) {
+    String access = generate(subject,
+        firstName,
+        lastName,
+        unit,
+        username,
+        roles,
+        tokenExpirationDate,
+        avatarUri);
+    String refresh = generateRefresh(subject, refreshExpirationDate);
+    return new Token(access,
+        tokenExpirationDate,
+        refresh,
+        refreshExpirationDate);
+  }
+
+  /**
    * Parse a JWT and returns a JWT User to interact with the application
    *  services.
    * @param jwt the JWT to be parsed.
@@ -187,29 +306,14 @@ public class JwtService {
     log.trace("Entering parse.");
 
     Validate.notNull(jwt);
-    Jwt<JwsHeader, Claims> parsed = null;
-    try {
-      parsed = Jwts.parser()
-          .requireIssuer(ISSUER)
-          .setSigningKey(JwtService.KEY)
-          .parseClaimsJws(jwt);
-    } catch (MissingClaimException mce) {
-      log.error("Issuer not present.");
-      throw new JwtInvalidTokenException("Invalid Token, issuer not present.",
-          mce);
-    } catch (IncorrectClaimException ice) {
-      log.error("Unrecognized issuer.");
-      throw new JwtInvalidTokenException("Invalid Token, unrecognized issuer.",
-          ice);
-    } catch (ExpiredJwtException ee) {
-      log.error("Expired jwt.");
-      throw new JwtInvalidTokenException("Token expired.", ee);
-    } catch (Exception exception) {
-      log.error("Error parsing JWT. ", exception);
-      throw new JwtInvalidTokenException("Error parsing Token.", exception);
-    }
-
+    Jwt<JwsHeader, Claims> parsed = parseClaims(jwt);
     Claims claims = parsed.getBody();
+
+    String tokenType = (String) claims.get(TYPE);
+    if (tokenType == null || !tokenType.equals(TYPE_ACCESS)) {
+      log.error("Subject not present.");
+      throw new JwtInvalidTokenException("Invalid access token.");
+    }
 
     if (claims.getSubject() == null) {
       log.error("Subject not present.");
@@ -283,5 +387,50 @@ public class JwtService {
 
     log.trace("Leaving refresh.");
     return refreshed;
+  }
+
+  /**
+   * Parse a refresh JWT.
+   * 
+   * @param refreshJwt Refresh JWT.
+   * @return JWT User.
+   */
+  @SuppressWarnings("rawtypes")
+  public JwtUser parseRefresh(final String refreshJwt) {
+    Jwt<JwsHeader, Claims> parseClaims = parseClaims(refreshJwt);
+    String type = (String) parseClaims.getBody().get(TYPE);
+
+    if (type == null || !type.equals(TYPE_REFRESH)) {
+      throw new JwtInvalidTokenException("Invalid refresh token.");
+    }
+
+    Long id = Long.valueOf(parseClaims.getBody().getSubject());
+    return new JwtUser(id);
+  }
+
+  @SuppressWarnings("rawtypes")
+  private Jwt<JwsHeader, Claims> parseClaims(String jwt) {
+    Jwt<JwsHeader, Claims> parsed = null;
+    try {
+      parsed = Jwts.parser()
+          .requireIssuer(ISSUER)
+          .setSigningKey(JwtService.KEY)
+          .parseClaimsJws(jwt);
+    } catch (MissingClaimException mce) {
+      log.error("Issuer not present.");
+      throw new JwtInvalidTokenException("Invalid Token, issuer not present.",
+          mce);
+    } catch (IncorrectClaimException ice) {
+      log.error("Unrecognized issuer.");
+      throw new JwtInvalidTokenException("Invalid Token, unrecognized issuer.",
+          ice);
+    } catch (ExpiredJwtException ee) {
+      log.error("Expired jwt.");
+      throw new JwtExpiredTokenException("Token expired.", ee);
+    } catch (Exception exception) {
+      log.error("Error parsing JWT. ", exception);
+      throw new JwtInvalidTokenException("Error parsing Token.", exception);
+    }
+    return parsed;
   }
 }
