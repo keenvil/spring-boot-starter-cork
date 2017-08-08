@@ -62,7 +62,7 @@ public class TotpConfigurationProperties {
       int theScratchCodes,
       @Value("${keenvil.cork.totp.bytesPerScratchCode:4}")
       int theBytesPerScratchCode,
-      @Value("${keenvil.cork.totp.windowsSize:3}")
+      @Value("${keenvil.cork.totp.windowsSize:4}")
       int theWindowsSize,
       @Value("${keenvil.cork.totp.codeDigits:6.0}")
       double theCodeDigits,
