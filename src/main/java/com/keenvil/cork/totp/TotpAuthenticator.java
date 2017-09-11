@@ -1,5 +1,7 @@
 package com.keenvil.cork.totp;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
@@ -8,12 +10,13 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Base32;
+import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
 /**
  * This class implements the functionality described in RFC 6238 (TOTP: Time
  * based one-time password algorithm) .
- * 
+ *
  * <p>This class lets generate a TOTP and authorize a TOTP generated with a
  * particular secret key.</p>
  */
@@ -26,6 +29,9 @@ public class TotpAuthenticator {
    */
   private static final String HMAC_HASH_FUNCTION = "HmacSHA1";
 
+  private static Logger log =
+      getLogger(TotpAuthenticator.class);
+
   private TotpConfigurationProperties properties;
 
   public TotpAuthenticator(TotpConfigurationProperties configuration) {
@@ -34,7 +40,7 @@ public class TotpAuthenticator {
 
   /**
    * Generates the next TOTP for the given secret.
-   * 
+   *
    * @param secret Secret.
    * @return Next TOTP.
    */
@@ -44,7 +50,7 @@ public class TotpAuthenticator {
 
   /**
    * Authorizes a verification code for a given secret.
-   * 
+   *
    * @param secret The secret.
    * @param verificationCode Verification code to validate.
    * @return whether the verification code is valid or not for the given secret.
@@ -119,6 +125,9 @@ public class TotpAuthenticator {
 
     for (int i = -((window - 1) / 2); i <= window / 2; ++i) {
       long hash = calculateCode(decodedKey, timeWindow + i);
+
+      log.debug("Validating Code: {}, vs hash: {} using secret: {}", code, hash, secret);
+
       if (hash == code) {
         return true;
       }
