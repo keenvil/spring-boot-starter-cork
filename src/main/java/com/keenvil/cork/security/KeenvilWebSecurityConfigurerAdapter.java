@@ -31,13 +31,15 @@ public class KeenvilWebSecurityConfigurerAdapter
     endpoints.add("/health");
     endpoints.add("/info");
     endpoints.add("/status");
-    
+
     List<String> excluded = excludeFromAuthentication();
     if (excluded != null && !excluded.isEmpty()) {
       endpoints.addAll(excluded);
     }
 
-    http.csrf().disable()
+    http.cors()
+        .and()
+        .csrf().disable()
         .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint)
         .and()
         .sessionManagement()
@@ -53,7 +55,7 @@ public class KeenvilWebSecurityConfigurerAdapter
           UsernamePasswordAuthenticationFilter.class);
   }
 
-  private JwtAuthenticationFilter authenticationTokenFilter() 
+  private JwtAuthenticationFilter authenticationTokenFilter()
       throws Exception {
     JwtAuthenticationFilter filter =
         new JwtAuthenticationFilter(jwtService);
@@ -62,9 +64,9 @@ public class KeenvilWebSecurityConfigurerAdapter
   }
 
   /**
-   * Gets list of end points that must be excluded from authentication 
+   * Gets list of end points that must be excluded from authentication
    * from a application in the form of AntMatchers.
-   * 
+   *
    * @return The list of endpoints in the form of AntMatchers.
    */
   @SuppressWarnings("unchecked")
