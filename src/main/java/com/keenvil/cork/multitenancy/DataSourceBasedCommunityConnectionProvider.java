@@ -3,8 +3,10 @@ package com.keenvil.cork.multitenancy;
 import static org.slf4j.LoggerFactory.getLogger;
 
 
+import com.keenvil.cork.consul.ConsulService;
 import org.hibernate.engine.jdbc.connections.spi.AbstractDataSourceBasedMultiTenantConnectionProviderImpl;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -30,7 +32,8 @@ public class DataSourceBasedCommunityConnectionProvider
 
   private Map<String, DataSource> dataSourceMapping;
 
-  public DataSourceBasedCommunityConnectionProvider() { }
+  @Autowired
+  private ConsulService consulService;
 
   public DataSourceBasedCommunityConnectionProvider(String theDefaultTenant,
       Map<String, DataSource> theDataSourceMapping) {
@@ -48,7 +51,7 @@ public class DataSourceBasedCommunityConnectionProvider
     if (log.isDebugEnabled()) {
       log.debug("Selecting data source for tenant {}.", tenantIdentifier);      
     }
-    return dataSourceMapping.get(tenantIdentifier);
+    return consulService.getDatasource(tenantIdentifier);
   }
 
   public DataSource getDefaultDataSource() {
