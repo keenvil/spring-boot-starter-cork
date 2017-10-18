@@ -18,7 +18,8 @@ import java.util.*;
 /**
  * Consul Configuration
  * <p>
- * <p>this class define configuration for Consul and Archaius configuration</p>
+ *   this class define configuration for Consul and Archaius configuration
+ * </p>
  */
 public class ConsulConfiguration implements PolledConfigurationSource {
 
