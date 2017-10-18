@@ -1,5 +1,6 @@
 package com.keenvil.cork.consul;
 
+import com.ecwid.consul.ConsulException;
 import com.ecwid.consul.transport.TransportException;
 import com.ecwid.consul.v1.ConsulClient;
 import com.ecwid.consul.v1.Response;
@@ -16,12 +17,12 @@ import java.util.*;
 
 /**
  * Consul Configuration
- *
+ * <p>
  * <p>this class define configuration for Consul and Archaius configuration</p>
  */
 public class ConsulConfiguration implements PolledConfigurationSource {
 
-  private static final Logger LOG = LoggerFactory.getLogger(
+  private static Logger log = LoggerFactory.getLogger(
       ConsulConfiguration.class.getName());
 
   private ConsulClient client;
@@ -32,15 +33,14 @@ public class ConsulConfiguration implements PolledConfigurationSource {
   }
 
   @Override
-  public PollResult poll(boolean initial, Object checkPoint) {
+  public PollResult poll(boolean initial, Object checkPoint) throws TransportException {
     if (client != null || createClient()) {
       try {
         Response<List<GetValue>> kvValues = client.getKVValues(endPointKey);
         return PollResult.createFull(responseToMap(kvValues));
       } catch (TransportException e) {
-        LOG.error("Service not available on host. ", e);
-      } catch (Exception ex) {
-        LOG.error("Error in poll configuration.", ex);
+        log.error("Service not available on host review connection to consul. ");
+        throw new TransportException(e);
       }
     }
     return initial ? createFull(Collections.EMPTY_MAP) : null;
@@ -55,11 +55,9 @@ public class ConsulConfiguration implements PolledConfigurationSource {
     if (host != null && port != 0) {
       this.client = new ConsulClient(host, port);
       return true;
-    } else {
-      LOG.error("Some values 'port' or 'host' are null, please verify file " +
-          "config.properties in cork");
-      return false;
     }
+    throw new ConsulException("can not initialize client Consul review " +
+        "properties");
   }
 
   private Map<String, Object> responseToMap(

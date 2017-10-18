@@ -7,8 +7,6 @@ import com.keenvil.cork.error.KeenvilApiException.UnprocessedEntity;
 import com.keenvil.cork.multitenancy.DataSourceBuilder;
 import com.netflix.config.*;
 import org.apache.commons.configuration.ConfigurationException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.sql.DataSource;
@@ -20,7 +18,6 @@ import static com.netflix.config.ConfigurationManager.isConfigurationInstalled;
 
 /**
  * Consul Service
- * <p>
  * <p>this class initial {@link ConsulConfiguration} and is responsible for
  * returning the properties of archaius
  * </p>
@@ -28,21 +25,31 @@ import static com.netflix.config.ConfigurationManager.isConfigurationInstalled;
 @Service
 public class ConsulService {
 
-  private String endPointPropertiesRequest;
-  private static final Logger LOG = LoggerFactory.getLogger(
-      ConsulService.class.getName());
-
-  private static final int INITIAL_DELAY_MILLIS = -1;
+  /**
+   * INITIAL_DELAY_MILLIS the time to delay first execution
+   */
+  private static final int INITIAL_DELAY_MILLIS = 2000;
+  /**
+   * DELAY_MILLIS the delay between the termination of one
+   * execution and the commencement of the next
+   */
   private static final int DELAY_MILLIS = 60000;
+  /**
+   * IGNORE_DELETES_FROM_SOURCE if this is false then delete value of
+   * properties if  the value current is deleted in consul Server
+   */
   private static final boolean IGNORE_DELETES_FROM_SOURCE = false;
+  private String endPointPropertiesRequest;
 
-  public ConsulService(String endPointPropertiesRequest) {
+
+  public ConsulService(String endPointPropertiesRequest)
+      throws ConsulServiceException {
     this.endPointPropertiesRequest = endPointPropertiesRequest;
     try {
       installConfig();
     } catch (ConfigurationException e) {
-      LOG.error("Error in configuration ConsulService: " + e.getMessage());
-      e.printStackTrace();
+      throw new ConsulServiceException("Error in configuration ConsulService: "
+          + e.getMessage());
     }
   }
 
@@ -86,18 +93,19 @@ public class ConsulService {
   }
 
   private Map<String, Object> jsonToMap(JsonElement jsonElement) {
-    Map<String, Object> properties = new HashMap<>();
+    Map<String, Object> tenantProperties = new HashMap<>();
 
     if (jsonElement.isJsonObject()) {
-      Set<Map.Entry<String, JsonElement>> ens = (
+      Set<Map.Entry<String, JsonElement>> setValues = (
           (JsonObject) jsonElement).entrySet();
 
-      if (ens != null) {
-        for (Map.Entry<String, JsonElement> en : ens) {
-          properties.put(en.getKey(), en.getValue().getAsString());
+      if (setValues != null) {
+        for (Map.Entry<String, JsonElement> mapValue : setValues) {
+          tenantProperties.put(mapValue.getKey(),
+              mapValue.getValue().getAsString());
         }
       }
     }
-    return properties;
+    return tenantProperties;
   }
 }
