@@ -7,18 +7,23 @@ import com.ecwid.consul.v1.Response;
 import com.ecwid.consul.v1.kv.model.GetValue;
 import com.google.common.io.BaseEncoding;
 import com.google.gson.JsonParser;
-import com.netflix.config.*;
+import com.netflix.config.ConfigurationManager;
+import com.netflix.config.PollResult;
+import com.netflix.config.PolledConfigurationSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.netflix.config.PollResult.createFull;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import java.util.*;
+import static com.netflix.config.PollResult.createFull;
 
 /**
  * Consul Configuration
  * <p>
- *   this class define configuration for Consul and Archaius configuration
+ * this class define configuration for Consul and Archaius configuration
  * </p>
  */
 public class ConsulConfiguration implements PolledConfigurationSource {
@@ -29,7 +34,7 @@ public class ConsulConfiguration implements PolledConfigurationSource {
   private ConsulClient client;
   private String endPointKey;
 
-  public ConsulConfiguration(String endPointKey) {
+  ConsulConfiguration(String endPointKey) {
     this.endPointKey = endPointKey;
   }
 
@@ -61,6 +66,19 @@ public class ConsulConfiguration implements PolledConfigurationSource {
         "properties");
   }
 
+
+  /**
+   * Convert a response in Map
+   * <p>
+   * this method is responsible of save the responses of consul in archaius of
+   * orderly manner to support multiple resources
+   * </p>
+   *
+   * @param listResponse response from
+   *                     {@link ConsulConfiguration#poll(boolean, Object)}
+   * @return a Map<String, Object>
+   * <b>example: Key=suburb/resource, value=Json</b>.
+   */
   private Map<String, Object> responseToMap(
       Response<List<GetValue>> listResponse) {
     Map<String, Object> map = new HashMap<>();
@@ -73,7 +91,12 @@ public class ConsulConfiguration implements PolledConfigurationSource {
                   decode(value.getValue()))).getAsJsonObject();
           String key = value.getKey().substring(
               value.getKey().lastIndexOf("/") + 1);
-          map.put(key, jsonDecoded);
+          for (Properties keyProperties : Properties.values()) {
+            if (value.getKey().contains(keyProperties.name().toLowerCase())) {
+              map.put(key + keyProperties, jsonDecoded);
+              break;
+            }
+          }
         }
       }
     }
