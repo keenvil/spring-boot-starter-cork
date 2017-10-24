@@ -14,6 +14,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import static com.keenvil.cork.consul.Properties.DATABASES;
+import static com.keenvil.cork.consul.Properties.QUEUES;
 import static com.netflix.config.ConfigurationManager.isConfigurationInstalled;
 
 /**
@@ -55,13 +57,61 @@ public class ConsulService {
 
   public DataSource getDatasource(String tenantId) {
     final DynamicStringProperty datasourceProperties =
-        DynamicPropertyFactory.getInstance().getStringProperty(tenantId,
+        DynamicPropertyFactory.getInstance().getStringProperty(
+            tenantId + DATABASES,
             "");
 
     if (!datasourceProperties.get().isEmpty()) {
       return tenantDatasource(datasourceProperties.get());
     }
     throw new UnprocessedEntity("no tenant configuration for: " + tenantId);
+  }
+
+  public Map<String, Object> getRabbitPropertiesConnectionFactory(String tenantId) {
+    final DynamicStringProperty rabbitProperties =
+        DynamicPropertyFactory.getInstance().getStringProperty(
+            tenantId + QUEUES,
+            "");
+
+    if (!rabbitProperties.get().isEmpty()) {
+      return rabbitPropertiesConnectionFactory(rabbitProperties.get());
+    }
+    throw new UnprocessedEntity("no rabbit connection factory for: " + tenantId);
+  }
+
+  private void installConfig() throws ConfigurationException {
+    if (!isConfigurationInstalled()) {
+      ConsulConfiguration consulDatabasesConfiguration =
+          new ConsulConfiguration(
+              endPointPropertiesRequest + DATABASES);
+
+      DynamicConfiguration dynamicConfigurationDatabases = new DynamicConfiguration(
+          consulDatabasesConfiguration, new FixedDelayPollingScheduler(
+          INITIAL_DELAY_MILLIS, DELAY_MILLIS, IGNORE_DELETES_FROM_SOURCE));
+
+      ConsulConfiguration consulQueuesConfiguration =
+          new ConsulConfiguration(
+              endPointPropertiesRequest + QUEUES);
+
+      DynamicConfiguration dynamicConfigurationQueues = new DynamicConfiguration(
+          consulQueuesConfiguration, new FixedDelayPollingScheduler(
+          INITIAL_DELAY_MILLIS, DELAY_MILLIS, IGNORE_DELETES_FROM_SOURCE));
+
+      ConcurrentCompositeConfiguration finalConfig =
+          new ConcurrentCompositeConfiguration();
+      finalConfig.addConfiguration(
+          dynamicConfigurationDatabases, "databases");
+      finalConfig.addConfiguration(
+          dynamicConfigurationQueues, "queues");
+
+      ConfigurationManager.install(finalConfig);
+    }
+  }
+
+  private Map<String, Object> rabbitPropertiesConnectionFactory(
+      String stringRabbitProperties) {
+    Object jsonDatasource = new JsonParser().parse(stringRabbitProperties);
+    return jsonToMap((JsonElement) jsonDatasource);
   }
 
   private DataSource tenantDatasource(String stringDatasource) {
@@ -71,25 +121,13 @@ public class ConsulService {
     mapProperties = jsonToMap((JsonElement) jsonDatasource);
 
     return DataSourceBuilder.create().driverClassName(
-        (String) mapProperties.get("diverClassName"))
+        (String) mapProperties.get("driverClassName"))
         .username((String) mapProperties.get("username"))
         .password(
             (String) mapProperties.get("password"))
         .url(
-            (String) mapProperties.get("url")).build();
-  }
-
-  private void installConfig() throws ConfigurationException {
-    if (!isConfigurationInstalled()) {
-      ConsulConfiguration consulConfiguration =
-          new ConsulConfiguration(endPointPropertiesRequest);
-
-      DynamicConfiguration dynamicConfiguration = new DynamicConfiguration(
-          consulConfiguration, new FixedDelayPollingScheduler(
-          INITIAL_DELAY_MILLIS, DELAY_MILLIS, IGNORE_DELETES_FROM_SOURCE));
-
-      ConfigurationManager.install(dynamicConfiguration);
-    }
+            (String) mapProperties.get("url"))
+        .build();
   }
 
   private Map<String, Object> jsonToMap(JsonElement jsonElement) {
