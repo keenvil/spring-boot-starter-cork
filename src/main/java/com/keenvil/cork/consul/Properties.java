@@ -1,21 +1,27 @@
 package com.keenvil.cork.consul;
 
-public enum  Properties {
-  /**
-   * end point for resources databases in consul
-   */
-  DATABASES {
+/**
+ * the Enums here declared to supplement the endpoint y can access to resources
+ */
+public enum Properties {
+
+  MYSQL {
     public String toString() {
-      return "/databases";
+      return rootDatabase + "/mysql";
     }
   },
-  /**
-   * end point for resources queues in consul
-   */
-  QUEUES {
+  MONGO {
     public String toString() {
-      return "/queues";
+      return rootDatabase + "/mongo";
     }
-  }
+  },
+  RABBIT {
+    public String toString() {
+      return rootQueues + "/rabbit";
+    }
+  };
+  private static String rootDatabase = "/databases";
+  private static String rootQueues = "/queues";
+
 }
 
