@@ -14,8 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static com.keenvil.cork.consul.Properties.DATABASES;
-import static com.keenvil.cork.consul.Properties.QUEUES;
+import static com.keenvil.cork.consul.Properties.*;
 import static com.netflix.config.ConfigurationManager.isConfigurationInstalled;
 
 /**
@@ -58,7 +57,7 @@ public class ConsulService {
   public DataSource getDatasource(String tenantId) {
     final DynamicStringProperty datasourceProperties =
         DynamicPropertyFactory.getInstance().getStringProperty(
-            tenantId + DATABASES,
+            tenantId +  MYSQL,
             "");
 
     if (!datasourceProperties.get().isEmpty()) {
@@ -70,20 +69,34 @@ public class ConsulService {
   public Map<String, Object> getRabbitPropertiesConnectionFactory(String tenantId) {
     final DynamicStringProperty rabbitProperties =
         DynamicPropertyFactory.getInstance().getStringProperty(
-            tenantId + QUEUES,
+            tenantId + RABBIT,
             "");
 
     if (!rabbitProperties.get().isEmpty()) {
-      return rabbitPropertiesConnectionFactory(rabbitProperties.get());
+      return getPropertiesConnectionFactory(rabbitProperties.get());
     }
     throw new UnprocessedEntity("no rabbit connection factory for: " + tenantId);
+  }
+
+  public String getMongoPropertiesConnectionFactory(String tenantId) {
+    final DynamicStringProperty mongoProperties =
+        DynamicPropertyFactory.getInstance().getStringProperty(
+            tenantId + MONGO,
+            "");
+    if (!mongoProperties.get().isEmpty()) {
+      Map<String,Object> tenant =getPropertiesConnectionFactory(mongoProperties.get());
+
+      return (String) getPropertiesConnectionFactory(
+          mongoProperties.get()).get("database");
+    }
+    throw new UnprocessedEntity("no mongo DB  connection factory for: " + tenantId);
   }
 
   private void installConfig() throws ConfigurationException {
     if (!isConfigurationInstalled()) {
       ConsulConfiguration consulDatabasesConfiguration =
           new ConsulConfiguration(
-              endPointPropertiesRequest + DATABASES);
+              endPointPropertiesRequest + MYSQL);
 
       DynamicConfiguration dynamicConfigurationDatabases = new DynamicConfiguration(
           consulDatabasesConfiguration, new FixedDelayPollingScheduler(
@@ -91,26 +104,36 @@ public class ConsulService {
 
       ConsulConfiguration consulQueuesConfiguration =
           new ConsulConfiguration(
-              endPointPropertiesRequest + QUEUES);
+              endPointPropertiesRequest + RABBIT);
 
       DynamicConfiguration dynamicConfigurationQueues = new DynamicConfiguration(
           consulQueuesConfiguration, new FixedDelayPollingScheduler(
           INITIAL_DELAY_MILLIS, DELAY_MILLIS, IGNORE_DELETES_FROM_SOURCE));
 
+      ConsulConfiguration consulMongoConfiguration =
+          new ConsulConfiguration(
+              endPointPropertiesRequest + MONGO);
+
+      DynamicConfiguration dynamicConfigurationMongo = new DynamicConfiguration(
+          consulMongoConfiguration, new FixedDelayPollingScheduler(
+          INITIAL_DELAY_MILLIS, DELAY_MILLIS, IGNORE_DELETES_FROM_SOURCE));
+
       ConcurrentCompositeConfiguration finalConfig =
           new ConcurrentCompositeConfiguration();
       finalConfig.addConfiguration(
-          dynamicConfigurationDatabases, "databases");
+          dynamicConfigurationDatabases, "mysql");
       finalConfig.addConfiguration(
-          dynamicConfigurationQueues, "queues");
+          dynamicConfigurationQueues, "rabbit");
+      finalConfig.addConfiguration(
+          dynamicConfigurationMongo, "mongo");
 
       ConfigurationManager.install(finalConfig);
     }
   }
 
-  private Map<String, Object> rabbitPropertiesConnectionFactory(
-      String stringRabbitProperties) {
-    Object jsonDatasource = new JsonParser().parse(stringRabbitProperties);
+  private Map<String, Object> getPropertiesConnectionFactory(
+      String stringProperties) {
+    Object jsonDatasource = new JsonParser().parse(stringProperties);
     return jsonToMap((JsonElement) jsonDatasource);
   }
 
