@@ -84,8 +84,6 @@ public class ConsulService {
             tenantId + MONGO,
             "");
     if (!mongoProperties.get().isEmpty()) {
-      Map<String,Object> tenant =getPropertiesConnectionFactory(mongoProperties.get());
-
       return (String) getPropertiesConnectionFactory(
           mongoProperties.get()).get("database");
     }
