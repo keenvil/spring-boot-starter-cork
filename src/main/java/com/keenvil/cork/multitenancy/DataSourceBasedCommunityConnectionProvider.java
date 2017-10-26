@@ -9,13 +9,14 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.sql.SQLException;
 import java.util.Map;
 
 import javax.sql.DataSource;
 
 /**
  * Data Source provider for multiple tenants/communities.
- * 
+ * <p>
  * <p>Provides a specific data source for the community selected for this
  * request.</p>
  */
@@ -36,11 +37,11 @@ public class DataSourceBasedCommunityConnectionProvider
   private ConsulService consulService;
 
   public DataSourceBasedCommunityConnectionProvider(String theDefaultTenant,
-      Map<String, DataSource> theDataSourceMapping) {
+                                                    Map<String, DataSource> theDataSourceMapping) {
     defaultTenant = theDefaultTenant;
     dataSourceMapping = theDataSourceMapping;
   }
-  
+
   @Override
   protected DataSource selectAnyDataSource() {
     return dataSourceMapping.get(defaultTenant);
@@ -49,9 +50,13 @@ public class DataSourceBasedCommunityConnectionProvider
   @Override
   protected DataSource selectDataSource(String tenantIdentifier) {
     if (log.isDebugEnabled()) {
-      log.debug("Selecting data source for tenant {}.", tenantIdentifier);      
+      log.debug("Selecting data source for tenant {}.", tenantIdentifier);
     }
-    return consulService.getDatasource(tenantIdentifier);
+    if (dataSourceMapping.get(tenantIdentifier) == null) {
+      return dataSourceMapping.put(
+          tenantIdentifier, consulService.getDatasource(tenantIdentifier));
+    }
+    return dataSourceMapping.get(tenantIdentifier);
   }
 
   public DataSource getDefaultDataSource() {
