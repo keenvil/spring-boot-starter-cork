@@ -9,7 +9,6 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.sql.SQLException;
 import java.util.Map;
 
 import javax.sql.DataSource;
@@ -36,8 +35,8 @@ public class DataSourceBasedCommunityConnectionProvider
   @Autowired
   private ConsulService consulService;
 
-  public DataSourceBasedCommunityConnectionProvider(String theDefaultTenant,
-                                                    Map<String, DataSource> theDataSourceMapping) {
+  public DataSourceBasedCommunityConnectionProvider(
+      String theDefaultTenant, Map<String, DataSource> theDataSourceMapping) {
     defaultTenant = theDefaultTenant;
     dataSourceMapping = theDataSourceMapping;
   }
