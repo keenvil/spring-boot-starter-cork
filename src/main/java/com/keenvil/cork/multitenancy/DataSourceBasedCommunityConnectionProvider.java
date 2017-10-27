@@ -51,8 +51,9 @@ public class DataSourceBasedCommunityConnectionProvider
     if (log.isDebugEnabled()) {
       log.debug("Selecting data source for tenant {}.", tenantIdentifier);
     }
+
     if (dataSourceMapping.get(tenantIdentifier) == null) {
-      return dataSourceMapping.put(
+      dataSourceMapping.put(
           tenantIdentifier, consulService.getDatasource(tenantIdentifier));
     }
     return dataSourceMapping.get(tenantIdentifier);
