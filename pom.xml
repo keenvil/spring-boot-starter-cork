@@ -7,7 +7,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.keenvil</groupId>
   <artifactId>spring-boot-starter-cork</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>spring-boot-starter-cork</name>
@@ -33,6 +33,8 @@
     <easymock.version>3.3</easymock.version>
     <powermock.version>1.6.6</powermock.version>
     <liquibase.version>3.5.3</liquibase.version>
+    <archaius.version>0.7.5</archaius.version>
+    <ecwid-consul-api.version>1.2.4</ecwid-consul-api.version>
   </properties>
 
   <dependencyManagement>
@@ -179,6 +181,21 @@
       <version>${liquibase.version}</version>
       <scope>provided</scope>
     </dependency>
+
+    <!-- Archaius -->
+    <dependency>
+      <groupId>com.netflix.archaius</groupId>
+      <artifactId>archaius-core</artifactId>
+      <version>${archaius.version}</version>
+    </dependency>
+
+    <!--consul-api -->
+    <dependency>
+      <groupId>com.ecwid.consul</groupId>
+      <artifactId>consul-api</artifactId>
+      <version>${ecwid-consul-api.version}</version>
+    </dependency>
+
   </dependencies>
 
   <distributionManagement>

@@ -187,4 +187,26 @@ public class KeenvilApiException extends KeenvilException {
       super(message, throwable);
     }
   }
+
+  /**
+   * Throw when no such a tenant properties in {@link
+   * com.keenvil.cork.consul.ConsulService}
+   * <p>this happens when try get configuration of a tenant what not
+   * exist. In http this status code is 422</p>
+   */
+  public static class UnprocessedEntity extends KeenvilApiException{
+    private static final long serialVersionUID = 1L;
+
+    public UnprocessedEntity() {
+      super();
+    }
+
+    public UnprocessedEntity(final String message) {
+      super(message);
+    }
+
+    public UnprocessedEntity(final String message, final Throwable throwable) {
+      super(message, throwable);
+    }
+  }
 }
