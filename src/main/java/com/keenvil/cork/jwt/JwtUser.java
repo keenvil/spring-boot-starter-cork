@@ -1,11 +1,6 @@
 package com.keenvil.cork.jwt;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.lang3.Validate;
 import org.springframework.security.core.GrantedAuthority;
@@ -32,11 +27,19 @@ public class JwtUser implements UserDetails {
 
   private String avatarUri;
 
+  private Date expiration;
+
   JwtUser() { }
 
   public JwtUser(final Long theId) {
     Validate.notNull(theId);
     id = theId;
+  }
+
+  public JwtUser(final Long theId, final Date theExpiration) {
+    Validate.notNull(theId);
+    id = theId;
+    expiration = theExpiration;
   }
 
   /**
@@ -65,11 +68,47 @@ public class JwtUser implements UserDetails {
     roles = setOfRoles;
   }
 
+  /**
+   * Creates a JWT User.
+   * @param theId the id,
+   * @param theFirstName first name.
+   * @param theLastName last name.
+   * @param theUnit unit.
+   * @param theUsername user name.
+   * @param setOfRoles roles.
+   */
+  public JwtUser(final Long theId, final String theFirstName,
+                 final String theLastName, final String theUnit,
+                 final String theUsername, final Set<String> setOfRoles,
+                 final Date theExpiration) {
+    Validate.notNull(theId);
+    Validate.notNull(theFirstName);
+    Validate.notNull(theLastName);
+    Validate.notNull(theUnit);
+    Validate.notNull(theUsername);
+    Validate.notNull(setOfRoles);
+    id = theId;
+    firstName = theFirstName;
+    lastName = theLastName;
+    unit = theUnit;
+    username = theUsername;
+    roles = setOfRoles;
+    expiration = theExpiration;
+  }
+
   public JwtUser(final Long theId, final String theFirstName,
       final String theLastName, final String theUnit,
       final String theUsername, final Set<String> setOfRoles,
       final String theAvatarUri) {
     this(theId, theFirstName, theLastName, theUnit, theUsername, setOfRoles);
+    avatarUri = theAvatarUri;
+  }
+
+  public JwtUser(final Long theId, final String theFirstName,
+                 final String theLastName, final String theUnit,
+                 final String theUsername, final Set<String> setOfRoles,
+                 final String theAvatarUri, final Date theExpiration) {
+    this(theId, theFirstName, theLastName, theUnit, theUsername, setOfRoles, theExpiration);
     avatarUri = theAvatarUri;
   }
 
@@ -129,6 +168,8 @@ public class JwtUser implements UserDetails {
     return null;
   }
 
+
+  public Date getExpiration() { return expiration; }
 
   @Override
   public boolean isAccountNonExpired() {
