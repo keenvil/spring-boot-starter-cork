@@ -29,6 +29,20 @@ public class JwtUserTest {
     assertFalse(user.hasRoleInCommunity(Collections.singletonList("ADMIN"), "default"));
     assertFalse(user.hasRoleInCommunity(Arrays.asList("GUARD", "SECURITY"), "default"));
 
+    Set<String> singleRole = new HashSet<>();
+    Collections.addAll(singleRole, "TENANT_default");
+    JwtUser userSingle = new JwtUser(1L, "Victor", "Average", "B-52",
+        "vic", singleRole);
+    assertTrue(userSingle.hasRoleInCommunity(Collections.singletonList("TENANT"), "default"));
+    assertFalse(userSingle.hasRoleInCommunity(Collections.singletonList("OWNER"), "default"));
+
+    Set<String> twoRoles = new HashSet<>();
+    Collections.addAll(twoRoles, "TENANT_default", "OWNER_default");
+    JwtUser userTowRoles = new JwtUser(1L, "Victor", "Average", "B-52",
+        "vic", twoRoles);
+    assertTrue(userTowRoles.hasRoleInCommunity(Arrays.asList("TENANT", "OWNER"), "default"));
+    assertFalse(userTowRoles.hasRoleInCommunity(Arrays.asList("SECURITY", "GUARD"), "default"));
+
 
     user = new JwtUser(1L, "Joe", "Average", "B-52",
         "admin", roles, "uri");
