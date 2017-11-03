@@ -17,6 +17,8 @@ import org.junit.Test;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 
 public class ResourceSecurityServiceTest {
@@ -37,7 +39,7 @@ public class ResourceSecurityServiceTest {
     JwtUser jwtUser =
         new JwtUser(1L,  "Joe", "Average", "B-52", "admin@keenvil.com",
             Sets.newHashSet("ADMIN_KEENVIL"));
-    boolean hasCommunityRole = service.hasRoleInCommunity(jwtUser, "ADMIN");
+    boolean hasCommunityRole = service.hasRoleInCommunity(jwtUser, Collections.singletonList("ADMIN"));
 
     assertTrue(hasCommunityRole);
     verify(attributes);
@@ -54,7 +56,7 @@ public class ResourceSecurityServiceTest {
     HashSet<String> roles = Sets.newHashSet("RESIDENT_KEENVIL", "ADMIN_MYCO");
     JwtUser jwtUser =
         new JwtUser(1L,  "Joe", "Average", "B-52", "admin@keenvil.com", roles);
-    boolean hasCommunityRole = service.hasRoleInCommunity(jwtUser, "ADMIN");
+    boolean hasCommunityRole = service.hasRoleInCommunity(jwtUser, Collections.singletonList("ADMIN"));
 
     assertFalse(hasCommunityRole);
     verify(attributes);
@@ -71,7 +73,7 @@ public class ResourceSecurityServiceTest {
     HashSet<String> roles = Sets.newHashSet("RESIDENT_KEENVIL", "ADMIN_MYCO");
     JwtUser jwtUser =
         new JwtUser(1L,  "Joe", "Average", "B-52", "admin@keenvil.com", roles);
-    boolean hasCommunityRole = service.hasRoleInCommunity(jwtUser, "RESIDENT");
+    boolean hasCommunityRole = service.hasRoleInCommunity(jwtUser, Arrays.asList("TENANT", "CORESIDENT", "OWNER"));
 
     assertTrue(hasCommunityRole);
     verify(attributes);

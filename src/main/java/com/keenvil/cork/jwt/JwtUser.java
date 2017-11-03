@@ -7,7 +7,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-/** Identify a user and his roles within the application services.
+/**
+ * Identify a user and his roles within the application services.
  */
 public class JwtUser implements UserDetails {
 
@@ -29,7 +30,8 @@ public class JwtUser implements UserDetails {
 
   private Date expiration;
 
-  JwtUser() { }
+  JwtUser() {
+  }
 
   public JwtUser(final Long theId) {
     Validate.notNull(theId);
@@ -44,16 +46,17 @@ public class JwtUser implements UserDetails {
 
   /**
    * Creates a JWT User.
-   * @param theId the id,
+   *
+   * @param theId        the id,
    * @param theFirstName first name.
-   * @param theLastName last name.
-   * @param theUnit unit.
-   * @param theUsername user name.
-   * @param setOfRoles roles.
+   * @param theLastName  last name.
+   * @param theUnit      unit.
+   * @param theUsername  user name.
+   * @param setOfRoles   roles.
    */
   public JwtUser(final Long theId, final String theFirstName,
-      final String theLastName, final String theUnit,
-      final String theUsername, final Set<String> setOfRoles) {
+                 final String theLastName, final String theUnit,
+                 final String theUsername, final Set<String> setOfRoles) {
     Validate.notNull(theId);
     Validate.notNull(theFirstName);
     Validate.notNull(theLastName);
@@ -70,12 +73,13 @@ public class JwtUser implements UserDetails {
 
   /**
    * Creates a JWT User.
-   * @param theId the id,
+   *
+   * @param theId        the id,
    * @param theFirstName first name.
-   * @param theLastName last name.
-   * @param theUnit unit.
-   * @param theUsername user name.
-   * @param setOfRoles roles.
+   * @param theLastName  last name.
+   * @param theUnit      unit.
+   * @param theUsername  user name.
+   * @param setOfRoles   roles.
    */
   public JwtUser(final Long theId, final String theFirstName,
                  final String theLastName, final String theUnit,
@@ -97,9 +101,9 @@ public class JwtUser implements UserDetails {
   }
 
   public JwtUser(final Long theId, final String theFirstName,
-      final String theLastName, final String theUnit,
-      final String theUsername, final Set<String> setOfRoles,
-      final String theAvatarUri) {
+                 final String theLastName, final String theUnit,
+                 final String theUsername, final Set<String> setOfRoles,
+                 final String theAvatarUri) {
     this(theId, theFirstName, theLastName, theUnit, theUsername, setOfRoles);
     avatarUri = theAvatarUri;
   }
@@ -149,18 +153,20 @@ public class JwtUser implements UserDetails {
     }
     return auths;
   }
-  
+
   /**
    * Return {@code true} if JWT User has an given role in a community.
-   * @param role role to verify.
+   *
+   * @param rolesUser   role to verify.
    * @param communityId community to verify.
    * @return whether the user has the given role in the given community.
    */
-  public boolean hasRoleInCommunity(final String role,
-      final String communityId) {
+  public boolean hasRoleInCommunity(final List<String> rolesUser,
+                                    final String communityId) {
     return roles
         .stream()
-        .anyMatch(r -> r.equals(role.concat("_").concat(communityId)));
+        .anyMatch(r -> rolesUser.stream()
+            .anyMatch(role -> role.concat("_").concat(communityId).equals(r)));
   }
 
   @Override
@@ -169,7 +175,9 @@ public class JwtUser implements UserDetails {
   }
 
 
-  public Date getExpiration() { return expiration; }
+  public Date getExpiration() {
+    return expiration;
+  }
 
   @Override
   public boolean isAccountNonExpired() {

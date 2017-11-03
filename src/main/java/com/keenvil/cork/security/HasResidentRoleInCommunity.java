@@ -7,9 +7,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/** Annotation renaming for being an RESIDENT user in any of user's communities.
+/**
+ *  Annotation renaming for being an OWNER or CORESIDENT or TENANT
+ *  user in any of user's communities.
  */
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-@PreAuthorize("@resourceSecurityService.hasRoleInCommunity(principal, 'RESIDENT')")
+@PreAuthorize("@resourceSecurityService.hasRoleInCommunity(principal," +
+    " {'OWNER', 'CORESIDENT', 'TENANT'}) ")
 public @interface HasResidentRoleInCommunity { }
