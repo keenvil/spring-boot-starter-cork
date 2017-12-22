@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.keenvil.cork.error.KeenvilApiError.KeenvilApiErrorBuilder;
 import com.keenvil.cork.error.KeenvilApiException.Authorization;
+import com.keenvil.cork.error.KeenvilApiException.BadRequest;
+import com.keenvil.cork.error.KeenvilApiException.Forbidden;
 import com.keenvil.cork.error.KeenvilApiException.InvalidArgument;
 import com.keenvil.cork.error.KeenvilApiException.InvalidResourceState;
 import com.keenvil.cork.error.KeenvilApiException.ResourceAlreadyExists;
@@ -177,6 +179,49 @@ public class KeenvilApiControllerAdvice {
     return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(errors);
   }
 
+  @ExceptionHandler(Forbidden.class)
+  @ResponseBody ResponseEntity<List<KeenvilApiError>> handleForbidden(
+      final HttpServletRequest request,
+      final ResourceNotFound exception) {
+    List<KeenvilApiError> errors = new ArrayList<>();
+    KeenvilApiError error = new KeenvilApiErrorBuilder()
+        .code("forbidden")
+        .httpStatus(HttpStatus.FORBIDDEN.value())
+        .title("Forbidden")
+        .detail(exception.getMessage())
+        .module(name)
+        .request(request)
+        .source(exception)
+        .build();
+    errors.add(error);
+
+    log.error("Platform Error: {}", error.toString());
+    return ResponseEntity
+        .status(HttpStatus.FORBIDDEN)
+        .body(errors);
+  }
+
+  @ExceptionHandler(BadRequest.class)
+  @ResponseBody ResponseEntity<List<KeenvilApiError>> handleBadRequest(
+      final HttpServletRequest request,
+      final ResourceNotFound exception) {
+    List<KeenvilApiError> errors = new ArrayList<>();
+    KeenvilApiError error = new KeenvilApiErrorBuilder()
+        .code("badRequest")
+        .httpStatus(HttpStatus.BAD_REQUEST.value())
+        .title("Bad Request")
+        .detail(exception.getMessage())
+        .module(name)
+        .request(request)
+        .source(exception)
+        .build();
+    errors.add(error);
+
+    log.error("Platform Error: {}", error.toString());
+    return ResponseEntity
+        .status(HttpStatus.BAD_REQUEST)
+        .body(errors);
+  }
 
   @ExceptionHandler(KeenvilApiException.class)
   @ResponseBody ResponseEntity<List<KeenvilApiError>> handleApiException(
