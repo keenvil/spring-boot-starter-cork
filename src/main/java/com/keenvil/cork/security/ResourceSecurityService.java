@@ -5,6 +5,9 @@ import org.springframework.stereotype.Service;
 import com.keenvil.cork.CommunityIdentifierResolver;
 import com.keenvil.cork.jwt.JwtUser;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * Security services to grant access to resources according to user principals.
  */
@@ -21,13 +24,13 @@ public class ResourceSecurityService {
    *  role in any of his communities.
    *
    * @param jwtUser user to validate.
-   * @param role role to validate.
+   * @param roles role to validate.
    * @return whether the given user has the given role in any of his
    *     communities.
    */
-  public boolean hasRoleInCommunity(final JwtUser jwtUser, String role) {
+  public boolean hasRoleInCommunity(final JwtUser jwtUser, List<String> roles) {
     String communityId = cummunityResolver.resolve();
-    return jwtUser.hasRoleInCommunity(role, communityId)
+    return jwtUser.hasRoleInCommunity(roles, communityId)
         || hasAdminInCommunity(jwtUser);
   }
 
@@ -39,6 +42,6 @@ public class ResourceSecurityService {
    */
   public boolean hasAdminInCommunity(final JwtUser jwtUser) {
     String communityId = cummunityResolver.resolve();
-    return jwtUser.hasRoleInCommunity("ADMIN", communityId);
+    return jwtUser.hasRoleInCommunity(Collections.singletonList("ADMIN"), communityId);
   }
 }

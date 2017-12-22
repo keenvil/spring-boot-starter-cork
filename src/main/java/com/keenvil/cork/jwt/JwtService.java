@@ -399,13 +399,14 @@ public class JwtService {
   public JwtUser parseRefresh(final String refreshJwt) {
     Jwt<JwsHeader, Claims> parseClaims = parseClaims(refreshJwt);
     String type = (String) parseClaims.getBody().get(TYPE);
+    Date expiration = parseClaims.getBody().getExpiration();
 
     if (type == null || !type.equals(TYPE_REFRESH)) {
       throw new JwtInvalidTokenException("Invalid refresh token.");
     }
 
     Long id = Long.valueOf(parseClaims.getBody().getSubject());
-    return new JwtUser(id);
+    return new JwtUser(id, expiration);
   }
 
   @SuppressWarnings("rawtypes")
@@ -433,4 +434,5 @@ public class JwtService {
     }
     return parsed;
   }
+
 }
