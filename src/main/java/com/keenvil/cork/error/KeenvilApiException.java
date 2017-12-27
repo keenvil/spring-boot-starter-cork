@@ -209,4 +209,28 @@ public class KeenvilApiException extends KeenvilException {
       super(message, throwable);
     }
   }
+
+  /**
+   * Thrown when a call to a resource is made but the server could not
+   * understand the request due to invalid syntax or invalid body.
+   *
+   * <p>Commons examples of this situation are calls to the resources with
+   * incomplete data or errors in the body.</p>
+   */
+  public static class BadRequest extends KeenvilApiException {
+
+    private static final long serialVersionUID = 1L;
+
+    public BadRequest() {
+      super();
+    }
+
+    public BadRequest(final String message) {
+      super(message);
+    }
+
+    public BadRequest(final String message, final Throwable throwable) {
+      super(message, throwable);
+    }
+  }
 }

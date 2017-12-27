@@ -8,9 +8,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /** 
- * Annotation renaming for being a Community GUARD.
+ * Annotation renaming for being a Community GUARD or SUPERVISOR.
  */
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-@PreAuthorize("@resourceSecurityService.hasRoleInCommunity(principal, 'GUARD')")
+@PreAuthorize("@resourceSecurityService.hasRoleInCommunity(principal," +
+    " {'GUARD', 'SUPERVISOR'})")
 public @interface HasGuardRoleInCommunity { }
