@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.orm.jpa.JpaObjectRetrievalFailureException;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -71,10 +72,10 @@ public class KeenvilApiControllerAdvice {
         .body(errors);
   }
 
-  @ExceptionHandler(ResourceNotFound.class)
+  @ExceptionHandler({ResourceNotFound.class, JpaObjectRetrievalFailureException.class})
   @ResponseBody ResponseEntity<List<KeenvilApiError>> handleResourceNotFound(
       final HttpServletRequest request,
-      final ResourceNotFound exception) {
+      final Exception exception) {
     List<KeenvilApiError> errors = new ArrayList<>();
     KeenvilApiError error = new KeenvilApiErrorBuilder()
           .code("resourceNotFound")

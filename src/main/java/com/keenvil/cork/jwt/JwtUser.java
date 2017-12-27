@@ -73,13 +73,12 @@ public class JwtUser implements UserDetails {
 
   /**
    * Creates a JWT User.
-   *
-   * @param theId        the id,
+   * @param theId the id,
    * @param theFirstName first name.
-   * @param theLastName  last name.
-   * @param theUnit      unit.
-   * @param theUsername  user name.
-   * @param setOfRoles   roles.
+   * @param theLastName last name.
+   * @param theUnit unit.
+   * @param theUsername user name.
+   * @param setOfRoles roles.
    */
   public JwtUser(final Long theId, final String theFirstName,
                  final String theLastName, final String theUnit,
@@ -173,7 +172,6 @@ public class JwtUser implements UserDetails {
   public String getPassword() {
     return null;
   }
-
 
   public Date getExpiration() {
     return expiration;
