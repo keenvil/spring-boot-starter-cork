@@ -183,7 +183,7 @@ public class KeenvilApiControllerAdvice {
   @ExceptionHandler(Forbidden.class)
   @ResponseBody ResponseEntity<List<KeenvilApiError>> handleForbidden(
       final HttpServletRequest request,
-      final ResourceNotFound exception) {
+      final Forbidden exception) {
     List<KeenvilApiError> errors = new ArrayList<>();
     KeenvilApiError error = new KeenvilApiErrorBuilder()
         .code("forbidden")
@@ -205,7 +205,7 @@ public class KeenvilApiControllerAdvice {
   @ExceptionHandler(BadRequest.class)
   @ResponseBody ResponseEntity<List<KeenvilApiError>> handleBadRequest(
       final HttpServletRequest request,
-      final ResourceNotFound exception) {
+      final BadRequest exception) {
     List<KeenvilApiError> errors = new ArrayList<>();
     KeenvilApiError error = new KeenvilApiErrorBuilder()
         .code("badRequest")
