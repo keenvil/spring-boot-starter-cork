@@ -129,9 +129,11 @@ public class TotpAuthenticator {
       log.debug("Validating Code: {}, vs hash: {} using secret: {}", code, hash, secret);
 
       if (hash == code) {
+        log.debug("TOTP {} Found!", code);
         return true;
       }
     }
+    log.debug("TOTP {} Not Found!", code);
     return false;
   }
 

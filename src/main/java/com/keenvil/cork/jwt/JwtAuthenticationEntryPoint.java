@@ -64,7 +64,7 @@ public class JwtAuthenticationEntryPoint
       exception = platformException;
       code = "tokenExpired";
       title = "Authentication error";
-      responseStatus = HttpServletResponse.SC_UNAUTHORIZED;
+      responseStatus = HttpServletResponse.SC_EXPECTATION_FAILED;
     }
 
     KeenvilApiError error = new KeenvilApiError.KeenvilApiErrorBuilder()
