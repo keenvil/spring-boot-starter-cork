@@ -37,7 +37,7 @@ public class UrlPathVariableCommunityResolver
 
   /** Default tenant. */
   public static final String DEFAULT_TENANT = "default";
-  
+
   @Override
   public String resolve() {
     log.trace("Resolving Community Id with URL path variable resolver.");
@@ -51,12 +51,11 @@ public class UrlPathVariableCommunityResolver
 
       if (delimiter > 0 && uriComponents.length > (delimiter + 1)) {
         String communityId = uriComponents[delimiter + 1];
-        if (log.isDebugEnabled()) {
-          log.debug("Resolved Community id using URL path variable: {}",
-              communityId);          
-        }
+        log.info("Resolved Community id using URL path variable: {}",
+            communityId);
+
         JwtTokenHolder.holdCommunity(communityId);
-        return communityId;        
+        return communityId;
       }
     }
     log.trace("Leaving UrlPathVariableCommunityResolverHelper with"

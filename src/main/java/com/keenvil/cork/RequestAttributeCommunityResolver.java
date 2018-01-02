@@ -43,11 +43,8 @@ public class RequestAttributeCommunityResolver
           + " default tenant.");
       return defaultTenant();
     }
-
-    if (log.isDebugEnabled()) {
-      log.debug("Resolved Community id using Request Attribute: {}",
-          communityId);          
-    }
+      log.info("Resolved Community id using Request Attribute: [{}]",
+          communityId);
     return communityId;
   }
 
