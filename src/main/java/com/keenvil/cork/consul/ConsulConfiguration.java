@@ -62,8 +62,8 @@ public class ConsulConfiguration implements PolledConfigurationSource {
       this.client = new ConsulClient(host, port);
       return true;
     }
-    throw new ConsulException("can not initialize client Consul review " +
-        "properties");
+    log.error("Can not initialize client Consul. Review properties.");
+    throw new ConsulException("Can not initialize client Consul. Review properties.");
   }
 
 

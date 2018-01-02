@@ -58,7 +58,7 @@ public class JwtAuthenticationFilter
 
   @Override
   public void doFilter(ServletRequest request, ServletResponse response,
-      FilterChain chain) throws IOException, ServletException {
+                       FilterChain chain) throws IOException, ServletException {
     log.trace("Entering JwtAuthenticationFilter.");
 
     try {
@@ -71,9 +71,7 @@ public class JwtAuthenticationFilter
           && SecurityContextHolder.getContext().getAuthentication() == null) {
 
         JwtUser jwtUser = jwtService.parse(token);
-        if (log.isDebugEnabled()) {
-          log.debug("User {} authenticated.", jwtUser.toString());
-        }
+        log.info("User [{}] authenticated.", jwtUser.toString());
 
         JwtTokenHolder.holdToken(token);
         JwtTokenHolder.holdCommunity(community);

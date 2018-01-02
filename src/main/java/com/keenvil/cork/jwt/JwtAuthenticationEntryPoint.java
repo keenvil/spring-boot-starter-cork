@@ -6,6 +6,7 @@ import java.io.Serializable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -16,6 +17,8 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.keenvil.cork.error.KeenvilApiError;
+
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * Called when {@link AuthenticationException} is thrown.
@@ -33,6 +36,8 @@ import com.keenvil.cork.error.KeenvilApiError;
 @Component
 public class JwtAuthenticationEntryPoint
     implements AuthenticationEntryPoint, Serializable {
+
+  private static Logger log = getLogger(JwtAuthenticationEntryPoint.class);
 
   private static final long serialVersionUID = 1L;
 
@@ -56,11 +61,13 @@ public class JwtAuthenticationEntryPoint
         jwtService.parse(token);
       }
     } catch (JwtInvalidTokenException platformException) {
+      log.error("JwtInvalidTokenException authenticationError [{}]", token);
       exception = platformException;
       code = "authenticationError";
       title = "Authentication error";
       responseStatus = HttpServletResponse.SC_FORBIDDEN;
     } catch (JwtExpiredTokenException platformException) {
+      log.error("JwtExpiredTokenException tokenExpired [{}]", token);
       exception = platformException;
       code = "tokenExpired";
       title = "Authentication error";
