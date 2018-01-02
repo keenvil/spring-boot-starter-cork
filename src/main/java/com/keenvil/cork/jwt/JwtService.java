@@ -402,7 +402,7 @@ public class JwtService {
     Date expiration = parseClaims.getBody().getExpiration();
 
     if (type == null || !type.equals(TYPE_REFRESH)) {
-      log.error("Invalid refresh token.");
+      log.error("Invalid refresh token. Type must be Refresh, but is [{}]", type);
       throw new JwtInvalidTokenException("Invalid refresh token.");
     }
 
@@ -420,7 +420,7 @@ public class JwtService {
           .parseClaimsJws(jwt);
     } catch (IllegalArgumentException e) {
       log.error("Illegal Argument Exception.");
-      throw new JwtInvalidTokenException("Invalid Token, Illegal Argument  .",
+      throw new JwtInvalidTokenException("Invalid Token, Illegal Argument .",
           e);
     } catch (MissingClaimException mce) {
       log.error("Issuer not present.");

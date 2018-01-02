@@ -54,8 +54,8 @@ public class ConsulService {
     try {
       installConfig();
     } catch (ConfigurationException e) {
-      log.error("Error in configuration ConsulService.");
-      throw new ConsulServiceException("Error in configuration ConsulService: "
+      log.error("Error in ConsulService Configuration.");
+      throw new ConsulServiceException("Error in ConsulService Configuration: "
           + e.getMessage());
     }
   }
