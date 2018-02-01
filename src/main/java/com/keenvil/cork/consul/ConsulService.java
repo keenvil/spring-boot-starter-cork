@@ -7,6 +7,8 @@ import com.keenvil.cork.error.KeenvilApiException.UnprocessedEntity;
 import com.keenvil.cork.multitenancy.DataSourceBuilder;
 import com.netflix.config.*;
 import org.apache.commons.configuration.ConfigurationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.sql.DataSource;
@@ -25,6 +27,9 @@ import static com.netflix.config.ConfigurationManager.isConfigurationInstalled;
  */
 @Service
 public class ConsulService {
+
+  private static Logger log = LoggerFactory.getLogger(
+      ConsulService.class.getName());
 
   /**
    * INITIAL_DELAY_MILLIS the time to delay first execution
@@ -49,12 +54,14 @@ public class ConsulService {
     try {
       installConfig();
     } catch (ConfigurationException e) {
-      throw new ConsulServiceException("Error in configuration ConsulService: "
+      log.error("Error in ConsulService Configuration.");
+      throw new ConsulServiceException("Error in ConsulService Configuration: "
           + e.getMessage());
     }
   }
 
   public DataSource getDatasource(String tenantId) {
+    log.info("Getting tenant datasource for: [{}]", tenantId);
     final DynamicStringProperty datasourceProperties =
         DynamicPropertyFactory.getInstance().getStringProperty(
             tenantId +  MYSQL,
@@ -63,10 +70,12 @@ public class ConsulService {
     if (!datasourceProperties.get().isEmpty()) {
       return tenantDatasource(datasourceProperties.get());
     }
+    log.error("no tenant datasource configuration for: [{}]" + tenantId);
     throw new UnprocessedEntity("no tenant configuration for: " + tenantId);
   }
 
   public Map<String, Object> getRabbitPropertiesConnectionFactory(String tenantId) {
+    log.info("Getting rabbit connection for tenant: [{}]", tenantId);
     final DynamicStringProperty rabbitProperties =
         DynamicPropertyFactory.getInstance().getStringProperty(
             tenantId + RABBIT,
@@ -75,10 +84,12 @@ public class ConsulService {
     if (!rabbitProperties.get().isEmpty()) {
       return getPropertiesConnectionFactory(rabbitProperties.get());
     }
+    log.error("no rabbit configuration for tenant: [{}]" + tenantId);
     throw new UnprocessedEntity("no rabbit connection factory for: " + tenantId);
   }
 
   public String getMongoPropertiesConnectionFactory(String tenantId) {
+    log.info("Getting mongo connection for tenant: [{}]", tenantId);
     final DynamicStringProperty mongoProperties =
         DynamicPropertyFactory.getInstance().getStringProperty(
             tenantId + MONGO,
@@ -87,7 +98,8 @@ public class ConsulService {
       return (String) getPropertiesConnectionFactory(
           mongoProperties.get()).get("database");
     }
-    throw new UnprocessedEntity("no mongo DB  connection factory for: " + tenantId);
+    log.error("no mongo configuration for tenant: [{}]" + tenantId);
+    throw new UnprocessedEntity("no mongo DB  connection factory for tenant: " + tenantId);
   }
 
   private void installConfig() throws ConfigurationException {
