@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -122,7 +123,7 @@ public class KeenvilApiControllerAdvice {
       final InvalidResourceState exception) {
     List<KeenvilApiError> errors = new ArrayList<>();
     KeenvilApiError error = new KeenvilApiError.KeenvilApiErrorBuilder()
-          .code("invalidResourceState")
+        .code(StringUtils.isNotEmpty(exception.getCode()) ? exception.getCode() : "invalidResourceState")
           .httpStatus(HttpStatus.PRECONDITION_FAILED.value())
           .title("Invalid Resource State")
           .detail(exception.getMessage())

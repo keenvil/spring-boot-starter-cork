@@ -25,6 +25,10 @@ public class KeenvilApiException extends KeenvilException {
   public KeenvilApiException(final String message) {
     super(message);
   }
+  
+  public KeenvilApiException(final String message, final String code) {
+    super(message, code);
+  }
 
   public KeenvilApiException(final String message, final Throwable throwable) {
     super(message, throwable);
@@ -99,7 +103,11 @@ public class KeenvilApiException extends KeenvilException {
     public InvalidResourceState() {
       super();
     }
-
+  
+    public InvalidResourceState(final String message, final String code) {
+      super(message, code);
+    }
+  
     public InvalidResourceState(final String message) {
       super(message);
     }
