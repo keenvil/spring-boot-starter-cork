@@ -80,6 +80,10 @@ public class KeenvilApiException extends KeenvilException {
     public ResourceAlreadyExists(final String message) {
       super(message);
     }
+  
+    public ResourceAlreadyExists(final String message, final String code) {
+      super(message, code);
+    }
 
     public ResourceAlreadyExists(final String message,
         final Throwable throwable) {
@@ -145,6 +149,10 @@ public class KeenvilApiException extends KeenvilException {
     public InvalidArgument(final String message) {
       super(message);
     }
+  
+    public InvalidArgument(final String message, final String code) {
+      super(message, code);
+    }
 
     public InvalidArgument(final String message, Throwable throwable) {
       super(message, throwable);
@@ -168,6 +176,10 @@ public class KeenvilApiException extends KeenvilException {
 
     public Authorization(final String message) {
       super(message);
+    }
+  
+    public Authorization(final String message, final String code) {
+      super(message, code);
     }
 
     public Authorization(final String message, final Throwable throwable) {
@@ -193,6 +205,10 @@ public class KeenvilApiException extends KeenvilException {
     public Forbidden(final String message) {
       super(message);
     }
+  
+    public Forbidden(final String message, final String code) {
+      super(message, code);
+    }
 
     public Forbidden(final String message, final Throwable throwable) {
       super(message, throwable);
@@ -214,6 +230,10 @@ public class KeenvilApiException extends KeenvilException {
 
     public UnprocessedEntity(final String message) {
       super(message);
+    }
+  
+    public UnprocessedEntity(final String message, final String code) {
+      super(message, code);
     }
 
     public UnprocessedEntity(final String message, final Throwable throwable) {
@@ -238,6 +258,10 @@ public class KeenvilApiException extends KeenvilException {
 
     public BadRequest(final String message) {
       super(message);
+    }
+  
+    public BadRequest(final String message, final String code) {
+      super(message, code);
     }
 
     public BadRequest(final String message, final Throwable throwable) {
