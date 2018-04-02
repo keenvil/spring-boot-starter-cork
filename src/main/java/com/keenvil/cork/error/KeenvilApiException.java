@@ -53,7 +53,10 @@ public class KeenvilApiException extends KeenvilException {
     public ResourceNotFound(final String message) {
       super(message);
     }
-
+  
+    public ResourceNotFound(final String message, final String code) {
+      super(message, code);
+    }
     
     public ResourceNotFound(final String message, final Throwable throwable) {
       super(message, throwable);

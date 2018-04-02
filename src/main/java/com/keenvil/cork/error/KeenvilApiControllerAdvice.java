@@ -76,10 +76,10 @@ public class KeenvilApiControllerAdvice {
   @ExceptionHandler({ResourceNotFound.class, JpaObjectRetrievalFailureException.class})
   @ResponseBody ResponseEntity<List<KeenvilApiError>> handleResourceNotFound(
       final HttpServletRequest request,
-      final Exception exception) {
+      final ResourceNotFound exception) {
     List<KeenvilApiError> errors = new ArrayList<>();
     KeenvilApiError error = new KeenvilApiErrorBuilder()
-          .code("resourceNotFound")
+          .code(StringUtils.isNotEmpty(exception.getCode()) ? exception.getCode() : "resourceNotFound")
           .httpStatus(HttpStatus.NOT_FOUND.value())
           .title("Resource Not Found")
           .detail(exception.getMessage())
