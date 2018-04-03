@@ -57,7 +57,7 @@ public class KeenvilApiControllerAdvice {
       final Authorization exception) {
     List<KeenvilApiError> errors = new ArrayList<>();
     KeenvilApiError error = new KeenvilApiError.KeenvilApiErrorBuilder()
-          .code("unauthorized")
+          .code(StringUtils.isNotEmpty(exception.getCode()) ? exception.getCode() : "unauthorized")
           .httpStatus(HttpStatus.UNAUTHORIZED.value())
           .title("Unauthorized")
           .detail(exception.getMessage())
@@ -76,10 +76,10 @@ public class KeenvilApiControllerAdvice {
   @ExceptionHandler({ResourceNotFound.class, JpaObjectRetrievalFailureException.class})
   @ResponseBody ResponseEntity<List<KeenvilApiError>> handleResourceNotFound(
       final HttpServletRequest request,
-      final Exception exception) {
+      final ResourceNotFound exception) {
     List<KeenvilApiError> errors = new ArrayList<>();
     KeenvilApiError error = new KeenvilApiErrorBuilder()
-          .code("resourceNotFound")
+          .code(StringUtils.isNotEmpty(exception.getCode()) ? exception.getCode() : "resourceNotFound")
           .httpStatus(HttpStatus.NOT_FOUND.value())
           .title("Resource Not Found")
           .detail(exception.getMessage())
@@ -101,7 +101,7 @@ public class KeenvilApiControllerAdvice {
       final ResourceAlreadyExists exception) {
     List<KeenvilApiError> errors = new ArrayList<>();
     KeenvilApiError error = new KeenvilApiError.KeenvilApiErrorBuilder()
-          .code("resourceAlreadyExists")
+          .code(StringUtils.isNotEmpty(exception.getCode()) ? exception.getCode() : "resourceAlreadyExists")
           .httpStatus(HttpStatus.CONFLICT.value())
           .title("Resource Already Exists")
           .detail(exception.getMessage())
@@ -123,7 +123,7 @@ public class KeenvilApiControllerAdvice {
       final InvalidResourceState exception) {
     List<KeenvilApiError> errors = new ArrayList<>();
     KeenvilApiError error = new KeenvilApiError.KeenvilApiErrorBuilder()
-        .code(StringUtils.isNotEmpty(exception.getCode()) ? exception.getCode() : "invalidResourceState")
+          .code(StringUtils.isNotEmpty(exception.getCode()) ? exception.getCode() : "invalidResourceState")
           .httpStatus(HttpStatus.PRECONDITION_FAILED.value())
           .title("Invalid Resource State")
           .detail(exception.getMessage())
@@ -167,7 +167,7 @@ public class KeenvilApiControllerAdvice {
       final InvalidArgument exception) {
     List<KeenvilApiError> errors = new ArrayList<>();
     KeenvilApiError error = new KeenvilApiError.KeenvilApiErrorBuilder()
-          .code("invalidArgument")
+          .code(StringUtils.isNotEmpty(exception.getCode()) ? exception.getCode() : "invalidArgument")
           .httpStatus(HttpStatus.UNPROCESSABLE_ENTITY.value())
           .title("Invalid Argument")
           .detail(exception.getMessage())
@@ -187,7 +187,7 @@ public class KeenvilApiControllerAdvice {
       final Forbidden exception) {
     List<KeenvilApiError> errors = new ArrayList<>();
     KeenvilApiError error = new KeenvilApiErrorBuilder()
-        .code("forbidden")
+        .code(StringUtils.isNotEmpty(exception.getCode()) ? exception.getCode() : "forbidden")
         .httpStatus(HttpStatus.FORBIDDEN.value())
         .title("Forbidden")
         .detail(exception.getMessage())
@@ -209,7 +209,7 @@ public class KeenvilApiControllerAdvice {
       final BadRequest exception) {
     List<KeenvilApiError> errors = new ArrayList<>();
     KeenvilApiError error = new KeenvilApiErrorBuilder()
-        .code("badRequest")
+        .code(StringUtils.isNotEmpty(exception.getCode()) ? exception.getCode() : "badRequest")
         .httpStatus(HttpStatus.BAD_REQUEST.value())
         .title("Bad Request")
         .detail(exception.getMessage())
