@@ -9,9 +9,15 @@ import javax.sql.DataSource;
 
 import org.slf4j.Logger;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.MutablePropertyValues;
-import org.springframework.boot.bind.RelaxedDataBinder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.bind.Bindable;
+import org.springframework.boot.context.properties.bind.Binder;
+import org.springframework.boot.context.properties.source.ConfigurationPropertyName;
+import org.springframework.boot.context.properties.source.ConfigurationPropertyNameAliases;
+import org.springframework.boot.context.properties.source.ConfigurationPropertySource;
+import org.springframework.boot.context.properties.source.MapConfigurationPropertySource;
 import org.springframework.boot.jdbc.DatabaseDriver;
+import org.springframework.core.env.Environment;
 import org.springframework.util.ClassUtils;
 
 /**
@@ -55,6 +61,9 @@ public class DataSourceBuilder {
     this.classLoader = classLoader;
   }
 
+  @Autowired
+  private Environment environment;
+
   /**
    * Builds a Data source.
    * @return Data source.
@@ -77,10 +86,14 @@ public class DataSourceBuilder {
   }
 
   private void bind(DataSource result) {
-    MutablePropertyValues properties =
-        new MutablePropertyValues(this.properties);
-    new RelaxedDataBinder(result).withAlias("url", "jdbcUrl")
-        .withAlias("username", "user").bind(properties);
+
+    ConfigurationPropertySource source = new MapConfigurationPropertySource(
+        this.properties);
+    ConfigurationPropertyNameAliases aliases = new ConfigurationPropertyNameAliases();
+    aliases.addAliases("url", "jdbc-url");
+    aliases.addAliases("username", "user");
+    Binder binder = new Binder(source.withAliases(aliases));
+    binder.bind(ConfigurationPropertyName.EMPTY, Bindable.ofInstance(result));
   }
 
   public DataSourceBuilder type(Class<? extends DataSource> type) {

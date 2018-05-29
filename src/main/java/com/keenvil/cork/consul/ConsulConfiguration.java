@@ -70,8 +70,8 @@ public class ConsulConfiguration implements PolledConfigurationSource {
   /**
    * Convert a response in Map
    * <p>
-   * this method is responsible of save the responses of consul in archaius of
-   * orderly manner to support multiple resources
+   * this method is responsible of saving the responses from consul in archaius in an
+   * orderly manner to support multiple resources.
    * </p>
    *
    * @param listResponse response from

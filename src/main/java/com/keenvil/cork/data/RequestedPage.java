@@ -76,10 +76,10 @@ public class RequestedPage {
    * @return {@link PageRequest}.
    */
   public PageRequest toPage(String... properties) {
-    PageRequest pageRequest = new PageRequest(
+    PageRequest pageRequest = PageRequest.of(
         page,
         size,
-        Direction.fromStringOrNull(sort.name()),
+        Direction.fromOptionalString(sort.name()).get(),
         properties);
     return pageRequest;
   }

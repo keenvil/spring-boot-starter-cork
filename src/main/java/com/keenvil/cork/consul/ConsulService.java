@@ -6,6 +6,7 @@ import com.google.gson.JsonParser;
 import com.keenvil.cork.error.KeenvilApiException.UnprocessedEntity;
 import com.keenvil.cork.multitenancy.DataSourceBuilder;
 import com.netflix.config.*;
+import com.netflix.hystrix.strategy.properties.HystrixPropertiesChainedArchaiusProperty;
 import org.apache.commons.configuration.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
