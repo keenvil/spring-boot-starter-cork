@@ -7,7 +7,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.keenvil</groupId>
   <artifactId>spring-boot-starter-cork</artifactId>
-  <version>1.0.1-SNAPSHOT</version>
+  <version>1.0.2-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>spring-boot-starter-cork</name>
@@ -35,6 +35,7 @@
     <liquibase.version>3.5.3</liquibase.version>
     <archaius.version>0.7.5</archaius.version>
     <ecwid-consul-api.version>1.2.4</ecwid-consul-api.version>
+    <sentry.version>1.7.5</sentry.version>
   </properties>
 
   <dependencyManagement>
@@ -196,6 +197,11 @@
       <version>${ecwid-consul-api.version}</version>
     </dependency>
 
+    <dependency>
+      <groupId>io.sentry</groupId>
+      <artifactId>sentry-spring</artifactId>
+      <version>${sentry.version}</version>
+    </dependency>
   </dependencies>
 
   <distributionManagement>
