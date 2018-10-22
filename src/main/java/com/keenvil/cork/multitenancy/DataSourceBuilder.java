@@ -10,7 +10,7 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.MutablePropertyValues;
-import org.springframework.boot.bind.RelaxedDataBinder;
+import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.boot.jdbc.DatabaseDriver;
 import org.springframework.util.ClassUtils;
 
@@ -79,8 +79,7 @@ public class DataSourceBuilder {
   private void bind(DataSource result) {
     MutablePropertyValues properties =
         new MutablePropertyValues(this.properties);
-    new RelaxedDataBinder(result).withAlias("url", "jdbcUrl")
-        .withAlias("username", "user").bind(properties);
+
   }
 
   public DataSourceBuilder type(Class<? extends DataSource> type) {

@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.netflix.config.ConfigurationManager.getConfigInstance;
 import static com.netflix.config.PollResult.createFull;
 
 /**
@@ -52,10 +53,10 @@ public class ConsulConfiguration implements PolledConfigurationSource {
     return initial ? createFull(Collections.EMPTY_MAP) : null;
   }
 
-  private boolean createClient() {
-    String host = ConfigurationManager.getConfigInstance()
-        .getString("application.consul.host");
-    Integer port = ConfigurationManager.getConfigInstance()
+  private  boolean createClient() {
+    String host = getConfigInstance()
+        .getString("application.consul.host", "");
+    Integer port = getConfigInstance()
         .getInteger("application.consul.port", 0);
 
     if (host != null && port != 0) {

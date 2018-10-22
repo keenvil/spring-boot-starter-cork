@@ -126,9 +126,8 @@ public class MultitenancyAutoConfiguration {
   @Bean
   public LocalContainerEntityManagerFactoryBean
       entityManagerFactory(EntityManagerFactoryBuilder builder) {
-
-    Map<String, Object> hibernateProps = new LinkedHashMap<>();
-    hibernateProps.putAll(jpaProperties.getHibernateProperties(dataSource));
+/*
+    Map<String, Object> hibernateProps = new LinkedHashMap<>(jpaProperties.getHibernateProperties(dataSource));
 
     hibernateProps.put(MULTI_TENANT, MultiTenancyStrategy.SCHEMA);
     hibernateProps.put(MULTI_TENANT_CONNECTION_PROVIDER,
@@ -137,12 +136,8 @@ public class MultitenancyAutoConfiguration {
         currentTenantIdentifierResolver);
     hibernateProps.put(DIALECT, dialect);
     hibernateProps.put(HBM2DDL_AUTO, hbm2ddl);
-
-    return builder.dataSource(dataSource)
-        .packages(multitenancySpecification.getBasePackages())
-        .properties(hibernateProps)
-        .jta(false)
-        .build();
+*/
+    return null;
   }
 
   /**

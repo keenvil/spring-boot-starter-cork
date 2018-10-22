@@ -32,7 +32,7 @@ public class DataSourceBasedCommunityConnectionProvider
 
   private Map<String, DataSource> dataSourceMapping;
 
-  @Autowired
+  @Autowired(required = false)
   private ConsulService consulService;
 
   public DataSourceBasedCommunityConnectionProvider(

@@ -5,8 +5,11 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.keenvil.cork.error.KeenvilApiException.UnprocessedEntity;
 import com.keenvil.cork.multitenancy.DataSourceBuilder;
-import com.netflix.config.*;
-import org.apache.commons.configuration.ConfigurationException;
+import com.netflix.config.ConcurrentCompositeConfiguration;;
+import com.netflix.config.DynamicConfiguration;
+import com.netflix.config.DynamicPropertyFactory;
+import com.netflix.config.DynamicStringProperty;
+import com.netflix.config.FixedDelayPollingScheduler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -17,6 +20,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.keenvil.cork.consul.Properties.*;
+import static com.netflix.config.ConfigurationManager.install;
 import static com.netflix.config.ConfigurationManager.isConfigurationInstalled;
 
 /**
@@ -51,13 +55,10 @@ public class ConsulService {
   public ConsulService(String endPointPropertiesRequest)
       throws ConsulServiceException {
     this.endPointPropertiesRequest = endPointPropertiesRequest;
-    try {
       installConfig();
-    } catch (ConfigurationException e) {
       log.error("Error in ConsulService Configuration.");
-      throw new ConsulServiceException("Error in ConsulService Configuration: "
-          + e.getMessage());
-    }
+
+
   }
 
   public DataSource getDatasource(String tenantId) {
@@ -102,7 +103,7 @@ public class ConsulService {
     throw new UnprocessedEntity("no mongo DB  connection factory for tenant: " + tenantId);
   }
 
-  private void installConfig() throws ConfigurationException {
+  private void installConfig()  {
     if (!isConfigurationInstalled()) {
       ConsulConfiguration consulDatabasesConfiguration =
           new ConsulConfiguration(
@@ -129,7 +130,7 @@ public class ConsulService {
           INITIAL_DELAY_MILLIS, DELAY_MILLIS, IGNORE_DELETES_FROM_SOURCE));
 
       ConcurrentCompositeConfiguration finalConfig =
-          new ConcurrentCompositeConfiguration();
+          new ConcurrentCompositeConfiguration(dynamicConfigurationDatabases);
       finalConfig.addConfiguration(
           dynamicConfigurationDatabases, "mysql");
       finalConfig.addConfiguration(
@@ -137,7 +138,7 @@ public class ConsulService {
       finalConfig.addConfiguration(
           dynamicConfigurationMongo, "mongo");
 
-      ConfigurationManager.install(finalConfig);
+      install(finalConfig);
     }
   }
 
