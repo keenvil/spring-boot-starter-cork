@@ -2,6 +2,7 @@ package com.keenvil.cork.multitenancy;
 
 import static org.hibernate.cfg.AvailableSettings.DIALECT;
 import static org.hibernate.cfg.AvailableSettings.HBM2DDL_AUTO;
+import static org.hibernate.cfg.AvailableSettings.USE_NEW_ID_GENERATOR_MAPPINGS;
 import static org.hibernate.cfg.AvailableSettings.MULTI_TENANT;
 import static org.hibernate.cfg.AvailableSettings.MULTI_TENANT_CONNECTION_PROVIDER;
 import static org.hibernate.cfg.AvailableSettings.MULTI_TENANT_IDENTIFIER_RESOLVER;
@@ -18,6 +19,7 @@ import org.hibernate.engine.jdbc.connections.spi.MultiTenantConnectionProvider;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.orm.jpa.HibernateSettings;
 import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
@@ -80,7 +82,7 @@ public class MultitenancyAutoConfiguration {
   @Autowired
   private JpaProperties jpaProperties;
 
-  @Value("${liquibase.changeLog}")
+  @Value("${spring.liquibase.changeLog}")
   private String liquibaseChangelogUrl;
 
   /**
@@ -90,23 +92,22 @@ public class MultitenancyAutoConfiguration {
    */
   @Bean(name = "dataSourceBasedCommunityConnectionProvider")
   public DataSourceBasedCommunityConnectionProvider
-      dataSourceBasedMultiTenantConnectionProvider() {
-    Map<String, DataSource> dataSources = new HashMap<String, DataSource>();
-    
+  dataSourceBasedMultiTenantConnectionProvider() {
+    Map<String, DataSource> dataSources = new HashMap<>();
+
     multitenancyProperties.getTenants()
-        .stream()
-        .forEach(tc -> dataSources.put(tc.getName(),
-          DataSourceBuilder.create()
-              .driverClassName(tc.getDriverClassName())
-              .username(tc.getUsername())
-              .password(tc.getPassword())
-              .url(tc.getUrl())
-              .putAll(tc.getDataSourceProperties())
-              .build()
-            ));
-    
+      .forEach(tc -> dataSources.put(tc.getName(),
+        DataSourceBuilder.create()
+          .driverClassName(tc.getDriverClassName())
+          .username(tc.getUsername())
+          .password(tc.getPassword())
+          .url(tc.getJdbcUrl())
+          .putAll(tc.getDataSourceProperties())
+          .build()
+      ));
+
     return new DataSourceBasedCommunityConnectionProvider(
-        multitenancyProperties.getDefaultTenant().getName(), dataSources);
+      multitenancyProperties.getDefaultTenant().getName(), dataSources);
   }
 
   @Bean
@@ -127,8 +128,9 @@ public class MultitenancyAutoConfiguration {
   public LocalContainerEntityManagerFactoryBean
       entityManagerFactory(EntityManagerFactoryBuilder builder) {
 
-    Map<String, Object> hibernateProps = new LinkedHashMap<>();
-    hibernateProps.putAll(jpaProperties.getHibernateProperties(dataSource));
+    Map<String, Object> hibernateProps =
+      new HashMap<>(jpaProperties.getHibernateProperties(new HibernateSettings()));
+
 
     hibernateProps.put(MULTI_TENANT, MultiTenancyStrategy.SCHEMA);
     hibernateProps.put(MULTI_TENANT_CONNECTION_PROVIDER,
@@ -137,6 +139,7 @@ public class MultitenancyAutoConfiguration {
         currentTenantIdentifierResolver);
     hibernateProps.put(DIALECT, dialect);
     hibernateProps.put(HBM2DDL_AUTO, hbm2ddl);
+    hibernateProps.put(USE_NEW_ID_GENERATOR_MAPPINGS, false);
 
     return builder.dataSource(dataSource)
         .packages(multitenancySpecification.getBasePackages())
@@ -163,13 +166,12 @@ public class MultitenancyAutoConfiguration {
         new MultiTenantSpringLiquibase();
 
     multitenancyProperties.getTenants()
-      .stream()
       .forEach(tc -> multiTenantSpringLiquibase.addDataSource(
           DataSourceBuilder.create()
               .driverClassName(tc.getDriverClassName())
               .username(tc.getUsername())
               .password(tc.getPassword())
-              .url(tc.getUrl())
+              .url(tc.getJdbcUrl())
               .putAll(tc.getDataSourceProperties())
               .build()
       ));

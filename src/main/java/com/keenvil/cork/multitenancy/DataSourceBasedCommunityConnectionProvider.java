@@ -53,8 +53,9 @@ public class DataSourceBasedCommunityConnectionProvider
     }
 
     if (dataSourceMapping.get(tenantIdentifier) == null) {
-      dataSourceMapping.put(
-          tenantIdentifier, consulService.getDatasource(tenantIdentifier));
+        dataSourceMapping.put(
+            tenantIdentifier, consulService.getDatasource(tenantIdentifier));
+
     }
     return dataSourceMapping.get(tenantIdentifier);
   }

@@ -3,6 +3,7 @@ package com.keenvil.cork.data;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort.Direction;
 
+
 /**
  * Requested Page Dto.
  * 
@@ -76,11 +77,11 @@ public class RequestedPage {
    * @return {@link PageRequest}.
    */
   public PageRequest toPage(String... properties) {
-    PageRequest pageRequest = new PageRequest(
-        page,
-        size,
-        Direction.fromStringOrNull(sort.name()),
-        properties);
+    PageRequest pageRequest = PageRequest.of(
+      page,
+      size,
+      Direction.fromString(sort.name()),
+      properties);
     return pageRequest;
   }
 }

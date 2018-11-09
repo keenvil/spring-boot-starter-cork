@@ -10,9 +10,9 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.MutablePropertyValues;
-import org.springframework.boot.bind.RelaxedDataBinder;
 import org.springframework.boot.jdbc.DatabaseDriver;
 import org.springframework.util.ClassUtils;
+import org.springframework.validation.DataBinder;
 
 /**
  * Most of this class was borrowed from 
@@ -61,7 +61,7 @@ public class DataSourceBuilder {
    */
   public DataSource build() {
     Class<? extends DataSource> type = getType();
-    DataSource result = BeanUtils.instantiate(type);
+    DataSource result = BeanUtils.instantiateClass(type);
     maybeGetDriverClassName();
     bind(result);
     return result;
@@ -69,18 +69,19 @@ public class DataSourceBuilder {
 
   private void maybeGetDriverClassName() {
     if (!this.properties.containsKey("driverClassName")
-        && this.properties.containsKey("url")) {
-      String url = this.properties.get("url");
+        && this.properties.containsKey("jdbcUrl")) {
+      String url = this.properties.get("jdbcUrl");
       String driverClass = DatabaseDriver.fromJdbcUrl(url).getDriverClassName();
       this.properties.put("driverClassName", driverClass);
     }
   }
 
   private void bind(DataSource result) {
+
     MutablePropertyValues properties =
         new MutablePropertyValues(this.properties);
-    new RelaxedDataBinder(result).withAlias("url", "jdbcUrl")
-        .withAlias("username", "user").bind(properties);
+
+    new DataBinder(result).bind(properties);
   }
 
   public DataSourceBuilder type(Class<? extends DataSource> type) {
@@ -89,7 +90,7 @@ public class DataSourceBuilder {
   }
 
   public DataSourceBuilder url(String url) {
-    this.properties.put("url", url);
+    this.properties.put("jdbcUrl", url);
     return this;
   }
 

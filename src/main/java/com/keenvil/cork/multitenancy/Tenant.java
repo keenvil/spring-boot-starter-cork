@@ -8,7 +8,7 @@ import org.apache.commons.lang3.Validate;
  * Represents a Tenant, which in Keenvil context will be a Community.
  * 
  * <p>Each Tenant has a name which identifies it, and its own data source
- * configuration (url, username, password and data source properties).</p>
+ * configuration (jdbcUrl, username, password and data source properties).</p>
  */
 public class Tenant {
 
@@ -16,7 +16,7 @@ public class Tenant {
 
   private boolean isDefault;
 
-  private String url;
+  private String jdbcUrl;
 
   private String username;
 
@@ -37,8 +37,8 @@ public class Tenant {
     return isDefault;
   }
 
-  public String getUrl() {
-    return url;
+  public String getJdbcUrl() {
+    return jdbcUrl;
   }
 
   public String getUsername() {
@@ -66,9 +66,9 @@ public class Tenant {
     name = theName;
   }
 
-  public void setUrl(String theUrl) {
+  public void setJdbcUrl(String theUrl) {
     Validate.notBlank(theUrl, "Url cannot be empty.");
-    url = theUrl;
+    jdbcUrl = theUrl;
   }
 
   public void setUsername(String theUsername) {
