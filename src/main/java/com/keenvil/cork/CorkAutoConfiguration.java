@@ -13,7 +13,6 @@ import com.keenvil.cork.internationalization.LocalizableAspect;
 import com.keenvil.cork.security.QrService;
 import com.keenvil.cork.security.ResourceSecurityService;
 import com.keenvil.cork.validation.BindingResultValidationAspect;
-import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
 @Configuration

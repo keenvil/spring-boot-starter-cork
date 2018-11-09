@@ -2,7 +2,6 @@ package com.keenvil.cork.multitenancy;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 

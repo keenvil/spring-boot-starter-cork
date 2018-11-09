@@ -78,7 +78,7 @@ public class RequestedPage {
    * @return {@link PageRequest}.
    */
   public PageRequest toPage(String... properties) {
-    PageRequest pageRequest = new PageRequest(
+    PageRequest pageRequest = PageRequest.of(
         page,
         size,
       Objects.requireNonNull(Direction.fromOptionalString(sort.name()).orElse(null)),
