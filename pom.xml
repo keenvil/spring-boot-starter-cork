@@ -36,6 +36,8 @@
     <archaius.version>0.7.6</archaius.version>
     <ecwid-consul-api.version>1.2.4</ecwid-consul-api.version>
     <sentry.version>1.7.14</sentry.version>
+    <google-guava.version>26.0-jre</google-guava.version>
+    <commons-configuration.version>1.9</commons-configuration.version>
   </properties>
 
   <dependencyManagement>
@@ -201,14 +203,14 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>26.0-jre</version>
+      <version>${google-guava.version}</version>
     </dependency>
 
     <!-- https://mvnrepository.com/artifact/commons-configuration/commons-configuration -->
     <dependency>
       <groupId>commons-configuration</groupId>
       <artifactId>commons-configuration</artifactId>
-      <version>1.9</version>
+      <version>${commons-configuration.version}</version>
     </dependency>
 
 
