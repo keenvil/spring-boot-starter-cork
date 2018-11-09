@@ -30,7 +30,7 @@ public class MultitenancyConfigurationProperties {
   public void init() {
     if (tenants != null) {
       List<Tenant> defaults = tenants.stream()
-          .filter(tc -> tc.isDefault())
+          .filter(Tenant::isDefault)
           .collect(Collectors.toCollection(ArrayList::new));
       
       if (defaults.size() != 1) {

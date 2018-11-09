@@ -32,7 +32,7 @@ public class DataSourceBasedCommunityConnectionProvider
 
   private Map<String, DataSource> dataSourceMapping;
 
-  @Autowired(required = false)
+  @Autowired
   private ConsulService consulService;
 
   public DataSourceBasedCommunityConnectionProvider(
@@ -53,8 +53,9 @@ public class DataSourceBasedCommunityConnectionProvider
     }
 
     if (dataSourceMapping.get(tenantIdentifier) == null) {
-      dataSourceMapping.put(
-          tenantIdentifier, consulService.getDatasource(tenantIdentifier));
+        dataSourceMapping.put(
+            tenantIdentifier, consulService.getDatasource(tenantIdentifier));
+
     }
     return dataSourceMapping.get(tenantIdentifier);
   }
