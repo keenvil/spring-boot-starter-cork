@@ -21,8 +21,8 @@
     <spring-boot.version>2.0.4.RELEASE</spring-boot.version>
     <spring-core.version>5.1.1.RELEASE</spring-core.version>
     <spring-aspects.version>5.1.1.RELEASE</spring-aspects.version>
-    <spring-cloud-aws.version>2.0.0.BUILD-SNAPSHOT</spring-cloud-aws.version>
-    <feign-starter.version>2.0.2.BUILD-SNAPSHOT</feign-starter.version>
+    <spring-cloud-aws.version>2.0.1.RELEASE</spring-cloud-aws.version>
+    <feign-starter.version>2.0.2.RELEASE</feign-starter.version>
     <validation-api.version>2.0.1.Final</validation-api.version>
     <hibernate-validator.version>6.0.13.Final</hibernate-validator.version>
     <commons-lang3.version>3.8.1</commons-lang3.version>

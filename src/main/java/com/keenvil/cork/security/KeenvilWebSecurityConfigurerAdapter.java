@@ -28,9 +28,7 @@ public class KeenvilWebSecurityConfigurerAdapter
     List<String> endpoints = new ArrayList<String>();
     endpoints.add("/");
     endpoints.add("/configuration/**");
-    endpoints.add("/health");
-    endpoints.add("/info");
-    endpoints.add("/status");
+    endpoints.add("/actuator/**");
 
     List<String> excluded = excludeFromAuthentication();
     if (excluded != null && !excluded.isEmpty()) {
