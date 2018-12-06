@@ -6,7 +6,7 @@ import org.springframework.data.domain.Sort.Direction;
 
 /**
  * Requested Page Dto.
- * 
+ *
  * <p>Used to indicate Requested Page information as page number, page size
  * and Sort direction.</p>
  */
@@ -25,9 +25,9 @@ public class RequestedPage {
   private Sort sort;
 
   /**
-   * Default Values. 
+   * Default Values.
    */
-  RequestedPage() { 
+  RequestedPage() {
     page = 0;
     size = 20;
     sort = Sort.ASC;
@@ -35,54 +35,40 @@ public class RequestedPage {
 
   /**
    * Creates a new Page Request.
-   * 
-   * @param thePage Page number.
-   * @param theSize Page size.
+   *
+   * @param thePage      Page number.
+   * @param theSize      Page size.
    * @param theDirection Page Sort Direction.
    */
   public RequestedPage(Integer thePage, Integer theSize, Sort theDirection) {
-    page = thePage;
-    size = theSize;
-    sort = theDirection;
+    page = thePage != null ? thePage : 0;
+    size = theSize != null ? theSize : 20;
+    sort = theDirection != null ? theDirection : Sort.ASC;
   }
 
   public Integer getPage() {
-    if (page == null) {
-      page = 0;
-    }
     return page;
   }
 
   public Integer getSize() {
-    if (size == null) {
-      size = 20;
-    }
     return size;
   }
 
   public Sort getSort() {
-    if (sort == null) {
-      sort = Sort.ASC;
-    }
     return sort;
   }
 
   public void setPage(Integer page) {
-    if (page != null) {
-      this.page = page;
-    }
+    this.page = page != null ? page : 0;
   }
 
   public void setSize(Integer size) {
-    if (size != null) {
-      this.size = size;
-    }
+    this.size = size != null ? size : 20;
+
   }
 
   public void setSort(Sort sort) {
-    if (sort != null) {
-      this.sort = sort;
-    }
+    this.sort = sort != null ? sort : Sort.ASC;
   }
 
   /**
@@ -93,9 +79,9 @@ public class RequestedPage {
    */
   public PageRequest toPage(String... properties) {
     return PageRequest.of(
-      getPage(),
-      getSize(),
-      Direction.fromString(getSort().name()),
+      page,
+      size,
+      Direction.fromString(sort.name()),
       properties);
   }
 }
