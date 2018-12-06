@@ -47,23 +47,14 @@ public class RequestedPage {
   }
 
   public Integer getPage() {
-    if (page == null) {
-      return 0;
-    }
     return page;
   }
 
   public Integer getSize() {
-    if (size == null) {
-      return 20;
-    }
     return size;
   }
 
   public Sort getSort() {
-    if (sort == null) {
-      return Sort.ASC;
-    }
     return sort;
   }
 
