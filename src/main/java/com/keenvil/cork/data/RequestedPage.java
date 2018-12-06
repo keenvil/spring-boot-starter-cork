@@ -47,14 +47,23 @@ public class RequestedPage {
   }
 
   public Integer getPage() {
+    if (page == null) {
+      page = 0;
+    }
     return page;
   }
 
   public Integer getSize() {
+    if (size == null) {
+      size = 20;
+    }
     return size;
   }
 
   public Sort getSort() {
+    if (sort == null) {
+      sort = Sort.ASC;
+    }
     return sort;
   }
 
@@ -84,9 +93,9 @@ public class RequestedPage {
    */
   public PageRequest toPage(String... properties) {
     return PageRequest.of(
-      page,
-      size,
-      Direction.fromString(sort.name()),
+      getPage(),
+      getSize(),
+      Direction.fromString(getSort().name()),
       properties);
   }
 }
