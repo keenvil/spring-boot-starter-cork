@@ -48,21 +48,21 @@ public class RequestedPage {
 
   public Integer getPage() {
     if (page == null) {
-      page = 0;
+      return 0;
     }
     return page;
   }
 
   public Integer getSize() {
     if (size == null) {
-      size = 20;
+      return 20;
     }
     return size;
   }
 
   public Sort getSort() {
     if (sort == null) {
-      sort = Sort.ASC;
+      return Sort.ASC;
     }
     return sort;
   }
