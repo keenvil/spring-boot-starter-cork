@@ -47,41 +47,55 @@ public class RequestedPage {
   }
 
   public Integer getPage() {
+    if (page == null) {
+      page = 0;
+    }
     return page;
   }
 
   public Integer getSize() {
+    if (size == null) {
+      size = 20;
+    }
     return size;
   }
 
   public Sort getSort() {
+    if (sort == null) {
+      sort = Sort.ASC;
+    }
     return sort;
   }
 
   public void setPage(Integer page) {
-    this.page = page;
+    if (page != null) {
+      this.page = page;
+    }
   }
 
   public void setSize(Integer size) {
-    this.size = size;
+    if (size != null) {
+      this.size = size;
+    }
   }
 
   public void setSort(Sort sort) {
-    this.sort = sort;
+    if (sort != null) {
+      this.sort = sort;
+    }
   }
 
   /**
    * Creates a {@link PageRequest} from the given object.
-   * 
+   *
    * @param properties Sorting property names.
    * @return {@link PageRequest}.
    */
   public PageRequest toPage(String... properties) {
-    PageRequest pageRequest = PageRequest.of(
-      page,
-      size,
-      Direction.fromString(sort.name()),
+    return PageRequest.of(
+      getPage(),
+      getSize(),
+      Direction.fromString(getSort().name()),
       properties);
-    return pageRequest;
   }
 }
