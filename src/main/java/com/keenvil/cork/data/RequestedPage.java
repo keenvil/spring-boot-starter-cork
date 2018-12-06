@@ -59,16 +59,21 @@ public class RequestedPage {
   }
 
   public void setPage(Integer page) {
-    this.page = page != null ? page : 0;
+    if (page != null) {
+      this.page = page;
+    }
   }
 
   public void setSize(Integer size) {
-    this.size = size != null ? size : 20;
-
+    if (size != null) {
+      this.size = size;
+    }
   }
 
   public void setSort(Sort sort) {
-    this.sort = sort != null ? sort : Sort.ASC;
+    if (sort != null) {
+      this.sort = sort;
+    }
   }
 
   /**
