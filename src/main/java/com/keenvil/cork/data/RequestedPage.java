@@ -84,9 +84,9 @@ public class RequestedPage {
    */
   public PageRequest toPage(String... properties) {
     return PageRequest.of(
-      getPage(),
-      getSize(),
-      Direction.fromString(getSort().name()),
+      page,
+      size,
+      Direction.fromString(sort.name()),
       properties);
   }
 }
