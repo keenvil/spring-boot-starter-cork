@@ -2,6 +2,7 @@ package com.keenvil.cork.multitenancy;
 
 import org.slf4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.core.io.ResourceLoader;
 
@@ -44,7 +45,8 @@ public class MultiTenantSpringLiquibase implements InitializingBean, ResourceLoa
 
   private boolean dropFirst = false;
 
-  private boolean shouldRun = true;
+  @Value("${spring.liquibase.enabled:false}")
+  private boolean shouldRun = false;
 
   private File rollbackFile;
 
