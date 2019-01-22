@@ -73,6 +73,16 @@ public class JwtServiceTest {
   }
 
   @Test
+  public void generatePusherToken() {
+    Date expirationDate = new Date((new Date()).getTime() + 3600000);
+
+    String jwt = service.generatePusherToken(expirationDate,
+      "sajdlksajd", "ewewpjfpsofpdsf", "1");
+
+    assertThat(jwt, notNullValue());
+  }
+
+  @Test
   public void parseUsernameNotPresent() {
     String jwt = Jwts.builder()
         .setSubject("me")

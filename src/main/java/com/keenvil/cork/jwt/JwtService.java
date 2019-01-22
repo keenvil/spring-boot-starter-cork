@@ -238,6 +238,32 @@ public class JwtService {
   }
 
   /**
+   * Generates a JWT which can be used to access application services.
+   * @return the JWT.
+   */
+  public String generatePusherToken(
+    final Date expirationDate,
+    final String pusherIssuer,
+    final String pusherKey,
+    final String accountId) {
+    log.trace("Entering generate.");
+
+    Date today = new Date();
+    String jwt = Jwts.builder()
+                   .setSubject(accountId)
+                   .setIssuer(pusherKey)
+                   .setIssuedAt(today)
+                   .setExpiration(expirationDate)
+                   .claim("instance", pusherIssuer)
+                   .signWith(SignatureAlgorithm.HS256, pusherKey)
+                   .compact();
+
+    log.info("PusherToken Expiration [{}]", expirationDate);
+    log.trace("Leaving generate.");
+    return jwt;
+  }
+
+  /**
    * Generates the Refresh Token.
    * 
    * @param subject Subject.
