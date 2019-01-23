@@ -245,6 +245,7 @@ public class JwtService {
     final Date expirationDate,
     final String pusherIssuer,
     final String pusherKey,
+    final String pusherSecretKey,
     final String accountId) {
     log.trace("Entering generate.");
 
@@ -255,7 +256,7 @@ public class JwtService {
                    .setIssuedAt(today)
                    .setExpiration(expirationDate)
                    .claim("instance", pusherIssuer)
-                   .signWith(SignatureAlgorithm.HS256, pusherKey)
+                   .signWith(SignatureAlgorithm.HS256, pusherSecretKey)
                    .compact();
 
     log.info("PusherToken Expiration [{}]", expirationDate);

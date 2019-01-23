@@ -77,7 +77,7 @@ public class JwtServiceTest {
     Date expirationDate = new Date((new Date()).getTime() + 3600000);
 
     String jwt = service.generatePusherToken(expirationDate,
-      "sajdlksajd", "ewewpjfpsofpdsf", "1");
+      "sajdlksajd", "ewewpjfpsofpdsf", "ewewpjfpsofpdsf3423432423", "1");
 
     assertThat(jwt, notNullValue());
   }
