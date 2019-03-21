@@ -1,7 +1,10 @@
 package com.keenvil.cork.jwt;
 
-import java.util.*;
-
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 import org.apache.commons.lang3.Validate;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -18,7 +21,7 @@ public class JwtUser implements UserDetails {
 
   private String username;
 
-  private Set<String> roles = new HashSet<String>();
+  private List<String> roles = new ArrayList<>();
 
   private String firstName;
 
@@ -56,7 +59,7 @@ public class JwtUser implements UserDetails {
    */
   public JwtUser(final Long theId, final String theFirstName,
                  final String theLastName, final String theUnit,
-                 final String theUsername, final Set<String> setOfRoles) {
+                 final String theUsername, final List<String> setOfRoles) {
     Validate.notNull(theId);
     Validate.notNull(theFirstName);
     Validate.notNull(theLastName);
@@ -82,7 +85,7 @@ public class JwtUser implements UserDetails {
    */
   public JwtUser(final Long theId, final String theFirstName,
                  final String theLastName, final String theUnit,
-                 final String theUsername, final Set<String> setOfRoles,
+                 final String theUsername, final List<String> setOfRoles,
                  final Date theExpiration) {
     Validate.notNull(theId);
     Validate.notNull(theFirstName);
@@ -101,7 +104,7 @@ public class JwtUser implements UserDetails {
 
   public JwtUser(final Long theId, final String theFirstName,
                  final String theLastName, final String theUnit,
-                 final String theUsername, final Set<String> setOfRoles,
+                 final String theUsername, final List<String> setOfRoles,
                  final String theAvatarUri) {
     this(theId, theFirstName, theLastName, theUnit, theUsername, setOfRoles);
     avatarUri = theAvatarUri;
@@ -109,7 +112,7 @@ public class JwtUser implements UserDetails {
 
   public JwtUser(final Long theId, final String theFirstName,
                  final String theLastName, final String theUnit,
-                 final String theUsername, final Set<String> setOfRoles,
+                 final String theUsername, final List<String> setOfRoles,
                  final String theAvatarUri, final Date theExpiration) {
     this(theId, theFirstName, theLastName, theUnit, theUsername, setOfRoles, theExpiration);
     avatarUri = theAvatarUri;
@@ -131,8 +134,8 @@ public class JwtUser implements UserDetails {
     return unit;
   }
 
-  public Set<String> getRoles() {
-    return Collections.unmodifiableSet(roles);
+  public List<String> getRoles() {
+    return Collections.unmodifiableList(roles);
   }
 
   @Override
@@ -146,7 +149,7 @@ public class JwtUser implements UserDetails {
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
-    List<GrantedAuthority> auths = new ArrayList<GrantedAuthority>();
+    List<GrantedAuthority> auths = new ArrayList<>();
     for (String authority : roles) {
       auths.add(new SimpleGrantedAuthority("ROLE_" + authority));
     }
@@ -156,16 +159,30 @@ public class JwtUser implements UserDetails {
   /**
    * Return {@code true} if JWT User has an given role in a community.
    *
-   * @param rolesUser   role to verify.
+   * @param rolesUser role to verify.
    * @param communityId community to verify.
    * @return whether the user has the given role in the given community.
    */
-  public boolean hasRoleInCommunity(final List<String> rolesUser,
-                                    final String communityId) {
-    return roles
-        .stream()
-        .anyMatch(r -> rolesUser.stream()
-            .anyMatch(role -> role.concat("_").concat(communityId).equals(r)));
+  // TODO: (xavier 20-03-2019) remove validate with out _ENABLED
+  public boolean hasRoleInCommunity(final List<String> rolesUser, final String communityId) {
+    boolean isValidRole =
+        roles.stream()
+            .anyMatch(
+                r ->
+                    rolesUser.stream()
+                        .anyMatch(role -> role.concat("_").concat(communityId).equals(r)));
+
+    if (!isValidRole) {
+      return roles.stream()
+          .anyMatch(
+              r ->
+                  rolesUser.stream()
+                      .anyMatch(
+                          role ->
+                              role.concat("_").concat(communityId).concat("_ENABLED").equals(r)));
+    }
+
+    return true;
   }
 
   @Override
