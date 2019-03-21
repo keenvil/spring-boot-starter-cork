@@ -8,15 +8,17 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
+import java.util.Set;
 import org.junit.Test;
 
 public class JwtUserTest {
 
   @Test
   public void hasRoleInCommunity() throws Exception {
-    List<String> roles = new ArrayList<>();
+    Set<String> roles = new HashSet<>();
     Collections.addAll(roles, "TENANT_default", "CORESIDENT_default",
         "OWNER_default", "ADMIN_someCommunity", "GUARD_someCommunity", "SECURITY_someCommunity");
 
@@ -29,14 +31,14 @@ public class JwtUserTest {
     assertFalse(user.hasRoleInCommunity(Collections.singletonList("ADMIN"), "default"));
     assertFalse(user.hasRoleInCommunity(Arrays.asList("GUARD", "SECURITY"), "default"));
 
-    List<String> singleRole = new ArrayList<>();
+    Set<String> singleRole = new HashSet<>();
     Collections.addAll(singleRole, "TENANT_default");
     JwtUser userSingle = new JwtUser(1L, "Victor", "Average", "B-52",
         "vic", singleRole);
     assertTrue(userSingle.hasRoleInCommunity(Collections.singletonList("TENANT"), "default"));
     assertFalse(userSingle.hasRoleInCommunity(Collections.singletonList("OWNER"), "default"));
 
-    List<String> twoRoles = new ArrayList<>();
+    Set<String> twoRoles = new HashSet<>();
     Collections.addAll(twoRoles, "TENANT_default", "OWNER_default");
     JwtUser userTowRoles = new JwtUser(1L, "Victor", "Average", "B-52",
         "vic", twoRoles);

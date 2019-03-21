@@ -30,7 +30,7 @@ public class JwtLoggedUserMethodArgumentResolverTest {
   @SuppressWarnings("unchecked")
   public void resolve() throws Exception {
     JwtUser jwtUser = new JwtUser(1L,  "Joe", "Average", "B-52", "user",
-        Collections.EMPTY_LIST);
+        Collections.EMPTY_SET);
     HttpServletRequest request = createMock(HttpServletRequest.class);
     expect(request.getAttribute(X_JWT_USER)).andReturn(jwtUser);
     

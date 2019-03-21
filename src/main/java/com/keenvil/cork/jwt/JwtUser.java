@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.apache.commons.lang3.Validate;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -21,7 +23,7 @@ public class JwtUser implements UserDetails {
 
   private String username;
 
-  private List<String> roles = new ArrayList<>();
+  private Set<String> roles = new HashSet<>();
 
   private String firstName;
 
@@ -59,7 +61,7 @@ public class JwtUser implements UserDetails {
    */
   public JwtUser(final Long theId, final String theFirstName,
                  final String theLastName, final String theUnit,
-                 final String theUsername, final List<String> setOfRoles) {
+                 final String theUsername, final Set<String> setOfRoles) {
     Validate.notNull(theId);
     Validate.notNull(theFirstName);
     Validate.notNull(theLastName);
@@ -85,7 +87,7 @@ public class JwtUser implements UserDetails {
    */
   public JwtUser(final Long theId, final String theFirstName,
                  final String theLastName, final String theUnit,
-                 final String theUsername, final List<String> setOfRoles,
+                 final String theUsername, final Set<String> setOfRoles,
                  final Date theExpiration) {
     Validate.notNull(theId);
     Validate.notNull(theFirstName);
@@ -104,7 +106,7 @@ public class JwtUser implements UserDetails {
 
   public JwtUser(final Long theId, final String theFirstName,
                  final String theLastName, final String theUnit,
-                 final String theUsername, final List<String> setOfRoles,
+                 final String theUsername, final Set<String> setOfRoles,
                  final String theAvatarUri) {
     this(theId, theFirstName, theLastName, theUnit, theUsername, setOfRoles);
     avatarUri = theAvatarUri;
@@ -112,7 +114,7 @@ public class JwtUser implements UserDetails {
 
   public JwtUser(final Long theId, final String theFirstName,
                  final String theLastName, final String theUnit,
-                 final String theUsername, final List<String> setOfRoles,
+                 final String theUsername, final Set<String> setOfRoles,
                  final String theAvatarUri, final Date theExpiration) {
     this(theId, theFirstName, theLastName, theUnit, theUsername, setOfRoles, theExpiration);
     avatarUri = theAvatarUri;
@@ -134,8 +136,8 @@ public class JwtUser implements UserDetails {
     return unit;
   }
 
-  public List<String> getRoles() {
-    return Collections.unmodifiableList(roles);
+  public Set<String> getRoles() {
+    return Collections.unmodifiableSet(roles);
   }
 
   @Override

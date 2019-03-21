@@ -7,11 +7,11 @@ import static org.easymock.EasyMock.verify;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.keenvil.cork.RequestAttributeCommunityResolver;
 import com.keenvil.cork.jwt.JwtUser;
 
-import java.util.List;
+import java.util.Set;
 import org.easymock.TestSubject;
 import org.junit.Test;
 import org.springframework.web.context.request.RequestAttributes;
@@ -37,7 +37,7 @@ public class ResourceSecurityServiceTest {
     RequestContextHolder.setRequestAttributes(attributes);
     JwtUser jwtUser =
         new JwtUser(1L,  "Joe", "Average", "B-52", "admin@keenvil.com",
-            Lists.newArrayList("ADMIN_KEENVIL"));
+            Sets.newHashSet("ADMIN_KEENVIL"));
     boolean hasCommunityRole = service.hasRoleInCommunity(jwtUser, Collections.singletonList("ADMIN"));
 
     assertTrue(hasCommunityRole);
@@ -54,7 +54,7 @@ public class ResourceSecurityServiceTest {
     RequestContextHolder.setRequestAttributes(attributes);
     JwtUser jwtUser =
         new JwtUser(1L,  "Joe", "Average", "B-52", "admin@keenvil.com",
-            Lists.newArrayList("ADMIN_KEENVIL_ENABLED"));
+            Sets.newHashSet("ADMIN_KEENVIL_ENABLED"));
     boolean hasCommunityRole = service.hasRoleInCommunity(jwtUser, Collections.singletonList("ADMIN"));
 
     assertTrue(hasCommunityRole);
@@ -69,7 +69,7 @@ public class ResourceSecurityServiceTest {
     replay(attributes);
 
     RequestContextHolder.setRequestAttributes(attributes);
-    List<String> roles = Lists.newArrayList("RESIDENT_KEENVIL", "ADMIN_MYCO");
+    Set<String> roles = Sets.newHashSet("RESIDENT_KEENVIL", "ADMIN_MYCO");
     JwtUser jwtUser =
         new JwtUser(1L,  "Joe", "Average", "B-52", "admin@keenvil.com", roles);
     boolean hasCommunityRole = service.hasRoleInCommunity(jwtUser, Collections.singletonList("ADMIN"));
@@ -86,7 +86,7 @@ public class ResourceSecurityServiceTest {
     replay(attributes);
 
     RequestContextHolder.setRequestAttributes(attributes);
-    List<String> roles = Lists.newArrayList("RESIDENT_KEENVIL_ENABLED", "ADMIN_MYCO_ENABLED");
+    Set<String> roles = Sets.newHashSet("RESIDENT_KEENVIL_ENABLED", "ADMIN_MYCO_ENABLED");
     JwtUser jwtUser =
         new JwtUser(1L,  "Joe", "Average", "B-52", "admin@keenvil.com", roles);
     boolean hasCommunityRole = service.hasRoleInCommunity(jwtUser, Collections.singletonList("ADMIN"));
@@ -103,7 +103,7 @@ public class ResourceSecurityServiceTest {
     replay(attributes);
 
     RequestContextHolder.setRequestAttributes(attributes);
-    List<String> roles = Lists.newArrayList("RESIDENT_KEENVIL", "ADMIN_MYCO");
+    Set<String> roles = Sets.newHashSet("RESIDENT_KEENVIL", "ADMIN_MYCO");
     JwtUser jwtUser =
         new JwtUser(1L,  "Joe", "Average", "B-52", "admin@keenvil.com", roles);
     boolean hasCommunityRole = service.hasRoleInCommunity(jwtUser, Arrays.asList("TENANT", "CORESIDENT", "OWNER"));
@@ -120,7 +120,7 @@ public class ResourceSecurityServiceTest {
     replay(attributes);
 
     RequestContextHolder.setRequestAttributes(attributes);
-    List<String> roles = Lists.newArrayList("RESIDENT_KEENVIL_ENABLED", "ADMIN_MYCO_ENABLED");
+    Set<String> roles = Sets.newHashSet("RESIDENT_KEENVIL_ENABLED", "ADMIN_MYCO_ENABLED");
     JwtUser jwtUser =
         new JwtUser(1L,  "Joe", "Average", "B-52", "admin@keenvil.com", roles);
     boolean hasCommunityRole = service.hasRoleInCommunity(jwtUser, Arrays.asList("TENANT", "CORESIDENT", "OWNER"));

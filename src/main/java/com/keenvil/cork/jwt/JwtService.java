@@ -3,10 +3,11 @@ package com.keenvil.cork.jwt;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 
+import java.util.Set;
 import org.apache.commons.lang3.Validate;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -128,7 +129,7 @@ public class JwtService {
       final String lastName,
       final String unit,
       final String username,
-      final List<String> roles) {
+      final Set<String> roles) {
     Date ttl = DateTime.now().plusMinutes(minutes).toDate();
     log.info("Token Expiration TTL {}", minutes);
     return generate(subject,
@@ -152,7 +153,7 @@ public class JwtService {
       final String lastName,
       final String unit,
       final String username,
-      final List<String> roles,
+      final Set<String> roles,
       final Date expirationDate) {
     return generate(subject,
         firstName,
@@ -175,7 +176,7 @@ public class JwtService {
       final String lastName,
       final String unit,
       final String username,
-      final List<String> roles,
+      final Set<String> roles,
       final String avatarUri) {
     Date ttl = DateTime.now().plusMinutes(minutes).toDate();
     log.info("Token Expiration TTL {}", minutes);
@@ -207,7 +208,7 @@ public class JwtService {
       final String lastName,
       final String unit,
       final String username,
-      final List<String> roles,
+      final Set<String> roles,
       final Date expirationDate,
       final String avatarUri) {
     log.trace("Entering generate.");
@@ -303,7 +304,7 @@ public class JwtService {
       final String lastName,
       final String unit,
       final String username,
-      final List<String> roles,
+      final Set<String> roles,
       final Date tokenExpirationDate,
       final Date refreshExpirationDate,
       final String avatarUri) {
@@ -378,7 +379,7 @@ public class JwtService {
             (String) claims.get(LAST_NAME),
             (String) claims.get(UNIT),
             (String) claims.get(USERNAME),
-            new ArrayList<>((List<String>) claims.get(ROLES)),
+            (Set<String>) new HashSet((List<String>) claims.get(ROLES)),
             (String) claims.get(AVATAR_URI));
 
     log.trace("Leaving parse.");
