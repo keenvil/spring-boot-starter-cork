@@ -1,7 +1,12 @@
 package com.keenvil.cork.jwt;
 
-import java.util.*;
-
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import org.apache.commons.lang3.Validate;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -18,7 +23,7 @@ public class JwtUser implements UserDetails {
 
   private String username;
 
-  private Set<String> roles = new HashSet<String>();
+  private Set<String> roles = new HashSet<>();
 
   private String firstName;
 
@@ -146,7 +151,7 @@ public class JwtUser implements UserDetails {
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
-    List<GrantedAuthority> auths = new ArrayList<GrantedAuthority>();
+    List<GrantedAuthority> auths = new ArrayList<>();
     for (String authority : roles) {
       auths.add(new SimpleGrantedAuthority("ROLE_" + authority));
     }
@@ -156,16 +161,30 @@ public class JwtUser implements UserDetails {
   /**
    * Return {@code true} if JWT User has an given role in a community.
    *
-   * @param rolesUser   role to verify.
+   * @param rolesUser role to verify.
    * @param communityId community to verify.
    * @return whether the user has the given role in the given community.
    */
-  public boolean hasRoleInCommunity(final List<String> rolesUser,
-                                    final String communityId) {
-    return roles
-        .stream()
-        .anyMatch(r -> rolesUser.stream()
-            .anyMatch(role -> role.concat("_").concat(communityId).equals(r)));
+  // TODO: (xavier 20-03-2019) remove validate with out _ENABLED
+  public boolean hasRoleInCommunity(final List<String> rolesUser, final String communityId) {
+    boolean isValidRole =
+        roles.stream()
+            .anyMatch(
+                r ->
+                    rolesUser.stream()
+                        .anyMatch(role -> role.concat("_").concat(communityId).equals(r)));
+
+    if (!isValidRole) {
+      return roles.stream()
+          .anyMatch(
+              r ->
+                  rolesUser.stream()
+                      .anyMatch(
+                          role ->
+                              role.concat("_").concat(communityId).concat("_ENABLED").equals(r)));
+    }
+
+    return true;
   }
 
   @Override

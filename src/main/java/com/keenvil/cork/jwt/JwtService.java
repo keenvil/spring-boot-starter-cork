@@ -2,11 +2,12 @@ package com.keenvil.cork.jwt;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
+import java.util.Set;
 import org.apache.commons.lang3.Validate;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -246,7 +247,7 @@ public class JwtService {
     final String pusherIssuer,
     final String pusherKey,
     final String pusherSecretKey,
-    final String accountId) {
+    final String accountId) throws UnsupportedEncodingException {
     log.trace("Entering generate.");
 
     Date today = new Date();
@@ -256,7 +257,7 @@ public class JwtService {
                    .setIssuedAt(today)
                    .setExpiration(expirationDate)
                    .claim("instance", pusherIssuer)
-                   .signWith(SignatureAlgorithm.HS256, pusherSecretKey)
+                   .signWith(SignatureAlgorithm.HS256, pusherSecretKey.getBytes("UTF-8"))
                    .compact();
 
     log.info("PusherToken Expiration [{}]", expirationDate);

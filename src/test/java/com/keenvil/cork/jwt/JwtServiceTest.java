@@ -7,13 +7,14 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
+import java.util.Set;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.springframework.security.core.GrantedAuthority;
@@ -38,7 +39,7 @@ public class JwtServiceTest {
   @Test
   public void generate() {
     Date expirationDate = new Date((new Date()).getTime() + 3600000);
-    Set<String> roles = new HashSet<String>();
+    Set<String> roles = new HashSet<>();
     Collections.addAll(roles, "USER", "ADMIN");
 
     String jwt = service.generate("1", "Joe", "Average", "admin@keenvil.com",
@@ -73,7 +74,7 @@ public class JwtServiceTest {
   }
 
   @Test
-  public void generatePusherToken() {
+  public void generatePusherToken() throws UnsupportedEncodingException {
     Date expirationDate = new Date((new Date()).getTime() + 3600000);
 
     String jwt = service.generatePusherToken(expirationDate,
@@ -189,7 +190,7 @@ public class JwtServiceTest {
 
   @Test
   public void parse() {
-    Set<String> roles = new HashSet<String>();
+    Set<String> roles = new HashSet<>();
     Collections.addAll(roles, "USER", "ADMIN");
     String jwt = service.generate("1", "Joe", "Average", "B-52",
         "admin@keenvil.com", roles, "avatarUri");
@@ -217,7 +218,7 @@ public class JwtServiceTest {
 
   @Test
   public void parseRefresh() {
-    Set<String> roles = new HashSet<String>();
+    Set<String> roles = new HashSet<>();
     Collections.addAll(roles, "USER", "ADMIN");
     String jwt = service.generateRefresh("1", DateUtils.nowPlusMinutesInUtc(5));
     
@@ -227,7 +228,7 @@ public class JwtServiceTest {
 
   @Test
   public void parseInvalidRefresh() {
-    Set<String> roles = new HashSet<String>();
+    Set<String> roles = new HashSet<>();
     Collections.addAll(roles, "USER", "ADMIN");
     String jwt = service.generate("1", "Joe", "Average", "B-52",
         "admin@keenvil.com", roles, "avatarUri");
@@ -258,7 +259,7 @@ public class JwtServiceTest {
   public void refresh() {
     Date plus10Minutes = new DateTime().plusMinutes(10).toDate();
     String jwt = service.generate("1",  "Joe", "Average", "B-52",
-        "admin@keenvil.com", Collections.<String>emptySet(), plus10Minutes);
+        "admin@keenvil.com", Collections.emptySet(), plus10Minutes);
     String refreshedJwt = service.refresh(jwt);
     assertThat(refreshedJwt, notNullValue());
 
