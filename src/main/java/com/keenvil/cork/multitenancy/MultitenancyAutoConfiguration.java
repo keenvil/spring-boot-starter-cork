@@ -129,7 +129,7 @@ public class MultitenancyAutoConfiguration {
       entityManagerFactory(EntityManagerFactoryBuilder builder) {
 
     Map<String, Object> hibernateProps =
-      new HashMap<>(jpaProperties.getHibernateProperties(new HibernateSettings()));
+      new HashMap<>(jpaProperties.getProperties());
 
 
     hibernateProps.put(MULTI_TENANT, MultiTenancyStrategy.SCHEMA);
