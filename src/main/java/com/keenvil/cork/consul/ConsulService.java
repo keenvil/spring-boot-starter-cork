@@ -4,8 +4,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.keenvil.cork.error.KeenvilApiException.UnprocessedEntity;
-import com.keenvil.cork.multitenancy.DataSourceBuilder;
 import com.netflix.config.*;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import org.apache.commons.configuration.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -153,14 +154,21 @@ public class ConsulService {
     Object jsonDatasource = new JsonParser().parse(stringDatasource);
     mapProperties = jsonToMap((JsonElement) jsonDatasource);
 
-    return DataSourceBuilder.create().driverClassName(
-        (String) mapProperties.get("driverClassName"))
-        .username((String) mapProperties.get("username"))
-        .password(
-            (String) mapProperties.get("password"))
-        .url(
-            (String) mapProperties.get("url"))
-        .build();
+    HikariConfig hikariConfig = new HikariConfig();
+    hikariConfig.setInitializationFailTimeout(Long.valueOf(
+        (String) mapProperties.get("initializationFailTimeout")));
+    hikariConfig.setMaximumPoolSize(Integer.valueOf((String) mapProperties.get("maximumPoolSize")));
+    hikariConfig.setMinimumIdle(Integer.valueOf((String) mapProperties.get("minimumIdle")));
+    hikariConfig.setPoolName((String) mapProperties.get("poolName"));
+    hikariConfig.setConnectionTimeout(Long.valueOf((String) mapProperties.get("connectionTimeout")));
+    hikariConfig.setDriverClassName((String) mapProperties.get("driverClassName"));
+    hikariConfig.setJdbcUrl((String) mapProperties.get("url"));
+    hikariConfig.getDataSourceProperties()
+        .setProperty("user", (String) mapProperties.get("username"));
+    hikariConfig.getDataSourceProperties()
+        .setProperty("password", (String) mapProperties.get("password"));
+
+    return new HikariDataSource(hikariConfig);
   }
 
   private Map<String, Object> jsonToMap(JsonElement jsonElement) {
