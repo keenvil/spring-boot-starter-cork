@@ -14,10 +14,10 @@ import java.util.List;
 @Service
 public class ResourceSecurityService {
 
-  private CommunityIdentifierResolver cummunityResolver;
+  private CommunityIdentifierResolver communityResolver;
 
   public ResourceSecurityService(CommunityIdentifierResolver theCommunityResolver) {
-    cummunityResolver = theCommunityResolver;
+    communityResolver = theCommunityResolver;
   }
 
   /** Returns <code>true</code> if the given user has the given role or ADMIN
@@ -29,7 +29,7 @@ public class ResourceSecurityService {
    *     communities.
    */
   public boolean hasRoleInCommunity(final JwtUser jwtUser, List<String> roles) {
-    String communityId = cummunityResolver.resolve();
+    String communityId = communityResolver.resolve();
     return jwtUser.hasRoleInCommunity(roles, communityId)
         || hasAdminInCommunity(jwtUser);
   }
@@ -41,7 +41,7 @@ public class ResourceSecurityService {
    * @return whether the given user has ADMIN role in any of his communities.
    */
   public boolean hasAdminInCommunity(final JwtUser jwtUser) {
-    String communityId = cummunityResolver.resolve();
+    String communityId = communityResolver.resolve();
     return jwtUser.hasRoleInCommunity(Collections.singletonList("ADMIN"), communityId);
   }
 }
