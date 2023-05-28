@@ -90,6 +90,7 @@ public class DataSourceBuilder {
   }
 
   public DataSourceBuilder url(String url) {
+    log.info("JDBC URL : {}", url);
     this.properties.put("jdbcUrl", url);
     return this;
   }
