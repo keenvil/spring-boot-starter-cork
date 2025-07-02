@@ -13,10 +13,10 @@ You will need the following things properly installed on your computer.
 
 * [Git](http://git-scm.com/)
 * [Maven 3.3.9](http://maven.apache.org)
-* [Java - Oracle 1.8.0_121](http://java.com)
+* Java 21 or higher
 * [MySQL - 5.7.17](http://www.mysql.com/)
 
-## Installation for developmet
+## Installation for development
 
 ### Getting the code
 ```
