@@ -10,7 +10,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.*;
 
-import javax.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
 import org.hibernate.MultiTenancyStrategy;

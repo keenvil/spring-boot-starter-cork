@@ -2,7 +2,7 @@ package com.keenvil.cork;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
