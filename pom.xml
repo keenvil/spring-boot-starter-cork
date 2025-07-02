@@ -27,7 +27,7 @@
       <hibernate-validator.version>8.0.1.Final</hibernate-validator.version>
       <commons-lang3.version>3.14.0</commons-lang3.version>
       <commons-codec.version>1.16.0</commons-codec.version>
-      <jjwt.version>0.11.5</jjwt.version>
+      <jjwt.version>0.12.6</jjwt.version>
       <spring-security-crypto.version>6.2.4</spring-security-crypto.version>
       <joda-time.version>2.12.7</joda-time.version>
       <easymock.version>5.2.0</easymock.version>
@@ -37,7 +37,7 @@
       <ecwid-consul-api.version>1.4.5</ecwid-consul-api.version>
       <sentry.version>6.34.0</sentry.version>
       <google-guava.version>33.2.1-jre</google-guava.version>
-      <commons-configuration.version>2.9.0</commons-configuration.version>
+      <commons-configuration.version>2.12.0</commons-configuration.version>
   </properties>
 
   <dependencyManagement>
@@ -56,6 +56,7 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
+      <version>${spring-boot.version}</version>
       <exclusions>
         <!-- Exclude the Tomcat dependency -->
         <exclusion>
@@ -67,6 +68,7 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-jetty</artifactId>
+      <version>${spring-boot.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -76,6 +78,7 @@
     <dependency>
     <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-jersey</artifactId>
+      <version>${spring-boot.version}</version>
       <exclusions>
         <!-- Exclude the Tomcat dependency -->
         <exclusion>
@@ -83,7 +86,6 @@
           <artifactId>spring-boot-starter-tomcat</artifactId>
         </exclusion>
       </exclusions>
-      <version>${spring-boot.version}</version>
     </dependency>
 
   <dependency>
@@ -94,14 +96,17 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-autoconfigure</artifactId>
+      <version>${spring-boot.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-data-jpa</artifactId>
+      <version>${spring-boot.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-configuration-processor</artifactId>
+      <version>${spring-boot.version}</version>
       <optional>true</optional>
     </dependency>
     <dependency>
@@ -226,8 +231,8 @@
 
     <!-- https://mvnrepository.com/artifact/commons-configuration/commons-configuration -->
     <dependency>
-      <groupId>commons-configuration</groupId>
-      <artifactId>commons-configuration</artifactId>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-configuration2</artifactId>
       <version>${commons-configuration.version}</version>
     </dependency>
 
