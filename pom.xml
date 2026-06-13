@@ -7,37 +7,27 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.keenvil</groupId>
   <artifactId>spring-boot-starter-cork</artifactId>
-  <version>3.0.0-SNAPSHOT</version>
+  <version>4.0.0</version>
   <packaging>jar</packaging>
 
   <name>spring-boot-starter-cork</name>
-  <description>Keenvil Spring Boot Core Module</description>
+  <description>Keenvil Spring Boot Core Module — Spring Boot 3.x / Java 21</description>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <java.version>11</java.version>
-
-    <!-- External dependencies versions -->
-    <spring-boot.version>2.1.4.RELEASE</spring-boot.version>
-    <spring-core.version>5.1.6.RELEASE</spring-core.version>
-    <spring-aspects.version>5.1.6.RELEASE</spring-aspects.version>
-    <spring-cloud-aws.version>2.1.0.RELEASE</spring-cloud-aws.version>
-    <openfeign-starter.version>2.1.0.RELEASE</openfeign-starter.version>
-    <validation-api.version>2.0.1.Final</validation-api.version>
-    <hibernate-validator.version>6.0.13.Final</hibernate-validator.version>
-    <commons-lang3.version>3.9</commons-lang3.version>
-    <commons-codec.version>1.6</commons-codec.version>
-    <jjwt.version>0.9.1</jjwt.version>
-    <spring-security-crypto.version>5.1.1.RELEASE</spring-security-crypto.version>
-    <joda-time.version>2.10.1</joda-time.version>
-    <easymock.version>4.0.1</easymock.version>
-    <powermock.version>2.0.0-RC.3</powermock.version>
-    <liquibase.version>3.6.2</liquibase.version>
-    <archaius.version>0.7.6</archaius.version>
-    <ecwid-consul-api.version>1.2.4</ecwid-consul-api.version>
-    <sentry.version>1.7.14</sentry.version>
-    <google-guava.version>26.0-jre</google-guava.version>
-    <commons-configuration.version>1.9</commons-configuration.version>
+    <java.version>21</java.version>
+    <spring-boot.version>3.3.12</spring-boot.version>
+    <spring-cloud.version>2023.0.3</spring-cloud.version>
+    <jjwt.version>0.12.6</jjwt.version>
+    <sentry.version>7.9.0</sentry.version>
+    <commons-lang3.version>3.14.0</commons-lang3.version>
+    <commons-codec.version>1.17.0</commons-codec.version>
+    <liquibase.version>4.27.0</liquibase.version>
+    <archaius.version>0.7.7</archaius.version>
+    <ecwid-consul-api.version>1.4.5</ecwid-consul-api.version>
+    <google-guava.version>33.2.1-jre</google-guava.version>
+    <commons-configuration2.version>2.12.0</commons-configuration2.version>
+    <easymock.version>5.2.0</easymock.version>
   </properties>
 
   <dependencyManagement>
@@ -49,6 +39,13 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
+      <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-dependencies</artifactId>
+        <version>${spring-cloud.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -57,7 +54,6 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
       <exclusions>
-        <!-- Exclude the Tomcat dependency -->
         <exclusion>
           <groupId>org.springframework.boot</groupId>
           <artifactId>spring-boot-starter-tomcat</artifactId>
@@ -71,25 +67,10 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-security</artifactId>
-      <version>${spring-boot.version}</version>
     </dependency>
     <dependency>
-    <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-jersey</artifactId>
-      <exclusions>
-        <!-- Exclude the Tomcat dependency -->
-        <exclusion>
-          <groupId>org.springframework.boot</groupId>
-          <artifactId>spring-boot-starter-tomcat</artifactId>
-        </exclusion>
-      </exclusions>
-      <version>${spring-boot.version}</version>
-    </dependency>
-
-  <dependency>
       <groupId>org.springframework.cloud</groupId>
       <artifactId>spring-cloud-starter-openfeign</artifactId>
-      <version>${openfeign-starter.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -107,18 +88,7 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
-      <version>${spring-boot.version}</version>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-core</artifactId>
-      <version>${spring-core.version}</version>
-    </dependency>
-    <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-aspects</artifactId>
-        <version>${spring-aspects.version}</version>
     </dependency>
 
     <!-- Commons Utilities -->
@@ -133,66 +103,37 @@
       <version>${commons-codec.version}</version>
     </dependency>
 
-    <!-- JWT -->
+    <!-- JWT 0.12.x — 3 artifacts -->
     <dependency>
       <groupId>io.jsonwebtoken</groupId>
-      <artifactId>jjwt</artifactId>
+      <artifactId>jjwt-api</artifactId>
       <version>${jjwt.version}</version>
     </dependency>
-
-    <!-- Spring/Crypto -->
     <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-crypto</artifactId>
-      <version>${spring-security-crypto.version}</version>
-    </dependency>
-
-    <dependency>
-        <groupId>net.glxn</groupId>
-        <artifactId>qrgen</artifactId>
-        <version>1.4</version>
-    </dependency>
-
-    <dependency>
-      <groupId>joda-time</groupId>
-      <artifactId>joda-time</artifactId>
-      <version>${joda-time.version}</version>
-    </dependency>
-
-    <!-- Testing -->
-    <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
-      <version>1.4.192</version>
+      <groupId>io.jsonwebtoken</groupId>
+      <artifactId>jjwt-impl</artifactId>
+      <version>${jjwt.version}</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
-      <groupId>org.hsqldb</groupId>
-      <artifactId>hsqldb</artifactId>
-      <version>2.2.4</version>
+      <groupId>io.jsonwebtoken</groupId>
+      <artifactId>jjwt-jackson</artifactId>
+      <version>${jjwt.version}</version>
       <scope>runtime</scope>
     </dependency>
+
+    <!-- Sentry — Jakarta-compatible -->
     <dependency>
-      <groupId>org.easymock</groupId>
-      <artifactId>easymock</artifactId>
-      <version>${easymock.version}</version>
+      <groupId>io.sentry</groupId>
+      <artifactId>sentry-spring-jakarta</artifactId>
+      <version>${sentry.version}</version>
     </dependency>
 
+    <!-- QR -->
     <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-core</artifactId>
-      <version>4.3.11.Final</version>
-    </dependency>
-
-    <dependency>
-        <groupId>org.powermock</groupId>
-        <artifactId>powermock-api-easymock</artifactId>
-        <version>${powermock.version}</version>
-    </dependency>
-    <dependency>
-        <groupId>org.powermock</groupId>
-        <artifactId>powermock-module-junit4</artifactId>
-        <version>${powermock.version}</version>
+      <groupId>net.glxn</groupId>
+      <artifactId>qrgen</artifactId>
+      <version>1.4</version>
     </dependency>
 
     <!-- Liquibase -->
@@ -210,40 +151,45 @@
       <version>${archaius.version}</version>
     </dependency>
 
-    <!--consul-api -->
+    <!-- Consul API -->
     <dependency>
       <groupId>com.ecwid.consul</groupId>
       <artifactId>consul-api</artifactId>
       <version>${ecwid-consul-api.version}</version>
     </dependency>
 
-    <!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
       <version>${google-guava.version}</version>
     </dependency>
 
-    <!-- https://mvnrepository.com/artifact/commons-configuration/commons-configuration -->
     <dependency>
-      <groupId>commons-configuration</groupId>
-      <artifactId>commons-configuration</artifactId>
-      <version>${commons-configuration.version}</version>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-configuration2</artifactId>
+      <version>${commons-configuration2.version}</version>
     </dependency>
 
-
+    <!-- Test -->
     <dependency>
-      <groupId>io.sentry</groupId>
-      <artifactId>sentry-spring</artifactId>
-      <version>${sentry.version}</version>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.easymock</groupId>
+      <artifactId>easymock</artifactId>
+      <version>${easymock.version}</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
   <distributionManagement>
-    <snapshotRepository>
-      <id>nexus-snapshots</id>
-      <url>http://nexus.int.myaws.io:8081/repository/maven-snapshots/</url>
-    </snapshotRepository>
+    <repository>
+      <id>cork</id>
+      <name>Keenvil Cork Starter — GitHub Packages</name>
+      <url>https://maven.pkg.github.com/keenvil/spring-boot-starter-cork</url>
+    </repository>
   </distributionManagement>
 
   <build>
@@ -251,28 +197,20 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.5.1</version>
+        <version>3.13.0</version>
         <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
+          <release>21</release>
         </configuration>
       </plugin>
     </plugins>
   </build>
 
   <repositories>
-      <repository>
-        <id>jcenter-snapshots</id>
-        <name>jcenter</name>
-        <url>https://jcenter.bintray.com/</url>
-      </repository>
-      <repository>
-        <id>spring-snapshots</id>
-        <name>Spring Snapshots</name>
-        <url>https://repo.spring.io/libs-snapshot</url>
-        <snapshots>
-            <enabled>true</enabled>
-        </snapshots>
+    <repository>
+      <id>central</id>
+      <name>Maven Central</name>
+      <url>https://repo.maven.apache.org/maven2/</url>
     </repository>
   </repositories>
+
 </project>

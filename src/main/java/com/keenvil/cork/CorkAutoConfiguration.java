@@ -63,11 +63,11 @@ public class CorkAutoConfiguration {
 
   @Bean
   public HandlerExceptionResolver sentryExceptionResolver() {
-    return new io.sentry.spring.SentryExceptionResolver();
+    return new io.sentry.spring.jakarta.SentryExceptionResolver();
   }
 
   @Bean
   public ServletContextInitializer sentryServletContextInitializer() {
-    return new io.sentry.spring.SentryServletContextInitializer();
+    return new io.sentry.spring.jakarta.SentryServletContextInitializer();
   }
 }

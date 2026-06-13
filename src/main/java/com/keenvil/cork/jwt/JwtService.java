@@ -2,14 +2,15 @@ package com.keenvil.cork.jwt;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-
 import java.util.Set;
+
 import org.apache.commons.lang3.Validate;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -19,20 +20,17 @@ import com.keenvil.cork.date.DateUtils;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.IncorrectClaimException;
-import io.jsonwebtoken.JwsHeader;
-import io.jsonwebtoken.Jwt;
+import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MissingClaimException;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 
 /**
  * Generates/Refreshes JSON Web Tokens and JWT Users which can be used to
  * interact with application services.
- * Token encrypts: TBD Define what to we want to put in here
  */
 @Service
 public class JwtService {
-
 
   private static Logger log = getLogger(JwtService.class);
 
@@ -60,10 +58,9 @@ public class JwtService {
   @Value("${jwt.ttl:120}")
   private int minutes = 120;
 
-
   /** TODO(mario-AC-25): Externalize in Vault. */
   static final String KEY = "&....#$[myCo-key]#$....&";
-  
+
   /** TODO(mario-AC-25): Externalize in Vault. */
   static final String ISSUER = "myCo-security-api";
 
@@ -81,7 +78,7 @@ public class JwtService {
 
     /**
      * Token which encapsulates Access and Refresh Jwt.
-     * 
+     *
      * @param theAccess Access Jwt.
      * @param theRefresh Refresh Jwt.
      */
@@ -130,7 +127,7 @@ public class JwtService {
       final String unit,
       final String username,
       final Set<String> roles) {
-    Date ttl = DateTime.now().plusMinutes(minutes).toDate();
+    Date ttl = Date.from(Instant.now().plus(minutes, ChronoUnit.MINUTES));
     log.info("Token Expiration TTL {}", minutes);
     return generate(subject,
         firstName,
@@ -178,7 +175,7 @@ public class JwtService {
       final String username,
       final Set<String> roles,
       final String avatarUri) {
-    Date ttl = DateTime.now().plusMinutes(minutes).toDate();
+    Date ttl = Date.from(Instant.now().plus(minutes, ChronoUnit.MINUTES));
     log.info("Token Expiration TTL {}", minutes);
     return generate(subject,
         firstName,
@@ -219,10 +216,10 @@ public class JwtService {
 
     Date today = new Date();
     String jwt = Jwts.builder()
-        .setIssuer(ISSUER)
-        .setIssuedAt(today)
-        .setExpiration(expirationDate)
-        .setSubject(subject)
+        .issuer(ISSUER)
+        .issuedAt(today)
+        .expiration(expirationDate)
+        .subject(subject)
         .claim(TYPE, TYPE_ACCESS)
         .claim(FIRST_NAME, firstName)
         .claim(LAST_NAME, lastName)
@@ -230,7 +227,7 @@ public class JwtService {
         .claim(USERNAME, username)
         .claim(ROLES, roles)
         .claim(AVATAR_URI, avatarUri)
-        .signWith(SignatureAlgorithm.HS256, KEY)
+        .signWith(Keys.hmacShaKeyFor(KEY.getBytes(StandardCharsets.UTF_8)))
         .compact();
 
     log.info("Token Expiration {}", expirationDate);
@@ -247,17 +244,18 @@ public class JwtService {
     final String pusherIssuer,
     final String pusherKey,
     final String pusherSecretKey,
-    final String accountId) throws UnsupportedEncodingException {
+    final String accountId) {
     log.trace("Entering generate.");
 
     Date today = new Date();
     String jwt = Jwts.builder()
-                   .setSubject(accountId)
-                   .setIssuer(pusherKey)
-                   .setIssuedAt(today)
-                   .setExpiration(expirationDate)
+                   .subject(accountId)
+                   .issuer(pusherKey)
+                   .issuedAt(today)
+                   .expiration(expirationDate)
                    .claim("instance", pusherIssuer)
-                   .signWith(SignatureAlgorithm.HS256, pusherSecretKey.getBytes("UTF-8"))
+                   .signWith(Keys.hmacShaKeyFor(
+                       pusherSecretKey.getBytes(StandardCharsets.UTF_8)))
                    .compact();
 
     log.info("PusherToken Expiration [{}]", expirationDate);
@@ -267,7 +265,7 @@ public class JwtService {
 
   /**
    * Generates the Refresh Token.
-   * 
+   *
    * @param subject Subject.
    * @return Token.
    */
@@ -275,18 +273,18 @@ public class JwtService {
       String subject,
       Date ttl) {
     return Jwts.builder()
-        .setIssuer(ISSUER)
-        .setIssuedAt(DateUtils.nowInUtc())
-        .setSubject(subject)
-        .setExpiration(ttl)
+        .issuer(ISSUER)
+        .issuedAt(DateUtils.nowInUtc())
+        .subject(subject)
+        .expiration(ttl)
         .claim(TYPE, TYPE_REFRESH)
-        .signWith(SignatureAlgorithm.HS256, KEY)
+        .signWith(Keys.hmacShaKeyFor(KEY.getBytes(StandardCharsets.UTF_8)))
         .compact();
   }
 
   /**
    * Generates a complete Token (access token and refresh token).
-   * 
+   *
    * @param subject subject.
    * @param firstName first name.
    * @param lastName last name.
@@ -334,8 +332,8 @@ public class JwtService {
     log.trace("Entering parse.");
 
     Validate.notNull(jwt);
-    Jwt<JwsHeader, Claims> parsed = parseClaims(jwt);
-    Claims claims = parsed.getBody();
+    Jws<Claims> parsed = parseClaims(jwt);
+    Claims claims = parsed.getPayload();
 
     String tokenType = (String) claims.get(TYPE);
     if (tokenType == null || !tokenType.equals(TYPE_ACCESS)) {
@@ -398,19 +396,19 @@ public class JwtService {
 
     JwtUser jwtUser = parse(jwt);
 
-    DateTime today = new DateTime();
-    DateTime plusMinutes = today.plusMinutes(minutes);
+    Date today = new Date();
+    Date plusMinutes = Date.from(Instant.now().plus(minutes, ChronoUnit.MINUTES));
     String refreshed = Jwts.builder()
-        .setIssuer(ISSUER)
-        .setIssuedAt(today.toDate())
-        .setExpiration(plusMinutes.toDate())
-        .setSubject(jwtUser.getUserAccountId().toString())
+        .issuer(ISSUER)
+        .issuedAt(today)
+        .expiration(plusMinutes)
+        .subject(jwtUser.getUserAccountId().toString())
         .claim(FIRST_NAME, jwtUser.getFirstName())
         .claim(LAST_NAME, jwtUser.getLastName())
         .claim(UNIT, jwtUser.getUnit())
         .claim(USERNAME, jwtUser.getUsername())
         .claim(ROLES, jwtUser.getRoles())
-        .signWith(SignatureAlgorithm.HS256, KEY)
+        .signWith(Keys.hmacShaKeyFor(KEY.getBytes(StandardCharsets.UTF_8)))
         .compact();
 
     log.trace("Leaving refresh.");
@@ -419,33 +417,32 @@ public class JwtService {
 
   /**
    * Parse a refresh JWT.
-   * 
+   *
    * @param refreshJwt Refresh JWT.
    * @return JWT User.
    */
-  @SuppressWarnings("rawtypes")
   public JwtUser parseRefresh(final String refreshJwt) {
-    Jwt<JwsHeader, Claims> parseClaims = parseClaims(refreshJwt);
-    String type = (String) parseClaims.getBody().get(TYPE);
-    Date expiration = parseClaims.getBody().getExpiration();
+    Jws<Claims> parsedClaims = parseClaims(refreshJwt);
+    String type = (String) parsedClaims.getPayload().get(TYPE);
+    Date expiration = parsedClaims.getPayload().getExpiration();
 
     if (type == null || !type.equals(TYPE_REFRESH)) {
       log.error("Invalid refresh token. Type must be Refresh, but is [{}]", type);
       throw new JwtInvalidTokenException("Invalid refresh token.");
     }
 
-    Long id = Long.valueOf(parseClaims.getBody().getSubject());
+    Long id = Long.valueOf(parsedClaims.getPayload().getSubject());
     return new JwtUser(id, expiration);
   }
 
-  @SuppressWarnings("rawtypes")
-  private Jwt<JwsHeader, Claims> parseClaims(String jwt) {
-    Jwt<JwsHeader, Claims> parsed = null;
+  private Jws<Claims> parseClaims(String jwt) {
+    Jws<Claims> parsed = null;
     try {
       parsed = Jwts.parser()
           .requireIssuer(ISSUER)
-          .setSigningKey(JwtService.KEY)
-          .parseClaimsJws(jwt);
+          .verifyWith(Keys.hmacShaKeyFor(KEY.getBytes(StandardCharsets.UTF_8)))
+          .build()
+          .parseSignedClaims(jwt);
     } catch (IllegalArgumentException e) {
       log.error("Illegal Argument Exception.");
       throw new JwtInvalidTokenException("Invalid Token, Illegal Argument .",
@@ -467,5 +464,4 @@ public class JwtService {
     }
     return parsed;
   }
-
 }
