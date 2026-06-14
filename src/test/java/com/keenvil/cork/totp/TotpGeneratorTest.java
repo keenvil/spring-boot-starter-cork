@@ -1,23 +1,17 @@
 package com.keenvil.cork.totp;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.easymock.TestSubject;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class TotpGeneratorTest {
 
-  @TestSubject
   private TotpAuthenticator authenticator;
-
   private TotpSecretKeyGenerator generator;
 
-  /**
-   * Set up.
-   */
-  @Before
+  @BeforeEach
   public void setUp() {
     TotpConfigurationProperties configuration =
         new TotpConfigurationProperties(80, 5, 4, 3, 6.0, 30000L);

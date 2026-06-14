@@ -16,7 +16,7 @@ import com.keenvil.cork.CommunityIdentifierResolver;
  */
 @Component
 public class CurrentTenantResolver
-    implements CurrentTenantIdentifierResolver {
+    implements CurrentTenantIdentifierResolver<String> {
 
   private static Logger log = getLogger(CurrentTenantResolver.class);
   
