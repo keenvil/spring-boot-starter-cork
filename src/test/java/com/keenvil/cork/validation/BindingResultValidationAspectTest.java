@@ -4,27 +4,22 @@ import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Collections;
 
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.Signature;
-import org.easymock.EasyMockRunner;
-import org.easymock.TestSubject;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.validation.BindingResult;
 
 import com.keenvil.cork.error.KeenvilBusinessException;
 
-@RunWith(EasyMockRunner.class)
 public class BindingResultValidationAspectTest {
 
-  @TestSubject
   private BindingResultValidationAspect aspect =
-      new  BindingResultValidationAspect();
+      new BindingResultValidationAspect();
 
 
   @Test
@@ -32,7 +27,7 @@ public class BindingResultValidationAspectTest {
     JoinPoint point = createMock(JoinPoint.class);
     BindingResult result = createMock(BindingResult.class);
     Signature signature = createMock(Signature.class);
-    
+
     expect(result.hasErrors()).andReturn(false).anyTimes();
     expect(point.getArgs()).andReturn(new Object[]{result});
     expect(point.getSignature()).andReturn(signature);
@@ -48,7 +43,7 @@ public class BindingResultValidationAspectTest {
     JoinPoint point = createMock(JoinPoint.class);
     BindingResult result = createMock(BindingResult.class);
     Signature signature = createMock(Signature.class);
-    
+
     expect(result.hasErrors()).andReturn(true).anyTimes();
     expect(result.getAllErrors()).andReturn(Collections.emptyList());
     expect(point.getArgs()).andReturn(new Object[]{result});
@@ -69,7 +64,7 @@ public class BindingResultValidationAspectTest {
   public void validateWithNoBindingResultInstance() {
     JoinPoint point = createMock(JoinPoint.class);
     Signature signature = createMock(Signature.class);
-    
+
     expect(point.getArgs()).andReturn(new Object[]{new Object()});
     expect(point.getSignature()).andReturn(signature);
     expect(signature.getName()).andReturn("methodName");

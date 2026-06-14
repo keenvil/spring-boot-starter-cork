@@ -3,9 +3,9 @@ package com.keenvil.cork.jwt;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -17,7 +17,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
@@ -79,7 +79,7 @@ public class JwtServiceTest {
     Date expirationDate = new Date((new Date()).getTime() + 3600000);
 
     String jwt = service.generatePusherToken(expirationDate,
-      "sajdlksajd", "ewewpjfpsofpdsf", "ewewpjfpsofpdsf3423432423", "1");
+      "sajdlksajd", "ewewpjfpsofpdsf", "ewewpjfpsofpdsf34234324234567890", "1");
 
     assertThat(jwt, notNullValue());
   }

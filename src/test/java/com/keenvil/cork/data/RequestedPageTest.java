@@ -1,18 +1,15 @@
 package com.keenvil.cork.data;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import org.easymock.EasyMockRunner;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.PageRequest;
 
 import com.keenvil.cork.data.RequestedPage.Sort;
 
 
-@RunWith(EasyMockRunner.class)
 public class RequestedPageTest {
 
   @Test
@@ -39,6 +36,6 @@ public class RequestedPageTest {
 
     assertNotNull(pageRequest);
     assertThat(pageRequest.getPageNumber(), is(0));
-    assertThat(pageRequest.getPageSize(), is(20));    
+    assertThat(pageRequest.getPageSize(), is(20));
   }
 }

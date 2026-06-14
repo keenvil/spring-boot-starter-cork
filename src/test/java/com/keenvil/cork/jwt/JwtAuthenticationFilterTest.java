@@ -3,18 +3,15 @@ package com.keenvil.cork.jwt;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-
-import com.keenvil.cork.jwt.JwtAuthenticationFilter;
-import com.keenvil.cork.jwt.JwtService;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -27,7 +24,7 @@ public class JwtAuthenticationFilterTest {
   private JwtAuthenticationFilter filter =
       new JwtAuthenticationFilter(jwtService);
 
-  @Before
+  @BeforeEach
   public void setUp() {
     SecurityContextHolder.getContext().setAuthentication(null);
   }

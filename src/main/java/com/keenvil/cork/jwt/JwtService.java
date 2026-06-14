@@ -59,7 +59,7 @@ public class JwtService {
   private int minutes = 120;
 
   /** TODO(mario-AC-25): Externalize in Vault. */
-  static final String KEY = "&....#$[myCo-key]#$....&";
+  static final String KEY = "&....#$[myCo-key]#$....&keenvil!";
 
   /** TODO(mario-AC-25): Externalize in Vault. */
   static final String ISSUER = "myCo-security-api";
