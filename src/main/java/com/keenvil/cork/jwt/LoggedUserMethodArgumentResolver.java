@@ -21,10 +21,7 @@ public class LoggedUserMethodArgumentResolver
 
   @Override
   public boolean supportsParameter(MethodParameter parameter) {
-    if (parameter.hasParameterAnnotation(LoggedIndividual.class)) {
-      return true;
-    }
-    return false;
+    return parameter.hasParameterAnnotation(LoggedIndividual.class);
   }
   
   @Override

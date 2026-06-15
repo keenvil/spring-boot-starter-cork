@@ -43,9 +43,8 @@ public class UrlPathVariableCommunityResolver
     log.trace("Resolving Community Id with URL path variable resolver.");
 
     RequestAttributes attributes = RequestContextHolder.getRequestAttributes();
-    if (attributes != null) {
-      HttpServletRequest request =
-          ((ServletRequestAttributes) attributes).getRequest();
+    if (attributes instanceof ServletRequestAttributes servletAttr) {
+      HttpServletRequest request = servletAttr.getRequest();
       String[] uriComponents = request.getRequestURI().split("/");
       int delimiter = ArrayUtils.indexOf(uriComponents, COMMUNITYID_DELIMITER);
 
@@ -58,8 +57,7 @@ public class UrlPathVariableCommunityResolver
         return communityId;
       }
     }
-    log.trace("Leaving UrlPathVariableCommunityResolverHelper with"
-        + " default tenant.");
+    log.trace("Leaving UrlPathVariableCommunityResolverHelper with default tenant.");
     return defaultTenant();
   }
 

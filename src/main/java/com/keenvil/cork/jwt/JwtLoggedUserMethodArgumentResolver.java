@@ -22,10 +22,7 @@ public class JwtLoggedUserMethodArgumentResolver
 
   @Override
   public boolean supportsParameter(MethodParameter parameter) {
-    if (parameter.hasParameterAnnotation(JwtLoggedUser.class)) {
-      return true;
-    }
-    return false;
+    return parameter.hasParameterAnnotation(JwtLoggedUser.class);
   }
   
   @Override
