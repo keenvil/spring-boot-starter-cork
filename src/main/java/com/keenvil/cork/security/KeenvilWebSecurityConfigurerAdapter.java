@@ -1,65 +1,9 @@
 package com.keenvil.cork.security;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-import com.keenvil.cork.jwt.JwtAuthenticationEntryPoint;
-import com.keenvil.cork.jwt.JwtAuthenticationFilter;
-import com.keenvil.cork.jwt.JwtService;
-
-public class KeenvilWebSecurityConfigurerAdapter
-    extends WebSecurityConfigurerAdapter {
-
-  @Autowired
-  private JwtService jwtService;
-
-  @Autowired
-  private JwtAuthenticationEntryPoint authenticationEntryPoint;
-
-  @Override
-  protected void configure(HttpSecurity http) throws Exception {
-    List<String> endpoints = new ArrayList<String>();
-    endpoints.add("/");
-    endpoints.add("/configuration/**");
-    endpoints.add("/actuator/**");
-
-    List<String> excluded = excludeFromAuthentication();
-    if (excluded != null && !excluded.isEmpty()) {
-      endpoints.addAll(excluded);
-    }
-
-    http.cors()
-        .and()
-        .csrf().disable()
-        .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint)
-        .and()
-        .sessionManagement()
-        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-        .and()
-        .authorizeRequests()
-        .antMatchers(endpoints.toArray(new String[]{}))
-        .permitAll()
-        .anyRequest()
-        .authenticated()
-        .and()
-        .addFilterBefore(authenticationTokenFilter(),
-          UsernamePasswordAuthenticationFilter.class);
-  }
-
-  private JwtAuthenticationFilter authenticationTokenFilter()
-      throws Exception {
-    JwtAuthenticationFilter filter =
-        new JwtAuthenticationFilter(jwtService);
-    filter.setAuthenticationManager(authenticationManagerBean());
-    return filter;
-  }
+public class KeenvilWebSecurityConfigurerAdapter {
 
   /**
    * Gets list of end points that must be excluded from authentication

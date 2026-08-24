@@ -86,7 +86,7 @@ public class ConsulConfiguration implements PolledConfigurationSource {
     if (listResponse.getValue() != null && !listResponse.getValue().isEmpty()) {
       for (GetValue value : listResponse.getValue()) {
         if (!value.getKey().endsWith("/")) {
-          Object jsonDecoded = new JsonParser().parse(
+          Object jsonDecoded = JsonParser.parseString(
               new String(BaseEncoding.base64().
                   decode(value.getValue()))).getAsJsonObject();
           String key = value.getKey().substring(

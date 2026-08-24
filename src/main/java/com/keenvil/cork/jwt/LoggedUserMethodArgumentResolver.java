@@ -7,7 +7,7 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * This handler inject the current logged User in a REST service call.
@@ -21,10 +21,7 @@ public class LoggedUserMethodArgumentResolver
 
   @Override
   public boolean supportsParameter(MethodParameter parameter) {
-    if (parameter.hasParameterAnnotation(LoggedIndividual.class)) {
-      return true;
-    }
-    return false;
+    return parameter.hasParameterAnnotation(LoggedIndividual.class);
   }
   
   @Override

@@ -144,14 +144,14 @@ public class ConsulService {
 
   private Map<String, Object> getPropertiesConnectionFactory(
       String stringProperties) {
-    Object jsonDatasource = new JsonParser().parse(stringProperties);
+    Object jsonDatasource = JsonParser.parseString(stringProperties);
     return jsonToMap((JsonElement) jsonDatasource);
   }
 
   private DataSource tenantDatasource(String stringDatasource) {
     Map<String, Object> mapProperties;
 
-    Object jsonDatasource = new JsonParser().parse(stringDatasource);
+    Object jsonDatasource = JsonParser.parseString(stringDatasource);
     mapProperties = jsonToMap((JsonElement) jsonDatasource);
 
     HikariConfig hikariConfig = new HikariConfig();

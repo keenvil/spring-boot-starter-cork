@@ -2,7 +2,7 @@ package com.keenvil.cork.jwt;
 
 import static com.keenvil.cork.jwt.JwtAuthenticationFilter.X_JWT_USER;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.web.bind.support.WebDataBinderFactory;
@@ -22,10 +22,7 @@ public class JwtLoggedUserMethodArgumentResolver
 
   @Override
   public boolean supportsParameter(MethodParameter parameter) {
-    if (parameter.hasParameterAnnotation(JwtLoggedUser.class)) {
-      return true;
-    }
-    return false;
+    return parameter.hasParameterAnnotation(JwtLoggedUser.class);
   }
   
   @Override

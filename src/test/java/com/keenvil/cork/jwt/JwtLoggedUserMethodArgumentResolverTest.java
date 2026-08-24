@@ -6,14 +6,13 @@ import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.Collections;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
-import org.easymock.TestSubject;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.web.context.request.NativeWebRequest;
 
 import com.keenvil.cork.jwt.JwtInvalidTokenException;
@@ -22,7 +21,6 @@ import com.keenvil.cork.jwt.JwtUser;
 
 public class JwtLoggedUserMethodArgumentResolverTest {
 
-  @TestSubject
   private JwtLoggedUserMethodArgumentResolver resolver =
       new JwtLoggedUserMethodArgumentResolver();
 
@@ -33,7 +31,7 @@ public class JwtLoggedUserMethodArgumentResolverTest {
         Collections.EMPTY_SET);
     HttpServletRequest request = createMock(HttpServletRequest.class);
     expect(request.getAttribute(X_JWT_USER)).andReturn(jwtUser);
-    
+
     NativeWebRequest nativeWebRequest = createMock(NativeWebRequest.class);
     expect(nativeWebRequest.getNativeRequest(HttpServletRequest.class))
       .andReturn(request);
@@ -49,7 +47,7 @@ public class JwtLoggedUserMethodArgumentResolverTest {
   public void resolveAttributeNotFound() throws Exception {
     HttpServletRequest request = createMock(HttpServletRequest.class);
     expect(request.getAttribute(X_JWT_USER)).andReturn(null);
-    
+
     NativeWebRequest nativeWebRequest = createMock(NativeWebRequest.class);
     expect(nativeWebRequest.getNativeRequest(HttpServletRequest.class))
       .andReturn(request);

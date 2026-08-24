@@ -1,10 +1,8 @@
 package com.keenvil.cork.multitenancy;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 import org.apache.commons.lang3.Validate;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -31,11 +29,10 @@ public class MultitenancyConfigurationProperties {
     if (tenants != null) {
       List<Tenant> defaults = tenants.stream()
           .filter(Tenant::isDefault)
-          .collect(Collectors.toCollection(ArrayList::new));
-      
+          .toList();
+
       if (defaults.size() != 1) {
-        throw new KeenvilException("Only one datasource must be set"
-            + " as default");
+        throw new KeenvilException("Only one datasource must be set as default");
       }
       defaultTenant = defaults.get(0);      
     }

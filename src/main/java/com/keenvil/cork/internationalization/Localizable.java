@@ -7,8 +7,8 @@ import org.hibernate.annotations.Filters;
 import org.hibernate.annotations.ParamDef;
 import org.springframework.web.bind.annotation.RequestHeader;
 
-import javax.persistence.Column;
-import javax.persistence.MappedSuperclass;
+import jakarta.persistence.Column;
+import jakarta.persistence.MappedSuperclass;
 
 /**
  * Base class for objects that must be filtered by locale (like messages, tags,
@@ -27,7 +27,7 @@ import javax.persistence.MappedSuperclass;
  */
 @MappedSuperclass
 @FilterDef(name = Localizable.FILTER_NAME, parameters = {
-      @ParamDef(name = Localizable.FILTER_PARAM, type = "string")
+      @ParamDef(name = Localizable.FILTER_PARAM, type = String.class)
     })
 @Filters({
       @Filter(name = Localizable.FILTER_NAME, condition = ":locale = locale")

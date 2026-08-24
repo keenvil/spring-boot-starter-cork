@@ -1,19 +1,15 @@
 package com.keenvil.cork.converter;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
-import org.easymock.EasyMockRunner;
-import org.easymock.TestSubject;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 
 import com.keenvil.cork.converter.StringToUuidConverter;
 
 import java.util.UUID;
 
-@RunWith(EasyMockRunner.class)
 public class StringToUuidConverterTest {
 
   private static final String STRING_UUID = "12345678123443211423210987654321";
@@ -21,7 +17,6 @@ public class StringToUuidConverterTest {
   private static final String STRING_UUID_WITH_DASHES =
       "12345678-1234-4321-1423-210987654321";
 
-  @TestSubject
   private StringToUuidConverter converter = new StringToUuidConverter();
 
   @Test

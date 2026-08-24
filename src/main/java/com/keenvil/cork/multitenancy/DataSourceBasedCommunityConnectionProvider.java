@@ -21,7 +21,7 @@ import javax.sql.DataSource;
  */
 @Component
 public class DataSourceBasedCommunityConnectionProvider
-    extends AbstractDataSourceBasedMultiTenantConnectionProviderImpl {
+    extends AbstractDataSourceBasedMultiTenantConnectionProviderImpl<String> {
 
   private static Logger log =
       getLogger(DataSourceBasedCommunityConnectionProvider.class);

@@ -4,16 +4,15 @@ import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.common.collect.Sets;
 import com.keenvil.cork.RequestAttributeCommunityResolver;
 import com.keenvil.cork.jwt.JwtUser;
 
 import java.util.Set;
-import org.easymock.TestSubject;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 
@@ -22,7 +21,6 @@ import java.util.Collections;
 
 public class ResourceSecurityServiceTest {
 
-  @TestSubject
   private ResourceSecurityService service =
       new ResourceSecurityService(
           new RequestAttributeCommunityResolver());

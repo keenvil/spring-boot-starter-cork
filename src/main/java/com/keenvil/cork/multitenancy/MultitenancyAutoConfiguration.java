@@ -2,23 +2,24 @@ package com.keenvil.cork.multitenancy;
 
 import static org.hibernate.cfg.AvailableSettings.DIALECT;
 import static org.hibernate.cfg.AvailableSettings.HBM2DDL_AUTO;
-import static org.hibernate.cfg.AvailableSettings.USE_NEW_ID_GENERATOR_MAPPINGS;
-import static org.hibernate.cfg.AvailableSettings.MULTI_TENANT;
 import static org.hibernate.cfg.AvailableSettings.MULTI_TENANT_CONNECTION_PROVIDER;
 import static org.hibernate.cfg.AvailableSettings.MULTI_TENANT_IDENTIFIER_RESOLVER;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.*;
 
-import javax.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
-import org.hibernate.MultiTenancyStrategy;
 import org.hibernate.context.spi.CurrentTenantIdentifierResolver;
 import org.hibernate.engine.jdbc.connections.spi.MultiTenantConnectionProvider;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
@@ -50,6 +51,7 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
       MultitenancyConfigurationProperties.class,
       JpaProperties.class})
 @Conditional(value = MultitenancyCondition.class)
+@AutoConfigureAfter({DataSourceAutoConfiguration.class, HibernateJpaAutoConfiguration.class})
 public class MultitenancyAutoConfiguration {
 
   private static Logger log = getLogger(MultitenancyAutoConfiguration.class);
@@ -65,9 +67,9 @@ public class MultitenancyAutoConfiguration {
 
   @Autowired
   private MultiTenantConnectionProvider multiTenantConnectionProvider;
-  
+
   @Autowired
-  private CurrentTenantIdentifierResolver currentTenantIdentifierResolver;
+  private CurrentTenantIdentifierResolver<String> currentTenantIdentifierResolver;
 
   @Value("${application.hibernate.dialect}")
   private String dialect;
@@ -76,6 +78,7 @@ public class MultitenancyAutoConfiguration {
   private String hbm2ddl;
 
   @Autowired
+  @Qualifier("defaultDataSource")
   private DataSource dataSource;
 
   @Autowired
@@ -131,14 +134,12 @@ public class MultitenancyAutoConfiguration {
       new HashMap<>(jpaProperties.getProperties());
 
 
-    hibernateProps.put(MULTI_TENANT, MultiTenancyStrategy.SCHEMA);
     hibernateProps.put(MULTI_TENANT_CONNECTION_PROVIDER,
         multiTenantConnectionProvider);
     hibernateProps.put(MULTI_TENANT_IDENTIFIER_RESOLVER,
         currentTenantIdentifierResolver);
     hibernateProps.put(DIALECT, dialect);
     hibernateProps.put(HBM2DDL_AUTO, hbm2ddl);
-    hibernateProps.put(USE_NEW_ID_GENERATOR_MAPPINGS, false);
 
     return builder.dataSource(dataSource)
         .packages(multitenancySpecification.getBasePackages())
@@ -153,7 +154,7 @@ public class MultitenancyAutoConfiguration {
    * @return identifier resolver.
    */
   @Bean
-  public CurrentTenantIdentifierResolver currentCommunityIdentifierResolver() {
+  public CurrentTenantIdentifierResolver<String> currentCommunityIdentifierResolver() {
     return new CurrentTenantResolver();
   }
 

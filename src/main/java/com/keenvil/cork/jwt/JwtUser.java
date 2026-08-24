@@ -151,11 +151,9 @@ public class JwtUser implements UserDetails {
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
-    List<GrantedAuthority> auths = new ArrayList<>();
-    for (String authority : roles) {
-      auths.add(new SimpleGrantedAuthority("ROLE_" + authority));
-    }
-    return auths;
+    return roles.stream()
+        .map(authority -> new SimpleGrantedAuthority("ROLE_" + authority))
+        .toList();
   }
 
   /**

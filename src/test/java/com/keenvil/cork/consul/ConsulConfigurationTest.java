@@ -7,19 +7,20 @@ import com.ecwid.consul.v1.kv.model.GetValue;
 import com.google.common.io.BaseEncoding;
 import com.keenvil.cork.error.KeenvilApiException.UnprocessedEntity;
 import com.keenvil.cork.multitenancy.DataSourceBuilder;
-import org.easymock.EasyMockRunner;
+import org.easymock.EasyMockExtension;
 import org.easymock.Mock;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.easymock.EasyMock.*;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@RunWith(EasyMockRunner.class)
+@ExtendWith(EasyMockExtension.class)
 public class ConsulConfigurationTest {
 
   private static final String END_POINT = "test-consul";
@@ -37,7 +38,7 @@ public class ConsulConfigurationTest {
         DataSourceBuilder.create().build());
     replay(consulService);
 
-    Assert.assertNotNull(consulService.getDatasource(KEY));
+    assertNotNull(consulService.getDatasource(KEY));
     verify(consulService);
   }
 
@@ -70,13 +71,13 @@ public class ConsulConfigurationTest {
 
   }
 
-  @Test(expected = UnprocessedEntity.class)
+  @Test
   public void testGetDatasourceException() throws Exception {
     expect(consulService.getDatasource(KEY)).andThrow(
         new UnprocessedEntity("no tenant configuration for: test"));
     replay(consulService);
-    consulService.getDatasource(KEY);
-    verify(consulService);
 
+    assertThrows(UnprocessedEntity.class, () -> consulService.getDatasource(KEY));
+    verify(consulService);
   }
 }
