@@ -15,7 +15,11 @@ import org.hibernate.context.spi.CurrentTenantIdentifierResolver;
 import org.hibernate.engine.jdbc.connections.spi.MultiTenantConnectionProvider;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
@@ -47,6 +51,7 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
       MultitenancyConfigurationProperties.class,
       JpaProperties.class})
 @Conditional(value = MultitenancyCondition.class)
+@AutoConfigureAfter({DataSourceAutoConfiguration.class, HibernateJpaAutoConfiguration.class})
 public class MultitenancyAutoConfiguration {
 
   private static Logger log = getLogger(MultitenancyAutoConfiguration.class);
@@ -73,6 +78,7 @@ public class MultitenancyAutoConfiguration {
   private String hbm2ddl;
 
   @Autowired
+  @Qualifier("defaultDataSource")
   private DataSource dataSource;
 
   @Autowired
