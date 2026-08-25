@@ -24,6 +24,7 @@ import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MissingClaimException;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 
 /**
  * Generates/Refreshes JSON Web Tokens and JWT Users which can be used to
@@ -458,6 +459,10 @@ public class JwtService {
     } catch (ExpiredJwtException ee) {
       log.error("Expired jwt.");
       throw new JwtExpiredTokenException("Token expired.", ee);
+    } catch (SignatureException se) {
+      log.warn("JWT signature does not match. Token rejected.");
+      throw new JwtInvalidTokenException("Invalid Token, signature mismatch.",
+          se);
     } catch (Exception exception) {
       log.error("Error parsing JWT. ", exception);
       throw new JwtInvalidTokenException("Error parsing Token.", exception);
