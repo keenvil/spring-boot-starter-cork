@@ -27,6 +27,7 @@ import com.keenvil.cork.error.KeenvilApiException.InvalidResourceState;
 import com.keenvil.cork.error.KeenvilApiException.ResourceAlreadyExists;
 import com.keenvil.cork.error.KeenvilApiException.ResourceNotFound;
 import com.keenvil.cork.error.KeenvilBusinessException.ValidationError;
+import com.keenvil.cork.jwt.JwtInvalidTokenException;
 
 /**
  * Generic Keenvil Controller Advice for Application Module APIs.
@@ -68,6 +69,31 @@ public class KeenvilApiControllerAdvice {
     errors.add(error);
 
     log.error("Platform Error: {}", error.toString());
+    return ResponseEntity
+        .status(HttpStatus.UNAUTHORIZED)
+        .body(errors);
+  }
+
+  @ExceptionHandler(JwtInvalidTokenException.class)
+  @ResponseBody ResponseEntity<List<KeenvilApiError>> handleJwtInvalidToken(
+      final HttpServletRequest request,
+      final JwtInvalidTokenException exception) {
+    // Un token ausente o invalido es una condicion normal del cliente (sesion vencida,
+    // request sin login todavia), no una falla del servidor: se loguea como warning, no
+    // como error, y sin el stack trace completo que generaba el whitelabel 500 default.
+    List<KeenvilApiError> errors = new ArrayList<>();
+    KeenvilApiError error = new KeenvilApiErrorBuilder()
+          .code("unauthorized")
+          .httpStatus(HttpStatus.UNAUTHORIZED.value())
+          .title("Unauthorized")
+          .detail(exception.getMessage())
+          .module(name)
+          .request(request)
+          .source(exception)
+          .build();
+    errors.add(error);
+
+    log.warn("Platform Warning: {}", error.toString());
     return ResponseEntity
         .status(HttpStatus.UNAUTHORIZED)
         .body(errors);
