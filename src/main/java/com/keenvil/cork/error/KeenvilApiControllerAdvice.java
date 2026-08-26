@@ -24,6 +24,7 @@ import com.keenvil.cork.error.KeenvilApiException.BadRequest;
 import com.keenvil.cork.error.KeenvilApiException.Forbidden;
 import com.keenvil.cork.error.KeenvilApiException.InvalidArgument;
 import com.keenvil.cork.error.KeenvilApiException.InvalidResourceState;
+import com.keenvil.cork.jwt.JwtInvalidTokenException;
 import com.keenvil.cork.error.KeenvilApiException.ResourceAlreadyExists;
 import com.keenvil.cork.error.KeenvilApiException.ResourceNotFound;
 import com.keenvil.cork.error.KeenvilBusinessException.ValidationError;
@@ -68,6 +69,28 @@ public class KeenvilApiControllerAdvice {
     errors.add(error);
 
     log.error("Platform Error: {}", error.toString());
+    return ResponseEntity
+        .status(HttpStatus.UNAUTHORIZED)
+        .body(errors);
+  }
+
+  @ExceptionHandler(JwtInvalidTokenException.class)
+  @ResponseBody ResponseEntity<List<KeenvilApiError>> handleJwtInvalidToken(
+      final HttpServletRequest request,
+      final JwtInvalidTokenException exception) {
+    List<KeenvilApiError> errors = new ArrayList<>();
+    KeenvilApiError error = new KeenvilApiErrorBuilder()
+          .code("unauthorized")
+          .httpStatus(HttpStatus.UNAUTHORIZED.value())
+          .title("Unauthorized")
+          .detail(exception.getMessage())
+          .module(name)
+          .request(request)
+          .source(exception)
+          .build();
+    errors.add(error);
+
+    log.warn("Platform Warning: {}", error.toString());
     return ResponseEntity
         .status(HttpStatus.UNAUTHORIZED)
         .body(errors);
