@@ -2,7 +2,11 @@ name: Publish to GitHub Packages
 
 on:
   push:
-    branches: [ development ]
+    # TEMPORAL: feature/java-21-refactor agregada solo para publicar 4.0.5
+    # (fix de referencia circular en MultitenancyAutoConfiguration) sin
+    # mergear toda la migracion a Java 21 a development todavia. Se revierte
+    # apenas termine de publicar.
+    branches: [ development, feature/java-21-refactor ]
 
 jobs:
   publish:
