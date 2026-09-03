@@ -65,21 +65,11 @@ public class MultitenancyAutoConfiguration {
   @Autowired
   private MultitenancySpecification multitenancySpecification;
 
-  @Autowired
-  private MultiTenantConnectionProvider multiTenantConnectionProvider;
-
-  @Autowired
-  private CurrentTenantIdentifierResolver<String> currentTenantIdentifierResolver;
-
   @Value("${application.hibernate.dialect}")
   private String dialect;
 
   @Value("${application.hibernate.hbm2ddl}")
   private String hbm2ddl;
-
-  @Autowired
-  @Qualifier("defaultDataSource")
-  private DataSource dataSource;
 
   @Autowired
   private JpaProperties jpaProperties;
@@ -122,13 +112,35 @@ public class MultitenancyAutoConfiguration {
   /**
    * Creates a {@code LocalContainerEntityManagerFactoryBean} to work with
    * Multi Tenancy approach.
-   * 
+   *
+   * <p>{@code multiTenantConnectionProvider}, {@code currentTenantIdentifierResolver}
+   * and {@code dataSource} are resolved as METHOD PARAMETERS on purpose, not as
+   * {@code @Autowired} fields on this class: all three are beans produced by
+   * {@code @Bean} methods of this very {@code @Configuration} class
+   * ({@code dataSourceBasedMultiTenantConnectionProvider}, {@code currentCommunityIdentifierResolver}
+   * and {@code defaultDataSource}). As fields, Spring must fully populate this
+   * bean's properties before it can invoke any of its own {@code @Bean} methods on
+   * itself -- but resolving those very fields requires calling those very
+   * methods, so the container detects an unresolvable circular reference
+   * (only surfaced starting with Boot 3, which no longer tolerates it by
+   * default) and startup fails. Method-parameter injection for {@code @Bean}
+   * factory methods is resolved lazily, when the method itself runs, which
+   * sidesteps the ordering trap entirely -- the standard Spring fix for this
+   * exact self-referencing-configuration pattern, no {@code allow-circular-references}
+   * escape hatch needed.
+   *
    * @param builder the builder
+   * @param multiTenantConnectionProvider the tenant connection provider
+   * @param currentTenantIdentifierResolver the tenant identifier resolver
+   * @param dataSource the default data source
    * @return new {@code LocalContainerEntityManagerFactoryBean}
    */
   @Bean
   public LocalContainerEntityManagerFactoryBean
-      entityManagerFactory(EntityManagerFactoryBuilder builder) {
+      entityManagerFactory(EntityManagerFactoryBuilder builder,
+          MultiTenantConnectionProvider multiTenantConnectionProvider,
+          CurrentTenantIdentifierResolver<String> currentTenantIdentifierResolver,
+          @Qualifier("defaultDataSource") DataSource dataSource) {
 
     Map<String, Object> hibernateProps =
       new HashMap<>(jpaProperties.getProperties());
