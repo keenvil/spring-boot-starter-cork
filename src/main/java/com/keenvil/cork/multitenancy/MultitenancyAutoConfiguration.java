@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;
@@ -51,7 +52,21 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
       MultitenancyConfigurationProperties.class,
       JpaProperties.class})
 @Conditional(value = MultitenancyCondition.class)
-@AutoConfigureAfter({DataSourceAutoConfiguration.class, HibernateJpaAutoConfiguration.class})
+// Must run BEFORE HibernateJpaAutoConfiguration: Boot's HibernateJpaConfiguration
+// gates its @Bean methods (including EntityManagerFactoryBuilder) behind
+// @ConditionalOnSingleCandidate(DataSource.class), evaluated against bean
+// DEFINITIONS already registered at that point -- not instances. When apps
+// exclude Boot's own DataSourceAutoConfiguration (required to avoid it
+// colliding by bean name with defaultDataSource() below), the only DataSource
+// candidate is defaultDataSource() itself. If this class were ordered after
+// HibernateJpaAutoConfiguration (as it used to be, back when Boot's own
+// DataSourceAutoConfiguration -- not yet excluded -- supplied that early
+// candidate instead), defaultDataSource()'s bean definition would not exist
+// yet, the condition would find zero candidates, HibernateJpaConfiguration
+// would silently never register, and every @Bean method needing
+// EntityManagerFactoryBuilder would fail at runtime with "No qualifying bean".
+@AutoConfigureAfter(DataSourceAutoConfiguration.class)
+@AutoConfigureBefore(HibernateJpaAutoConfiguration.class)
 public class MultitenancyAutoConfiguration {
 
   private static Logger log = getLogger(MultitenancyAutoConfiguration.class);

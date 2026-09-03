@@ -15,20 +15,38 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.TestPropertySource;
 
 /**
- * Boots a real Spring context with {@link MultitenancyAutoConfiguration} active,
- * the exact scenario that used to fail under Boot 3 with
- * "Requested bean is currently in creation: Is there an unresolvable circular
- * reference?" on {@code dataSourceBasedCommunityConnectionProvider} (a bean
- * produced by a {@code @Bean} method of this very class, previously wired back
- * into the class via {@code @Autowired} fields instead of method parameters).
+ * Boots a real Spring context with {@link MultitenancyAutoConfiguration} active
+ * and {@code DataSourceAutoConfiguration} excluded, matching how crowd-api and
+ * guard-api actually run (Boot's own auto-created {@code dataSource} bean
+ * collides by name with cork's intended {@code defaultDataSource} otherwise).
+ * This is deliberately the same setup that used to fail under Boot 3 in two
+ * different ways as each was fixed in turn:
+ *
+ * <ol>
+ * <li>"Requested bean is currently in creation: Is there an unresolvable
+ * circular reference?" on {@code dataSourceBasedCommunityConnectionProvider}
+ * (a bean produced by a {@code @Bean} method of this very class, previously
+ * wired back into the class via {@code @Autowired} fields instead of method
+ * parameters);</li>
+ * <li>once that was fixed, "No qualifying bean of type EntityManagerFactoryBuilder
+ * available" -- with {@code DataSourceAutoConfiguration} excluded, nothing
+ * registers a {@code DataSource} bean definition before Boot's
+ * {@code HibernateJpaConfiguration} evaluates its
+ * {@code @ConditionalOnSingleCandidate(DataSource.class)} condition, because
+ * this class was ordered ({@code @AutoConfigureAfter}) to run AFTER
+ * {@code HibernateJpaAutoConfiguration} instead of before it -- fixed by
+ * switching to {@code @AutoConfigureBefore(HibernateJpaAutoConfiguration.class)}.</li>
+ * </ol>
  *
  * <p>No existing test in this module actually started this auto-configuration's
- * Spring context before, which is exactly why the regression shipped unnoticed
- * in crowd-api and guard-api.</p>
+ * Spring context with {@code DataSourceAutoConfiguration} excluded before,
+ * which is exactly why both regressions shipped unnoticed in crowd-api and
+ * guard-api.</p>
  */
 @SpringBootTest(classes = MultitenancyAutoConfigurationTest.TestApp.class)
 @TestPropertySource(properties = {
     "spring.main.allow-bean-definition-overriding=true",
+    "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration",
     "keenvil.cork.multitenancy.tenants-strategy=SHARED-DB-SEPARATE-SCHEMAS",
     "keenvil.cork.multitenancy.tenants[0].name=primary",
     "keenvil.cork.multitenancy.tenants[0].jdbc-url=jdbc:h2:mem:cork-multitenancy-it;DB_CLOSE_DELAY=-1",
