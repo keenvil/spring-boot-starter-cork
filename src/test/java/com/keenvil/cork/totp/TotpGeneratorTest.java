@@ -13,8 +13,8 @@ public class TotpGeneratorTest {
 
   @BeforeEach
   public void setUp() {
-    TotpConfigurationProperties configuration =
-        new TotpConfigurationProperties(80, 5, 4, 3, 6.0, 30000L);
+    TotpConfigurationProperties configuration = new TotpConfigurationProperties();
+    configuration.setWindowsSize(3);
     authenticator = new TotpAuthenticator(configuration);
     generator = new TotpSecretKeyGenerator(configuration);
   }
