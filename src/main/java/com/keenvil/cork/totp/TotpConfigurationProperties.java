@@ -1,8 +1,21 @@
 package com.keenvil.cork.totp;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+/**
+ * ConfigurationProperties de estilo JavaBean (sin constructor parametrizado)
+ * a proposito: un constructor con {@code @Value(...:default)} en una clase
+ * {@code @ConfigurationProperties} dispara el constructor-binding estricto
+ * de Boot 3 (automatico para @EnableConfigurationProperties con un unico
+ * constructor no-default), que resuelve los parametros via Binder y NO
+ * evalua los defaults SpEL de @Value -- deja el default de Java (0/0.0) en
+ * cualquier propiedad que nadie configura (que es el caso real: ningun
+ * repo del org define keenvil.cork.totp.* en su application.yml). Eso
+ * generaba secretBits=0 -> longitud de secreto TOTP 0 -> "Secret cannot
+ * be empty" al crear un visitante (crowd-api). El binding JavaBean (campos
+ * con su valor por default, sin constructor explicito) preserva el
+ * comportamiento real de siempre.
+ */
 @ConfigurationProperties(prefix = "keenvil.cork.totp")
 public class TotpConfigurationProperties {
 
@@ -11,20 +24,20 @@ public class TotpConfigurationProperties {
    * encoding with 8 bit characters introduces an 160% overhead, we just need
    * 80 bits (10 bytes) to generate a 16 bytes Base32-encoded secret key.
    */
-  private int secretBits;
+  private int secretBits = 80;
 
   /**
    * Number of scratch codes to generate during the key generation.
    * We are using Google's default of providing 5 scratch codes.
    */
-  private int scratchCodes;
+  private int scratchCodes = 5;
 
   /**
    * Length in bytes of each scratch code. We're using Google's default of
    * using 4 bytes per scratch code.
    */
-  private int bytesPerScratchCode;
-  
+  private int bytesPerScratchCode = 4;
+
   /**
    * An integer value representing the number of windows of size
    * timeStepSizeInMillis that are checked during the validation process,
@@ -32,50 +45,18 @@ public class TotpConfigurationProperties {
    * The bigger the window, the more tolerant the library code is about
    * clock skews.
    */
-  private int windowsSize;
+  private int windowsSize = 6;
 
   /**
    * The number of digits in the generated code.
    */
-  private double codeDigits;
+  private double codeDigits = 6.0;
 
   /**
    * The time step size, in milliseconds, as specified by RFC 6238.
    * The default value is 30.000.
    */
-  private long timeStepSizeInMillis;
-
-  /**
-   * Creates a new TOTP configuration.
-   * 
-   * @param theSecretBits Secret bits.
-   * @param theScratchCodes Scratch codes.
-   * @param theBytesPerScratchCode Bytes per scratch code.
-   * @param theWindowsSize Windows size.
-   * @param theCodeDigits Code digits.
-   * @param theTimeStepSizeInMillis Time step size in millis
-   */
-  public TotpConfigurationProperties(
-      @Value("${keenvil.cork.totp.secretBits:80}")
-      int theSecretBits,
-      @Value("${keenvil.cork.totp.scratchCodes:5}")
-      int theScratchCodes,
-      @Value("${keenvil.cork.totp.bytesPerScratchCode:4}")
-      int theBytesPerScratchCode,
-      @Value("${keenvil.cork.totp.windowsSize:6}")
-      int theWindowsSize,
-      @Value("${keenvil.cork.totp.codeDigits:6.0}")
-      double theCodeDigits,
-      @Value("${keenvil.cork.totp.timeStepSizeInMillis:30000}")
-      long theTimeStepSizeInMillis) {
-    super();
-    secretBits = theSecretBits;
-    scratchCodes = theScratchCodes;
-    bytesPerScratchCode = theBytesPerScratchCode;
-    windowsSize = theWindowsSize;
-    codeDigits = theCodeDigits;
-    timeStepSizeInMillis = theTimeStepSizeInMillis;
-  }
+  private long timeStepSizeInMillis = 30000;
 
   public int getSecretBits() {
     return secretBits;
