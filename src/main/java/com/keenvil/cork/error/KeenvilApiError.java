@@ -1,6 +1,6 @@
 package com.keenvil.cork.error;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * API error description used to provide useful information about an error to

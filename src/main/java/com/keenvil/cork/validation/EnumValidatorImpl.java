@@ -3,8 +3,8 @@ package com.keenvil.cork.validation;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 
 /**
  * Enum Validation implementation.

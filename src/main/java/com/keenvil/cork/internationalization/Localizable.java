@@ -7,8 +7,8 @@ import org.hibernate.annotations.Filters;
 import org.hibernate.annotations.ParamDef;
 import org.springframework.web.bind.annotation.RequestHeader;
 
-import javax.persistence.Column;
-import javax.persistence.MappedSuperclass;
+import jakarta.persistence.Column;
+import jakarta.persistence.MappedSuperclass;
 
 /**
  * Base class for objects that must be filtered by locale (like messages, tags,
