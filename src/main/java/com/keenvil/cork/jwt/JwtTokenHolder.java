@@ -29,4 +29,19 @@ public class JwtTokenHolder {
   public static String community() {
     return communities.get();
   }
+
+  /**
+   * Clears the token and community held for the current thread.
+   *
+   * <p>Must be called at the end of every request. Jetty (and most servlet
+   * containers) reuse worker threads across unrelated requests, so a
+   * ThreadLocal that is never cleared leaks whatever token/community an
+   * earlier request on that same thread held into a later, unrelated
+   * request's outgoing service-to-service calls -- including anonymous
+   * requests that never presented a token themselves.</p>
+   */
+  public static void clear() {
+    tokens.remove();
+    communities.remove();
+  }
 }
