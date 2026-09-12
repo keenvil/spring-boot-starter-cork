@@ -3,6 +3,8 @@ package com.keenvil.cork.jwt;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.servlet.DispatcherType;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -74,6 +76,14 @@ public class JwtAutoConfiguration {
         .sessionManagement(session ->
             session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(auth -> auth
+            // Spring Boot's error handling re-dispatches internally to the error
+            // controller (e.g. "/error") on ANY unhandled exception, and that
+            // second dispatch goes back through this same filter chain. Without
+            // this, an anonymous/webhook request (one of the paths above) that
+            // hits an unrelated bug gets its real error masked by a misleading
+            // "Full authentication is required" 401/500 from the error dispatch
+            // itself, instead of the actual exception.
+            .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
             .requestMatchers(endpoints.toArray(new String[]{})).permitAll()
             .anyRequest().authenticated()
         )

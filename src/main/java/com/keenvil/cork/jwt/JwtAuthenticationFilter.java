@@ -92,6 +92,15 @@ public class JwtAuthenticationFilter
       SecurityContextHolder.clearContext();
     }
     log.trace("Leaving JwtAuthenticationFilter.");
-    chain.doFilter(request, response);
+    try {
+      chain.doFilter(request, response);
+    } finally {
+      // Jetty reuses worker threads across unrelated requests. Without this,
+      // a token/community held here would leak into a later request served
+      // by the same thread -- including anonymous requests that never
+      // presented a token -- and get silently forwarded on any outgoing
+      // service-to-service call that request makes.
+      JwtTokenHolder.clear();
+    }
   }
 }
