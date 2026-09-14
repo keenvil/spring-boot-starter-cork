@@ -56,7 +56,24 @@ public class UrlPathVariableCommunityResolver
         JwtTokenHolder.holdCommunity(communityId);
         return communityId;
       }
+      log.trace("Leaving UrlPathVariableCommunityResolverHelper with default tenant.");
+      return defaultTenant();
     }
+
+    // Sin RequestAttributes -- p.ej. un hilo de scheduler/ejecutor interno sin
+    // ninguna request HTTP asociada (no hay TaskDecorator propagando nada porque no
+    // hay ninguna request en curso, a diferencia del caso de una request reciclada).
+    // Cae al community que el propio codigo de fondo haya fijado explicitamente con
+    // JwtTokenHolder.holdCommunity(...) antes de llamar, usando el tenant que ya
+    // tiene a mano. El caso de arriba ("hay request valida pero sin /c/{id}/ en la
+    // URL") sigue yendo directo a defaultTenant() sin pasar por el holder, para no
+    // arrastrar un valor viejo de un uso anterior del mismo hilo.
+    String heldCommunity = JwtTokenHolder.community();
+    if (heldCommunity != null) {
+      log.trace("Resolved Community id using JwtTokenHolder fallback: {}", heldCommunity);
+      return heldCommunity;
+    }
+
     log.trace("Leaving UrlPathVariableCommunityResolverHelper with default tenant.");
     return defaultTenant();
   }
