@@ -61,8 +61,16 @@ public class JwtService {
   private int minutes = 120;
 
 
+  // La linea 4.0.x de cork (jjwt 0.12.x, exige clave HMAC >=256 bits) extendio esta
+  // constante agregando "keenvil!" (commit dd7889b). Esta linea 3.0.x nunca se actualizo,
+  // asi que cualquier servicio en 3.0.x (mailman, amercement-api) y cualquiera en >=4.0.0
+  // (guard/crowd/security/dahua/townhall) firman y validan JWT con claves DISTINTAS --
+  // nunca pueden validarse tokens entre si. Ambas lineas usan signWith(HS256, bytes UTF-8
+  // de este String), asi que igualar el string entero produce firmas identicas para el
+  // mismo payload sin tocar nada mas (jjwt 0.9.1 no exige un minimo de longitud, asi que
+  // extenderla aca no rompe esta linea).
   /** TODO(mario-AC-25): Externalize in Vault. */
-  static final String KEY = "&....#$[myCo-key]#$....&";
+  static final String KEY = "&....#$[myCo-key]#$....&keenvil!";
   
   /** TODO(mario-AC-25): Externalize in Vault. */
   static final String ISSUER = "myCo-security-api";
