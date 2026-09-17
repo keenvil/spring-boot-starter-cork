@@ -62,15 +62,18 @@ public class JwtService {
 
 
   // La linea 4.0.x de cork (jjwt 0.12.x, exige clave HMAC >=256 bits) extendio esta
-  // constante agregando "keenvil!" (commit dd7889b). Esta linea 3.0.x nunca se actualizo,
-  // asi que cualquier servicio en 3.0.x (mailman, amercement-api) y cualquiera en >=4.0.0
-  // (guard/crowd/security/dahua/townhall) firman y validan JWT con claves DISTINTAS --
-  // nunca pueden validarse tokens entre si. Ambas lineas usan signWith(HS256, bytes UTF-8
-  // de este String), asi que igualar el string entero produce firmas identicas para el
-  // mismo payload sin tocar nada mas (jjwt 0.9.1 no exige un minimo de longitud, asi que
-  // extenderla aca no rompe esta linea).
+  // constante agregando "keenvil!" (commit dd7889b), y firma/verifica con
+  // Keys.hmacShaKeyFor(KEY.getBytes(UTF_8)) -- bytes UTF-8 crudos. Igualar solo el
+  // string ACA no alcanza: signWith(SignatureAlgorithm, String) y
+  // setSigningKey(String) de jjwt 0.9.x tratan ese String como BASE64, no como texto
+  // crudo -- con el mismo literal, esta linea deriva una clave efectiva DISTINTA a la
+  // de >=4.0.0 (confirmado en produccion: firmas seguian sin matchear tras igualar
+  // solo el string). KEY_BYTES fuerza la misma interpretacion (UTF-8 crudo) que usa
+  // la linea 4.0.x en los 4 call-sites de abajo.
   /** TODO(mario-AC-25): Externalize in Vault. */
   static final String KEY = "&....#$[myCo-key]#$....&keenvil!";
+
+  private static final byte[] KEY_BYTES = KEY.getBytes(java.nio.charset.StandardCharsets.UTF_8);
   
   /** TODO(mario-AC-25): Externalize in Vault. */
   static final String ISSUER = "myCo-security-api";
@@ -238,7 +241,7 @@ public class JwtService {
         .claim(USERNAME, username)
         .claim(ROLES, roles)
         .claim(AVATAR_URI, avatarUri)
-        .signWith(SignatureAlgorithm.HS256, KEY)
+        .signWith(SignatureAlgorithm.HS256, KEY_BYTES)
         .compact();
 
     log.info("Token Expiration {}", expirationDate);
@@ -288,7 +291,7 @@ public class JwtService {
         .setSubject(subject)
         .setExpiration(ttl)
         .claim(TYPE, TYPE_REFRESH)
-        .signWith(SignatureAlgorithm.HS256, KEY)
+        .signWith(SignatureAlgorithm.HS256, KEY_BYTES)
         .compact();
   }
 
@@ -418,7 +421,7 @@ public class JwtService {
         .claim(UNIT, jwtUser.getUnit())
         .claim(USERNAME, jwtUser.getUsername())
         .claim(ROLES, jwtUser.getRoles())
-        .signWith(SignatureAlgorithm.HS256, KEY)
+        .signWith(SignatureAlgorithm.HS256, KEY_BYTES)
         .compact();
 
     log.trace("Leaving refresh.");
@@ -452,7 +455,7 @@ public class JwtService {
     try {
       parsed = Jwts.parser()
           .requireIssuer(ISSUER)
-          .setSigningKey(JwtService.KEY)
+          .setSigningKey(JwtService.KEY_BYTES)
           .parseClaimsJws(jwt);
     } catch (IllegalArgumentException e) {
       log.error("Illegal Argument Exception.");
