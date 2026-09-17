@@ -3,6 +3,9 @@ package com.keenvil.cork.multitenancy;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -89,6 +92,31 @@ public class UrlPathVariableCommunityResolverTest {
     MockHttpServletRequest request =
         new MockHttpServletRequest("GET", "/primary/something/something");
     RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+
+    assertThat(helper.resolve(), is("default"));
+  }
+
+  @Test
+  public void resolveFallsBackToHeldCommunityWhenRequestIsRecycled() {
+    // Simula el caso real: un hilo @Async con RequestAttributes propagados por el
+    // TaskDecorator, pero cuyo HttpServletRequest ya fue reciclado por el contenedor
+    // -tirando excepcion al leerlo- para cuando el hilo async corre (confirmado en
+    // produccion de crowd-api, ImageService.uploadAvatars). Debe caer al community
+    // fijado explicitamente en JwtTokenHolder, no al tenant por defecto.
+    ServletRequestAttributes attributes = mock(ServletRequestAttributes.class);
+    when(attributes.getRequest()).thenThrow(new IllegalStateException("recycled"));
+    RequestContextHolder.setRequestAttributes(attributes);
+
+    JwtTokenHolder.holdCommunity("async-community");
+
+    assertThat(helper.resolve(), is("async-community"));
+  }
+
+  @Test
+  public void resolveFallsBackToDefaultWhenRequestIsRecycledAndNoHeldCommunity() {
+    ServletRequestAttributes attributes = mock(ServletRequestAttributes.class);
+    when(attributes.getRequest()).thenThrow(new IllegalStateException("recycled"));
+    RequestContextHolder.setRequestAttributes(attributes);
 
     assertThat(helper.resolve(), is("default"));
   }

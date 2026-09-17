@@ -44,20 +44,39 @@ public class UrlPathVariableCommunityResolver
 
     RequestAttributes attributes = RequestContextHolder.getRequestAttributes();
     if (attributes instanceof ServletRequestAttributes servletAttr) {
-      HttpServletRequest request = servletAttr.getRequest();
-      String[] uriComponents = request.getRequestURI().split("/");
-      int delimiter = ArrayUtils.indexOf(uriComponents, COMMUNITYID_DELIMITER);
+      // En un hilo @Async, el TaskDecorator puede propagar estos mismos
+      // RequestAttributes, pero para cuando el hilo async corre, el
+      // HttpServletRequest real puede ya haber sido reciclado por el
+      // contenedor (la respuesta ya se mando). getRequestURI() sobre una
+      // request reciclada tira NullPointerException en vez de simplemente
+      // no encontrar comunidad -por eso este tramo va en su propio
+      // try/catch, distinto del caso "request valida sin /c/" de abajo,
+      // que debe seguir devolviendo el tenant por defecto tal cual
+      // (confirmado en produccion de crowd-api, ImageService.uploadAvatars).
+      try {
+        HttpServletRequest request = servletAttr.getRequest();
+        String[] uriComponents = request.getRequestURI().split("/");
+        int delimiter = ArrayUtils.indexOf(uriComponents, COMMUNITYID_DELIMITER);
 
-      if (delimiter > 0 && uriComponents.length > (delimiter + 1)) {
-        String communityId = uriComponents[delimiter + 1];
-        log.info("Resolved Community id using URL path variable: {}",
-            communityId);
+        if (delimiter > 0 && uriComponents.length > (delimiter + 1)) {
+          String communityId = uriComponents[delimiter + 1];
+          log.info("Resolved Community id using URL path variable: {}",
+              communityId);
 
-        JwtTokenHolder.holdCommunity(communityId);
-        return communityId;
+          JwtTokenHolder.holdCommunity(communityId);
+          return communityId;
+        }
+        log.trace("Leaving UrlPathVariableCommunityResolverHelper with default tenant.");
+        return defaultTenant();
+      } catch (Exception e) {
+        log.warn("Could not read tenant from the current request (likely recycled by the "
+            + "container in an @Async thread); falling back to JwtTokenHolder.", e);
+        String heldCommunity = JwtTokenHolder.community();
+        if (heldCommunity != null) {
+          return heldCommunity;
+        }
+        return defaultTenant();
       }
-      log.trace("Leaving UrlPathVariableCommunityResolverHelper with default tenant.");
-      return defaultTenant();
     }
 
     // Sin RequestAttributes -- p.ej. un hilo de scheduler/ejecutor interno sin
