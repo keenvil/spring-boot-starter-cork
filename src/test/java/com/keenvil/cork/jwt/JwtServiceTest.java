@@ -49,7 +49,7 @@ public class JwtServiceTest {
 
     Jwt<JwsHeader, Claims> parsed =
         Jwts.parser()
-          .setSigningKey(JwtService.KEY)
+          .setSigningKey(JwtService.KEY_BYTES)
           .parseClaimsJws(jwt);
 
     Claims claims = parsed.getBody();
@@ -66,7 +66,7 @@ public class JwtServiceTest {
     jwt = service.generate("1", "Joe", "Average", "admin@keenvil.com",
         "B-52", roles, expirationDate, "avatarUri");
     parsed = Jwts.parser()
-          .setSigningKey(JwtService.KEY)
+          .setSigningKey(JwtService.KEY_BYTES)
           .parseClaimsJws(jwt);
 
     claims = parsed.getBody();
@@ -89,7 +89,7 @@ public class JwtServiceTest {
         .setSubject("me")
         .setIssuer(JwtService.ISSUER)
         .setIssuedAt(new Date())
-        .signWith(SignatureAlgorithm.HS256, JwtService.KEY)
+        .signWith(SignatureAlgorithm.HS256, JwtService.KEY_BYTES)
         .compact();
     try {
       service.parse(jwt);
@@ -104,7 +104,7 @@ public class JwtServiceTest {
   public void parseIssuerNotPresent() {
     String jwt = Jwts.builder()
         .setIssuedAt(new Date())
-        .signWith(SignatureAlgorithm.HS256, JwtService.KEY)
+        .signWith(SignatureAlgorithm.HS256, JwtService.KEY_BYTES)
         .compact();
     try {
       service.parse(jwt);
@@ -119,7 +119,7 @@ public class JwtServiceTest {
   public void parseIssuedByunrecognizedEntity() {
     String jwt = Jwts.builder()
         .setIssuer("unrecognized")
-        .signWith(SignatureAlgorithm.HS256, JwtService.KEY)
+        .signWith(SignatureAlgorithm.HS256, JwtService.KEY_BYTES)
         .compact();
     try {
       service.parse(jwt);
@@ -135,7 +135,7 @@ public class JwtServiceTest {
     String jwt = Jwts.builder()
         .setIssuer(JwtService.ISSUER)
         .setExpiration(new Date(1))
-        .signWith(SignatureAlgorithm.HS256, JwtService.KEY)
+        .signWith(SignatureAlgorithm.HS256, JwtService.KEY_BYTES)
         .compact();
     try {
       service.parse(jwt);
@@ -150,7 +150,7 @@ public class JwtServiceTest {
   public void parseNoSubject() {
     String jwt = Jwts.builder()
         .setIssuer(JwtService.ISSUER)
-        .signWith(SignatureAlgorithm.HS256, JwtService.KEY)
+        .signWith(SignatureAlgorithm.HS256, JwtService.KEY_BYTES)
         .compact();
     try {
       service.parse(jwt);
@@ -166,7 +166,7 @@ public class JwtServiceTest {
     String jwt = Jwts.builder()
         .setIssuer(JwtService.ISSUER)
         .setSubject("1")
-        .signWith(SignatureAlgorithm.HS256, JwtService.KEY)
+        .signWith(SignatureAlgorithm.HS256, JwtService.KEY_BYTES)
         .compact();
     try {
       service.parse(jwt);
@@ -249,7 +249,7 @@ public class JwtServiceTest {
     assertThat(refreshToken, notNullValue());
 
     Jwt<JwsHeader, Claims> parseClaimsJwt = Jwts.parser()
-        .setSigningKey(JwtService.KEY)
+        .setSigningKey(JwtService.KEY_BYTES)
         .parseClaimsJws(refreshToken);
     assertThat(parseClaimsJwt.getBody().getSubject(), is("individual-id"));
   }
@@ -264,10 +264,10 @@ public class JwtServiceTest {
     assertThat(refreshedJwt, notNullValue());
 
     Jwt<JwsHeader, Claims> old = Jwts.parser()
-        .setSigningKey(JwtService.KEY)
+        .setSigningKey(JwtService.KEY_BYTES)
         .parseClaimsJws(jwt);
     Jwt<JwsHeader, Claims> refreshed = Jwts.parser()
-        .setSigningKey(JwtService.KEY)
+        .setSigningKey(JwtService.KEY_BYTES)
         .parseClaimsJws(refreshedJwt);
 
     Claims oldBody = old.getBody();

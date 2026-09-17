@@ -73,7 +73,7 @@ public class JwtService {
   /** TODO(mario-AC-25): Externalize in Vault. */
   static final String KEY = "&....#$[myCo-key]#$....&keenvil!";
 
-  private static final byte[] KEY_BYTES = KEY.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+  static final byte[] KEY_BYTES = KEY.getBytes(java.nio.charset.StandardCharsets.UTF_8);
   
   /** TODO(mario-AC-25): Externalize in Vault. */
   static final String ISSUER = "myCo-security-api";
