@@ -3,6 +3,15 @@ package com.keenvil.cork.jwt;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.UnsupportedEncodingException;
+import java.security.Key;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.Base64;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -24,6 +33,8 @@ import io.jsonwebtoken.Jwt;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MissingClaimException;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.SignatureException;
+import io.jsonwebtoken.UnsupportedJwtException;
 
 /**
  * Generates/Refreshes JSON Web Tokens and JWT Users which can be used to
@@ -74,9 +85,81 @@ public class JwtService {
   static final String KEY = "&....#$[myCo-key]#$....&keenvil!";
 
   static final byte[] KEY_BYTES = KEY.getBytes(java.nio.charset.StandardCharsets.UTF_8);
-  
+
   /** TODO(mario-AC-25): Externalize in Vault. */
   static final String ISSUER = "myCo-security-api";
+
+  /**
+   * Clave pública RSA para la migración HS256 -> RS256 (ver
+   * SPRINT_BACKLOG.md [P0-SEC-04]). Mismo par de claves que la línea 4.0.x
+   * de cork -- ambas líneas validan tokens del mismo emisor (security-api).
+   * No es secreta -- puede vivir hardcodeada acá igual que las constantes de
+   * arriba, a diferencia de la privada (que solo debe existir en el runtime
+   * de security-api, nunca en este JAR compartido).
+   */
+  private static final String RSA_PUBLIC_KEY_PEM =
+      "-----BEGIN PUBLIC KEY-----\n"
+      + "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvypaJCfJMH2K0yWY/sAK\n"
+      + "Z+LxfeEwOg9//3RuNnGYX3YeS+k456Ya1CkqIXAUTU+1USUi3+T/S5p8Ueks59MU\n"
+      + "PxtcP5ISSYxM+yGHT5B+1e+tIBrKIfdezD63mzc9s4bur0N3fmXBkFhIqy3m9KD+\n"
+      + "0tz+nLLriplFRaTfpTj8pcS0GGS02J1QprVv3ByQblSkjYxThg6gwOhp0ZVJr64S\n"
+      + "rzN+L0bkhkA09pmlRVoRwrTrMweWNv6SDYAb58wf60WLUOaggkwkI9n7LuRebnsu\n"
+      + "KOYXJiCAGvPLDZDdgZuilzmGGCijH4e4pptLSqwz8vJWrE9nAu4M07hpMTpQ7XTZ\n"
+      + "fQIDAQAB\n"
+      + "-----END PUBLIC KEY-----";
+
+  private static PublicKey rsaPublicKey = loadRsaPublicKey(RSA_PUBLIC_KEY_PEM);
+
+  private static PublicKey loadRsaPublicKey(String pem) {
+    try {
+      String base64 = pem
+          .replace("-----BEGIN PUBLIC KEY-----", "")
+          .replace("-----END PUBLIC KEY-----", "")
+          .replaceAll("\\s", "");
+      byte[] decoded = Base64.getDecoder().decode(base64);
+      KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+      return keyFactory.generatePublic(new X509EncodedKeySpec(decoded));
+    } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+      throw new IllegalStateException("No se pudo cargar la clave publica RSA para JWT.", e);
+    }
+  }
+
+  /** Visible for testing: permite validar el flujo RS256 con un par de claves descartable. */
+  static void setRsaPublicKeyForTesting(PublicKey key) {
+    rsaPublicKey = key;
+  }
+
+  /**
+   * Clave privada RSA, inyectada solo en el runtime de security-api via la
+   * property {@code jwt.rsa-private-key} -- nunca hardcodeada en el código
+   * de este JAR compartido. Esta línea de cork (javax, Java 8-11) hoy no la
+   * usa ningún emisor real (mailman nunca llama a generate()), pero se
+   * mantiene simétrica con la línea 4.0.x por si algún día lo necesita.
+   */
+  @Value("${jwt.rsa-private-key:}")
+  private String rsaPrivateKeyPem;
+
+  /** Visible for testing. */
+  void setRsaPrivateKeyPemForTesting(String pem) {
+    rsaPrivateKeyPem = pem;
+  }
+
+  private PrivateKey rsaPrivateKey() {
+    if (rsaPrivateKeyPem == null || rsaPrivateKeyPem.isEmpty()) {
+      return null;
+    }
+    try {
+      String base64 = rsaPrivateKeyPem
+          .replace("-----BEGIN PRIVATE KEY-----", "")
+          .replace("-----END PRIVATE KEY-----", "")
+          .replaceAll("\\s", "");
+      byte[] decoded = Base64.getDecoder().decode(base64);
+      KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+      return keyFactory.generatePrivate(new PKCS8EncodedKeySpec(decoded));
+    } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+      throw new IllegalStateException("No se pudo cargar la clave privada RSA para JWT.", e);
+    }
+  }
 
   public static class Token {
 
@@ -229,20 +312,39 @@ public class JwtService {
     Validate.notNull(expirationDate);
 
     Date today = new Date();
-    String jwt = Jwts.builder()
-        .setIssuer(ISSUER)
-        .setIssuedAt(today)
-        .setExpiration(expirationDate)
-        .setSubject(subject)
-        .claim(TYPE, TYPE_ACCESS)
-        .claim(FIRST_NAME, firstName)
-        .claim(LAST_NAME, lastName)
-        .claim(UNIT, unit)
-        .claim(USERNAME, username)
-        .claim(ROLES, roles)
-        .claim(AVATAR_URI, avatarUri)
-        .signWith(SignatureAlgorithm.HS256, KEY_BYTES)
-        .compact();
+    PrivateKey rsaKey = rsaPrivateKey();
+    String jwt;
+    if (rsaKey != null) {
+      jwt = Jwts.builder()
+          .setIssuer(ISSUER)
+          .setIssuedAt(today)
+          .setExpiration(expirationDate)
+          .setSubject(subject)
+          .claim(TYPE, TYPE_ACCESS)
+          .claim(FIRST_NAME, firstName)
+          .claim(LAST_NAME, lastName)
+          .claim(UNIT, unit)
+          .claim(USERNAME, username)
+          .claim(ROLES, roles)
+          .claim(AVATAR_URI, avatarUri)
+          .signWith(SignatureAlgorithm.RS256, rsaKey)
+          .compact();
+    } else {
+      jwt = Jwts.builder()
+          .setIssuer(ISSUER)
+          .setIssuedAt(today)
+          .setExpiration(expirationDate)
+          .setSubject(subject)
+          .claim(TYPE, TYPE_ACCESS)
+          .claim(FIRST_NAME, firstName)
+          .claim(LAST_NAME, lastName)
+          .claim(UNIT, unit)
+          .claim(USERNAME, username)
+          .claim(ROLES, roles)
+          .claim(AVATAR_URI, avatarUri)
+          .signWith(SignatureAlgorithm.HS256, KEY_BYTES)
+          .compact();
+    }
 
     log.info("Token Expiration {}", expirationDate);
     log.trace("Leaving generate.");
@@ -285,6 +387,17 @@ public class JwtService {
   public String generateRefresh(
       String subject,
       Date ttl) {
+    PrivateKey rsaKey = rsaPrivateKey();
+    if (rsaKey != null) {
+      return Jwts.builder()
+          .setIssuer(ISSUER)
+          .setIssuedAt(DateUtils.nowInUtc())
+          .setSubject(subject)
+          .setExpiration(ttl)
+          .claim(TYPE, TYPE_REFRESH)
+          .signWith(SignatureAlgorithm.RS256, rsaKey)
+          .compact();
+    }
     return Jwts.builder()
         .setIssuer(ISSUER)
         .setIssuedAt(DateUtils.nowInUtc())
@@ -411,18 +524,35 @@ public class JwtService {
 
     DateTime today = new DateTime();
     DateTime plusMinutes = today.plusMinutes(minutes);
-    String refreshed = Jwts.builder()
-        .setIssuer(ISSUER)
-        .setIssuedAt(today.toDate())
-        .setExpiration(plusMinutes.toDate())
-        .setSubject(jwtUser.getUserAccountId().toString())
-        .claim(FIRST_NAME, jwtUser.getFirstName())
-        .claim(LAST_NAME, jwtUser.getLastName())
-        .claim(UNIT, jwtUser.getUnit())
-        .claim(USERNAME, jwtUser.getUsername())
-        .claim(ROLES, jwtUser.getRoles())
-        .signWith(SignatureAlgorithm.HS256, KEY_BYTES)
-        .compact();
+    PrivateKey rsaKey = rsaPrivateKey();
+    String refreshed;
+    if (rsaKey != null) {
+      refreshed = Jwts.builder()
+          .setIssuer(ISSUER)
+          .setIssuedAt(today.toDate())
+          .setExpiration(plusMinutes.toDate())
+          .setSubject(jwtUser.getUserAccountId().toString())
+          .claim(FIRST_NAME, jwtUser.getFirstName())
+          .claim(LAST_NAME, jwtUser.getLastName())
+          .claim(UNIT, jwtUser.getUnit())
+          .claim(USERNAME, jwtUser.getUsername())
+          .claim(ROLES, jwtUser.getRoles())
+          .signWith(SignatureAlgorithm.RS256, rsaKey)
+          .compact();
+    } else {
+      refreshed = Jwts.builder()
+          .setIssuer(ISSUER)
+          .setIssuedAt(today.toDate())
+          .setExpiration(plusMinutes.toDate())
+          .setSubject(jwtUser.getUserAccountId().toString())
+          .claim(FIRST_NAME, jwtUser.getFirstName())
+          .claim(LAST_NAME, jwtUser.getLastName())
+          .claim(UNIT, jwtUser.getUnit())
+          .claim(USERNAME, jwtUser.getUsername())
+          .claim(ROLES, jwtUser.getRoles())
+          .signWith(SignatureAlgorithm.HS256, KEY_BYTES)
+          .compact();
+    }
 
     log.trace("Leaving refresh.");
     return refreshed;
@@ -451,11 +581,29 @@ public class JwtService {
 
   @SuppressWarnings("rawtypes")
   private Jwt<JwsHeader, Claims> parseClaims(String jwt) {
-    Jwt<JwsHeader, Claims> parsed = null;
+    // Migracion HS256 -> RS256 (SPRINT_BACKLOG.md [P0-SEC-04]): probar RS256
+    // primero; solo si falla especificamente por firma o algoritmo no
+    // soportado (no es un token RS256, probablemente legacy) reintentar con
+    // la clave HMAC compartida. Sacar el catch de abajo una vez que no
+    // queden tokens HS256 vivos y dejar unicamente el intento RSA.
     try {
-      parsed = Jwts.parser()
+      return parseClaimsWithKey(jwt, rsaPublicKey);
+    } catch (JwtInvalidTokenException rsaFailure) {
+      Throwable cause = rsaFailure.getCause();
+      if (!(cause instanceof SignatureException) && !(cause instanceof UnsupportedJwtException)) {
+        throw rsaFailure;
+      }
+      log.info("Token no valido con clave RSA, reintentando con HMAC (legacy).");
+      return parseClaimsWithKey(jwt, KEY_BYTES);
+    }
+  }
+
+  @SuppressWarnings("rawtypes")
+  private Jwt<JwsHeader, Claims> parseClaimsWithKey(String jwt, Key key) {
+    try {
+      return Jwts.parser()
           .requireIssuer(ISSUER)
-          .setSigningKey(JwtService.KEY_BYTES)
+          .setSigningKey(key)
           .parseClaimsJws(jwt);
     } catch (IllegalArgumentException e) {
       log.error("Illegal Argument Exception.");
@@ -476,7 +624,34 @@ public class JwtService {
       log.error("Error parsing JWT. ", exception);
       throw new JwtInvalidTokenException("Error parsing Token.", exception);
     }
-    return parsed;
+  }
+
+  @SuppressWarnings("rawtypes")
+  private Jwt<JwsHeader, Claims> parseClaimsWithKey(String jwt, byte[] key) {
+    try {
+      return Jwts.parser()
+          .requireIssuer(ISSUER)
+          .setSigningKey(key)
+          .parseClaimsJws(jwt);
+    } catch (IllegalArgumentException e) {
+      log.error("Illegal Argument Exception.");
+      throw new JwtInvalidTokenException("Invalid Token, Illegal Argument .",
+          e);
+    } catch (MissingClaimException mce) {
+      log.error("Issuer not present.");
+      throw new JwtInvalidTokenException("Invalid Token, issuer not present.",
+          mce);
+    } catch (IncorrectClaimException ice) {
+      log.error("Unrecognized issuer.");
+      throw new JwtInvalidTokenException("Invalid Token, unrecognized issuer.",
+          ice);
+    } catch (ExpiredJwtException ee) {
+      log.error("Expired jwt.");
+      throw new JwtExpiredTokenException("Token expired.", ee);
+    } catch (Exception exception) {
+      log.error("Error parsing JWT. ", exception);
+      throw new JwtInvalidTokenException("Error parsing Token.", exception);
+    }
   }
 
 }
