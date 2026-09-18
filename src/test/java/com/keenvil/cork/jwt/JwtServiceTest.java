@@ -8,8 +8,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.nio.charset.StandardCharsets;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -278,5 +281,116 @@ public class JwtServiceTest {
     Claims refreshedBody = refreshed.getPayload();
     assertTrue(oldBody.getExpiration()
         .before(refreshedBody.getExpiration()));
+  }
+
+  // --- Migración HS256 -> RS256 (SPRINT_BACKLOG.md [P0-SEC-04]) ---
+  // Par de claves descartable generado en memoria, nunca la clave real de
+  // produccion (que solo vive en el runtime de security-api, no en codigo).
+
+  private KeyPair generateTestRsaKeyPair() throws Exception {
+    KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
+    generator.initialize(2048);
+    return generator.generateKeyPair();
+  }
+
+  private String toPkcs8Pem(java.security.PrivateKey key) {
+    String base64 = Base64.getEncoder().encodeToString(key.getEncoded());
+    return "-----BEGIN PRIVATE KEY-----\n" + base64 + "\n-----END PRIVATE KEY-----";
+  }
+
+  @Test
+  public void generateSignsWithRs256WhenPrivateKeyConfigured() throws Exception {
+    KeyPair keyPair = generateTestRsaKeyPair();
+    service.setRsaPrivateKeyPemForTesting(toPkcs8Pem(keyPair.getPrivate()));
+
+    Date expirationDate = new Date((new Date()).getTime() + 3600000);
+    String jwt = service.generate("1", "Joe", "Average", "admin@keenvil.com",
+        "B-52", Collections.singleton("USER"), expirationDate);
+
+    Jws<Claims> parsed = Jwts.parser()
+        .verifyWith(keyPair.getPublic())
+        .build()
+        .parseSignedClaims(jwt);
+
+    assertThat(parsed.getHeader().getAlgorithm(), is("RS256"));
+    assertThat(parsed.getPayload().getSubject(), is("1"));
+  }
+
+  @Test
+  public void generateRefreshSignsWithRs256WhenPrivateKeyConfigured() throws Exception {
+    KeyPair keyPair = generateTestRsaKeyPair();
+    service.setRsaPrivateKeyPemForTesting(toPkcs8Pem(keyPair.getPrivate()));
+
+    String jwt = service.generateRefresh("1", DateUtils.nowPlusMinutesInUtc(5));
+
+    Jws<Claims> parsed = Jwts.parser()
+        .verifyWith(keyPair.getPublic())
+        .build()
+        .parseSignedClaims(jwt);
+
+    assertThat(parsed.getHeader().getAlgorithm(), is("RS256"));
+  }
+
+  @Test
+  public void parseAcceptsRs256TokenWhenSignedByConfiguredKeyPair() throws Exception {
+    KeyPair keyPair = generateTestRsaKeyPair();
+    service.setRsaPrivateKeyPemForTesting(toPkcs8Pem(keyPair.getPrivate()));
+    JwtService.setRsaPublicKeyForTesting(keyPair.getPublic());
+
+    Set<String> roles = new HashSet<>();
+    Collections.addAll(roles, "USER", "ADMIN");
+    String jwt = service.generate("1", "Joe", "Average", "B-52",
+        "admin@keenvil.com", roles, "avatarUri");
+
+    JwtUser userClaim = service.parse(jwt);
+    assertThat(userClaim, notNullValue());
+    assertThat(userClaim.getUserAccountId(), is(1L));
+    assertThat(userClaim.getFirstName(), is("Joe"));
+  }
+
+  @Test
+  public void parseStillAcceptsLegacyHs256TokenWhenRs256IsConfigured() throws Exception {
+    // Durante la migracion, los servicios que ya validan RS256 tienen que
+    // seguir aceptando los tokens HS256 que emitio security-api antes del
+    // corte -- este es el escenario central de [P0-SEC-04].
+    KeyPair keyPair = generateTestRsaKeyPair();
+    JwtService.setRsaPublicKeyForTesting(keyPair.getPublic());
+
+    Set<String> roles = new HashSet<>();
+    Collections.addAll(roles, "USER");
+    // service NO tiene la clave privada RSA configurada -> sigue firmando HS256.
+    String legacyJwt = service.generate("1", "Joe", "Average", "B-52",
+        "admin@keenvil.com", roles, "avatarUri");
+
+    JwtUser userClaim = service.parse(legacyJwt);
+    assertThat(userClaim, notNullValue());
+    assertThat(userClaim.getUserAccountId(), is(1L));
+  }
+
+  @Test
+  public void parseRejectsRs256TokenSignedByAnUnrecognizedKeyPair() throws Exception {
+    // Ni la clave RSA configurada ni la HMAC legacy validan este token ->
+    // debe rechazarse igual que cualquier otro token invalido, no colarse.
+    KeyPair attackerKeyPair = generateTestRsaKeyPair();
+    String jwt = Jwts.builder()
+        .issuer(JwtService.ISSUER)
+        .subject("1")
+        .issuedAt(new Date())
+        .expiration(new Date((new Date()).getTime() + 3600000))
+        .claim("type", "access")
+        .claim("firstName", "Joe")
+        .claim("lastName", "Average")
+        .claim("unit", "B-52")
+        .claim("username", "admin@keenvil.com")
+        .claim("roles", Collections.singleton("USER"))
+        .signWith(attackerKeyPair.getPrivate())
+        .compact();
+
+    try {
+      service.parse(jwt);
+      fail();
+    } catch (JwtInvalidTokenException exception) {
+      assertThat(exception, is(instanceOf(JwtInvalidTokenException.class)));
+    }
   }
 }
