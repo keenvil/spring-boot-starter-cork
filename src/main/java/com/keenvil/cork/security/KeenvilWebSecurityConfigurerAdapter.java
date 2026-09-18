@@ -5,17 +5,22 @@ import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.keenvil.cork.jwt.JwtAuthenticationEntryPoint;
 import com.keenvil.cork.jwt.JwtAuthenticationFilter;
 import com.keenvil.cork.jwt.JwtService;
 
-public class KeenvilWebSecurityConfigurerAdapter
-    extends WebSecurityConfigurerAdapter {
+/**
+ * Base security configuration shared across Keenvil applications.
+ */
+public class KeenvilWebSecurityConfigurerAdapter {
 
   @Autowired
   private JwtService jwtService;
@@ -23,9 +28,12 @@ public class KeenvilWebSecurityConfigurerAdapter
   @Autowired
   private JwtAuthenticationEntryPoint authenticationEntryPoint;
 
-  @Override
-  protected void configure(HttpSecurity http) throws Exception {
-    List<String> endpoints = new ArrayList<String>();
+  /**
+   * Defines the main security filter chain.
+   */
+  @Bean
+  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    List<String> endpoints = new ArrayList<>();
     endpoints.add("/");
     endpoints.add("/configuration/**");
     endpoints.add("/actuator/**");
@@ -35,37 +43,25 @@ public class KeenvilWebSecurityConfigurerAdapter
       endpoints.addAll(excluded);
     }
 
-    http.cors()
-        .and()
-        .csrf().disable()
-        .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint)
-        .and()
-        .sessionManagement()
-        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-        .and()
-        .authorizeRequests()
-        .antMatchers(endpoints.toArray(new String[]{}))
-        .permitAll()
-        .anyRequest()
-        .authenticated()
-        .and()
-        .addFilterBefore(authenticationTokenFilter(),
-          UsernamePasswordAuthenticationFilter.class);
-  }
+    JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtService);
+    filter.setAuthenticationManager(http.getSharedObject(AuthenticationManager.class));
 
-  private JwtAuthenticationFilter authenticationTokenFilter()
-      throws Exception {
-    JwtAuthenticationFilter filter =
-        new JwtAuthenticationFilter(jwtService);
-    filter.setAuthenticationManager(authenticationManagerBean());
-    return filter;
+    http.cors(Customizer.withDefaults())
+        .csrf(csrf -> csrf.disable())
+        .exceptionHandling(ex -> ex.authenticationEntryPoint(authenticationEntryPoint))
+        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .authorizeHttpRequests(auth -> auth
+            .requestMatchers(endpoints.toArray(new String[0])).permitAll()
+            .anyRequest().authenticated())
+        .addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class);
+
+    return http.build();
   }
 
   /**
-   * Gets list of end points that must be excluded from authentication
-   * from a application in the form of AntMatchers.
+   * Gets list of endpoints that must be excluded from authentication.
    *
-   * @return The list of endpoints in the form of AntMatchers.
+   * @return The list of endpoints in the form of Ant matchers.
    */
   @SuppressWarnings("unchecked")
   public List<String> excludeFromAuthentication() {

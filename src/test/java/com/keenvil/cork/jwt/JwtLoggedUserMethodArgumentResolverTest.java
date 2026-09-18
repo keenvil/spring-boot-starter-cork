@@ -10,7 +10,7 @@ import static org.junit.Assert.assertThat;
 
 import java.util.Collections;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.easymock.TestSubject;
 import org.junit.Test;

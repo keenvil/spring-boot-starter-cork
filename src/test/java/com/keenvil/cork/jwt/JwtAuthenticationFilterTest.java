@@ -19,7 +19,7 @@ import com.keenvil.cork.jwt.JwtService;
 import java.io.IOException;
 import java.util.Collections;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 
 public class JwtAuthenticationFilterTest {
 
