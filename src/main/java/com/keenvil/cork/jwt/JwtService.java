@@ -625,10 +625,19 @@ public class JwtService {
     } catch (ExpiredJwtException ee) {
       log.error("Expired jwt.");
       throw new JwtExpiredTokenException("Token expired.", ee);
-    } catch (SignatureException se) {
-      log.warn("JWT signature does not match. Token rejected.");
+    } catch (SignatureException | UnsupportedJwtException rsaMismatch) {
+      // Este overload (PublicKey) SOLO se usa para el intento RSA optimista de
+      // parseClaims -- durante la migracion HS256->RS256 esto va a fallar para
+      // practicamente el 100% de los tokens vivos (todavia HS256), es el caso
+      // ESPERADO que dispara el fallback a HMAC, no un error real. Loguear esto
+      // a nivel WARN/ERROR con stack trace inundaba los logs de produccion
+      // (confirmado en vivo: cientos de traces por minuto en toda la flota).
+      // Si el intento de fallback con HMAC tambien falla, ESE si se loguea
+      // normal mas abajo (overload de SecretKey) porque ahi ya es un rechazo
+      // final de verdad.
+      log.debug("Token no firmado con RSA (probablemente HS256 legacy).", rsaMismatch);
       throw new JwtInvalidTokenException("Invalid Token, signature mismatch.",
-          se);
+          rsaMismatch);
     } catch (Exception exception) {
       log.error("Error parsing JWT. ", exception);
       throw new JwtInvalidTokenException("Error parsing Token.", exception);
