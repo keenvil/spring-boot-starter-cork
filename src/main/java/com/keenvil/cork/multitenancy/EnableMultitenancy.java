@@ -6,7 +6,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import javax.persistence.Entity;
+import jakarta.persistence.Entity;
 
 import org.springframework.context.annotation.Import;
 
