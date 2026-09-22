@@ -37,7 +37,15 @@ public class UrlPathVariableCommunityResolver
   /** Community Id delimiter. */
   private static final String COMMUNITYID_DELIMITER = "c";
 
-  @Autowired
+  /** Literal historico: unico fallback razonable cuando la app ni siquiera tiene
+   * multitenancy de cork habilitado (ver defaultTenant()). */
+  private static final String DEFAULT_TENANT_FALLBACK = "default";
+
+  // required = false: apps que usan community-resolver: URL solo para resolucion de
+  // JWT/seguridad, sin habilitar el multitenancy de cork (excluyen
+  // MultitenancyAutoConfiguration explicitamente, ej. community-api), nunca tienen este
+  // bean -- @Autowired obligatorio rompia el boot entero con NoSuchBeanDefinitionException.
+  @Autowired(required = false)
   private MultitenancyConfigurationProperties multitenancyProperties;
 
   @Override
@@ -108,6 +116,9 @@ public class UrlPathVariableCommunityResolver
   // un scheduler sin contexto de request).
   @Override
   public String defaultTenant() {
+    if (multitenancyProperties == null) {
+      return DEFAULT_TENANT_FALLBACK;
+    }
     return multitenancyProperties.getDefaultTenant().getName();
   }
 }

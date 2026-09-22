@@ -31,7 +31,13 @@ public class RequestAttributeCommunityResolver
   /** Attribute name. */
   private static final String COMMUNITY_ID = "community-id";
 
-  @Autowired
+  /** Literal historico: unico fallback razonable cuando la app ni siquiera tiene
+   * multitenancy de cork habilitado (ver defaultTenant()). */
+  private static final String DEFAULT_TENANT_FALLBACK = "default";
+
+  // required = false: ver UrlPathVariableCommunityResolver -- apps con
+  // MultitenancyAutoConfiguration excluida (ej. community-api) nunca tienen este bean.
+  @Autowired(required = false)
   private MultitenancyConfigurationProperties multitenancyProperties;
 
   @Override
@@ -55,6 +61,9 @@ public class RequestAttributeCommunityResolver
   // literal "default" no matcheaba el name real de ningun tenant configurado.
   @Override
   public String defaultTenant() {
+    if (multitenancyProperties == null) {
+      return DEFAULT_TENANT_FALLBACK;
+    }
     return multitenancyProperties.getDefaultTenant().getName();
   }
 }
