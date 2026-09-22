@@ -34,6 +34,7 @@ import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MissingClaimException;
 import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.security.InvalidKeyException;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 
@@ -595,7 +596,8 @@ public class JwtService {
       // significan "no es un token RS256 valido", no "token invalido de
       // verdad", asi que ambos disparan el reintento con HMAC.
       Throwable cause = rsaFailure.getCause();
-      if (!(cause instanceof SignatureException) && !(cause instanceof UnsupportedJwtException)) {
+      if (!(cause instanceof SignatureException) && !(cause instanceof UnsupportedJwtException)
+          && !(cause instanceof InvalidKeyException)) {
         throw rsaFailure;
       }
       log.info("Token no valido con clave RSA, reintentando con HMAC (legacy).");
@@ -625,13 +627,20 @@ public class JwtService {
     } catch (ExpiredJwtException ee) {
       log.error("Expired jwt.");
       throw new JwtExpiredTokenException("Token expired.", ee);
-    } catch (SignatureException | UnsupportedJwtException rsaMismatch) {
+    } catch (SignatureException | UnsupportedJwtException | InvalidKeyException rsaMismatch) {
       // Este overload (PublicKey) SOLO se usa para el intento RSA optimista de
       // parseClaims -- durante la migracion HS256->RS256 esto va a fallar para
       // practicamente el 100% de los tokens vivos (todavia HS256), es el caso
       // ESPERADO que dispara el fallback a HMAC, no un error real. Loguear esto
       // a nivel WARN/ERROR con stack trace inundaba los logs de produccion
       // (confirmado en vivo: cientos de traces por minuto en toda la flota).
+      // InvalidKeyException ("MAC verification keys must be SecretKey instances")
+      // es el caso especifico de un token HS256 verificado con esta PublicKey
+      // cuando jwt.rsa-private-key no esta configurado (siempre firma HMAC, pero
+      // rsaPublicKey es una constante hardcodeada siempre presente) -- mismo
+      // "no es RS256 valido", no un rechazo real, agregado tras confirmarlo en
+      // los *IT.java de security-api (S5-QA-04): nunca antes se generaba un
+      // token real end-to-end en tests, asi que esta rama nunca se ejercito.
       // Si el intento de fallback con HMAC tambien falla, ESE si se loguea
       // normal mas abajo (overload de SecretKey) porque ahi ya es un rechazo
       // final de verdad.
