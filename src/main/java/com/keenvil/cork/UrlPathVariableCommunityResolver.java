@@ -6,12 +6,14 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.keenvil.cork.jwt.JwtTokenHolder;
+import com.keenvil.cork.multitenancy.MultitenancyConfigurationProperties;
 
 /**
  * <p>Encapsulates behavior to get current request Community Id from the
@@ -35,8 +37,8 @@ public class UrlPathVariableCommunityResolver
   /** Community Id delimiter. */
   private static final String COMMUNITYID_DELIMITER = "c";
 
-  /** Default tenant. */
-  public static final String DEFAULT_TENANT = "default";
+  @Autowired
+  private MultitenancyConfigurationProperties multitenancyProperties;
 
   @Override
   public String resolve() {
@@ -97,8 +99,15 @@ public class UrlPathVariableCommunityResolver
     return defaultTenant();
   }
 
+  // Antes devolvia el literal "default", que no matchea el name real de ningun tenant
+  // configurado (ej. "primary") -- selectDataSource(tenantIdentifier) en
+  // DataSourceBasedCommunityConnectionProvider busca por ese name exacto en el mapa
+  // poblado desde application.yml, asi que el literal siempre resolvia a null y
+  // explotaba con NPE en cualquier codigo que tocara un repositorio sin un /c/{id}/
+  // en la URL ni un JwtTokenHolder.holdCommunity(...) previo (ej. @Before de un test,
+  // un scheduler sin contexto de request).
   @Override
   public String defaultTenant() {
-    return DEFAULT_TENANT;
+    return multitenancyProperties.getDefaultTenant().getName();
   }
 }

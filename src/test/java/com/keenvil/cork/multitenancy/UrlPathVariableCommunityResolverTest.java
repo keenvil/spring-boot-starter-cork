@@ -6,9 +6,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
+
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -19,6 +23,24 @@ public class UrlPathVariableCommunityResolverTest {
 
   private UrlPathVariableCommunityResolver helper =
       new UrlPathVariableCommunityResolver();
+
+  @BeforeEach
+  public void setUpDefaultTenant() {
+    // defaultTenant() ahora lee el name real del tenant marcado default en vez de un
+    // literal hardcodeado -- se llama "default" a proposito para que las assertions
+    // existentes (is("default")) seguir siendo validas sin reescribirlas todas.
+    Tenant defaultTenant = new Tenant();
+    defaultTenant.setName("default");
+    defaultTenant.setDefault(true);
+    defaultTenant.setJdbcUrl("jdbc:h2:mem:test");
+    defaultTenant.setDriverClassName("org.h2.Driver");
+
+    MultitenancyConfigurationProperties properties = new MultitenancyConfigurationProperties();
+    properties.setTenants(List.of(defaultTenant));
+    properties.init();
+
+    ReflectionTestUtils.setField(helper, "multitenancyProperties", properties);
+  }
 
   @AfterEach
   public void clearHolders() {
