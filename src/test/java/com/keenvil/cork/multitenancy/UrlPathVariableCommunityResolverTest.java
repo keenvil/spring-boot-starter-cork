@@ -142,4 +142,15 @@ public class UrlPathVariableCommunityResolverTest {
 
     assertThat(helper.resolve(), is("default"));
   }
+
+  @Test
+  public void defaultTenantFallsBackToLiteralWhenMultitenancyNotConfigured() {
+    // Apps con MultitenancyAutoConfiguration excluida (community-resolver: URL sin
+    // multitenancy de cork, ej. community-api) nunca tienen este bean -- @Autowired
+    // (required = false) lo deja null, no debe explotar con NPE.
+    ReflectionTestUtils.setField(helper, "multitenancyProperties", null);
+    RequestContextHolder.resetRequestAttributes();
+
+    assertThat(helper.resolve(), is("default"));
+  }
 }
