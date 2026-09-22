@@ -3,9 +3,12 @@ package com.keenvil.cork;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
+
+import com.keenvil.cork.multitenancy.MultitenancyConfigurationProperties;
 
 /**
  * <p>Encapsulates behavior to get current request Community Id from a
@@ -28,8 +31,8 @@ public class RequestAttributeCommunityResolver
   /** Attribute name. */
   private static final String COMMUNITY_ID = "community-id";
 
-  /** Default tenant. */
-  public static final String DEFAULT_TENANT = "default";
+  @Autowired
+  private MultitenancyConfigurationProperties multitenancyProperties;
 
   @Override
   public String resolve() {
@@ -48,8 +51,10 @@ public class RequestAttributeCommunityResolver
     return communityId;
   }
 
+  // Ver UrlPathVariableCommunityResolver.defaultTenant() -- mismo bug, mismo fix: el
+  // literal "default" no matcheaba el name real de ningun tenant configurado.
   @Override
   public String defaultTenant() {
-    return DEFAULT_TENANT;
+    return multitenancyProperties.getDefaultTenant().getName();
   }
 }
