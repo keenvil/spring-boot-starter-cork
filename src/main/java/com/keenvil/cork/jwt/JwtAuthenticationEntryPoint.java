@@ -61,13 +61,19 @@ public class JwtAuthenticationEntryPoint
         jwtService.parse(token);
       }
     } catch (JwtInvalidTokenException platformException) {
-      log.error("JwtInvalidTokenException authenticationError [{}]", token);
+      // WARN, no ERROR: un token invalido/legacy irrecuperable (ver JwtService#
+      // parseClaims) es un rechazo de credenciales esperado, no una falla del
+      // servidor -- y no logueamos el JWT completo porque trae PII embebida
+      // (nombre, username, avatarUri) en el payload, solo un prefijo para poder
+      // correlacionar sin volcar el token entero a los logs.
+      log.warn("JwtInvalidTokenException authenticationError [{}]", tokenPrefix(token));
       exception = platformException;
       code = "authenticationError";
       title = "Authentication error";
       responseStatus = HttpServletResponse.SC_FORBIDDEN;
     } catch (JwtExpiredTokenException platformException) {
-      log.error("JwtExpiredTokenException tokenExpired [{}]", token);
+      // WARN, no ERROR: un token expirado es el caso mas rutinario que existe.
+      log.warn("JwtExpiredTokenException tokenExpired [{}]", tokenPrefix(token));
       exception = platformException;
       code = "tokenExpired";
       title = "Authentication error";
@@ -87,5 +93,13 @@ public class JwtAuthenticationEntryPoint
     response.setContentType("application/json");
     response.setStatus(responseStatus);
     response.getOutputStream().println(mapper.writeValueAsString(error));
+  }
+
+  private static String tokenPrefix(String token) {
+    if (token == null) {
+      return "null";
+    }
+    int prefixLength = Math.min(12, token.length());
+    return token.substring(0, prefixLength) + "...";
   }
 }
