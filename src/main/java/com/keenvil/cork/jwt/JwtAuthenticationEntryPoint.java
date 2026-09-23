@@ -54,7 +54,13 @@ public class JwtAuthenticationEntryPoint
     Exception exception = authenticationException;
     String code = "";
     String title = null;
-    int responseStatus = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+    // El caso normal de "no autenticado" (sin header en absoluto) nunca entra al try de
+    // abajo -- se quedaba con este default, y devolvia 500 en vez de 401 para cualquier
+    // request sin token. Los otros dos casos (token invalido/expirado) SI se corrigen
+    // mas abajo; este default ahora cubre tambien el caso en que el segundo parse()
+    // no tira ninguna de las dos excepciones esperadas (no deberia pasar, pero un 401
+    // es una respuesta mucho mas razonable que un 500 igual si pasara).
+    int responseStatus = HttpServletResponse.SC_UNAUTHORIZED;
 
     try {
       if (token != null) {
