@@ -41,6 +41,10 @@ public class UrlPathVariableCommunityResolver
    * multitenancy de cork habilitado (ver defaultTenant()). */
   private static final String DEFAULT_TENANT_FALLBACK = "default";
 
+  /** Atributo inexistente que solo se usa para detectar si la request sigue activa. */
+  private static final String ACTIVE_PROBE = UrlPathVariableCommunityResolver.class.getName()
+      + ".ACTIVE_PROBE";
+
   // required = false: apps que usan community-resolver: URL solo para resolucion de
   // JWT/seguridad, sin habilitar el multitenancy de cork (excluyen
   // MultitenancyAutoConfiguration explicitamente, ej. community-api), nunca tienen este
@@ -53,16 +57,22 @@ public class UrlPathVariableCommunityResolver
     log.trace("Resolving Community Id with URL path variable resolver.");
 
     RequestAttributes attributes = RequestContextHolder.getRequestAttributes();
+    // Un TaskDecorator que propaga los RequestAttributes a un hilo @Async los deja
+    // vivos despues de que la request termino: Jetty ya recicla el HttpServletRequest
+    // (NPE en getRequestURI) o, peor, lo reutiliza para otra request y leeriamos la URI
+    // -y el tenant- de esa otra. Una request completada no se lee: se trata igual que
+    // un hilo sin request. Ver TenantPropagatingTaskDecorator.
+    if (attributes instanceof ServletRequestAttributes && !isRequestActive(attributes)) {
+      log.debug("Request attributes present but the request already completed; "
+          + "resolving the tenant without reading the request.");
+      attributes = null;
+    }
     if (attributes instanceof ServletRequestAttributes servletAttr) {
-      // En un hilo @Async, el TaskDecorator puede propagar estos mismos
-      // RequestAttributes, pero para cuando el hilo async corre, el
-      // HttpServletRequest real puede ya haber sido reciclado por el
-      // contenedor (la respuesta ya se mando). getRequestURI() sobre una
-      // request reciclada tira NullPointerException en vez de simplemente
-      // no encontrar comunidad -por eso este tramo va en su propio
-      // try/catch, distinto del caso "request valida sin /c/" de abajo,
-      // que debe seguir devolviendo el tenant por defecto tal cual
-      // (confirmado en produccion de crowd-api, ImageService.uploadAvatars).
+      // Red de seguridad para la carrera que el chequeo de arriba no cubre: la
+      // request estaba activa al chequear y el contenedor la recicla mientras un
+      // hilo @Async la esta leyendo (getRequestURI() tira NullPointerException).
+      // Va en su propio try/catch, distinto del caso "request valida sin /c/" de
+      // abajo, que debe seguir devolviendo el tenant por defecto tal cual.
       try {
         HttpServletRequest request = servletAttr.getRequest();
         String[] uriComponents = request.getRequestURI().split("/");
@@ -105,6 +115,20 @@ public class UrlPathVariableCommunityResolver
 
     log.trace("Leaving UrlPathVariableCommunityResolverHelper with default tenant.");
     return defaultTenant();
+  }
+
+  /**
+   * Spring marca los RequestAttributes como completados al terminar la request
+   * ({@code requestCompleted()}); desde ahi, pedir un atributo de scope request tira
+   * IllegalStateException. Es la unica forma publica de saberlo sin tocar la request.
+   */
+  static boolean isRequestActive(RequestAttributes attributes) {
+    try {
+      attributes.getAttribute(ACTIVE_PROBE, RequestAttributes.SCOPE_REQUEST);
+      return true;
+    } catch (IllegalStateException e) {
+      return false;
+    }
   }
 
   // Antes devolvia el literal "default", que no matchea el name real de ningun tenant
