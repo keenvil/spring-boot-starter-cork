@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 
+import com.keenvil.cork.jwt.JwtTokenHolder;
 import com.keenvil.cork.multitenancy.MultitenancyConfigurationProperties;
 
 /**
@@ -45,8 +46,20 @@ public class RequestAttributeCommunityResolver
     log.trace("Resolving Community Id with request attribute resolver.");
 
     RequestAttributes attributes = RequestContextHolder.getRequestAttributes();
-    String communityId = (String) attributes.getAttribute(COMMUNITY_ID,
-            RequestAttributes.SCOPE_REQUEST);
+    // Sin request (hilo de fondo) o con una request ya completada (RequestAttributes
+    // propagados a un hilo @Async): getAttribute tiraria NPE o IllegalStateException.
+    // Mismo criterio que UrlPathVariableCommunityResolver: community fijado en
+    // JwtTokenHolder (p.ej. por TenantPropagatingTaskDecorator) o el tenant por defecto.
+    if (attributes == null) {
+      return heldOrDefaultTenant();
+    }
+    String communityId;
+    try {
+      communityId = (String) attributes.getAttribute(COMMUNITY_ID,
+          RequestAttributes.SCOPE_REQUEST);
+    } catch (IllegalStateException requestAlreadyCompleted) {
+      return heldOrDefaultTenant();
+    }
     if (communityId == null) {
       log.trace("Leaving RequestAttributeCommunityResolver with"
           + " default tenant.");
@@ -55,6 +68,11 @@ public class RequestAttributeCommunityResolver
       log.info("Resolved Community id using Request Attribute: [{}]",
           communityId);
     return communityId;
+  }
+
+  private String heldOrDefaultTenant() {
+    String heldCommunity = JwtTokenHolder.community();
+    return heldCommunity != null ? heldCommunity : defaultTenant();
   }
 
   // Ver UrlPathVariableCommunityResolver.defaultTenant() -- mismo bug, mismo fix: el
