@@ -7,17 +7,17 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.keenvil</groupId>
   <artifactId>spring-boot-starter-cork</artifactId>
-  <version>4.0.18</version>
+  <version>4.1.0</version>
   <packaging>jar</packaging>
 
   <name>spring-boot-starter-cork</name>
-  <description>Keenvil Spring Boot Core Module — Spring Boot 3.x / Java 21</description>
+  <description>Keenvil Spring Boot Core Module — Spring Boot 3.5 / Java 21</description>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <java.version>21</java.version>
-    <spring-boot.version>3.3.12</spring-boot.version>
-    <spring-cloud.version>2023.0.3</spring-cloud.version>
+    <spring-boot.version>3.5.16</spring-boot.version>
+    <spring-cloud.version>2025.0.3</spring-cloud.version>
     <jjwt.version>0.12.6</jjwt.version>
     <sentry.version>7.9.0</sentry.version>
     <commons-lang3.version>3.14.0</commons-lang3.version>
