@@ -1,6 +1,8 @@
 package com.keenvil.cork.error;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.UUID;
 
 /**
  * API error description used to provide useful information about an error to
@@ -30,6 +32,12 @@ public class KeenvilApiError {
   private String hostName;
  
   private String localHostName;
+
+  /**
+   * Id del error: va en la respuesta y en la linea de log "Platform Error", para encontrar
+   * el log (con source y localHostName) a partir de lo que reporta el cliente.
+   */
+  private String errorId = UUID.randomUUID().toString();
 
   /** HTTP Status code for this error.
    * @return the HTTP status code.
@@ -122,6 +130,8 @@ public class KeenvilApiError {
   /** Local host name.
    * @return the local host name.
    */
+  /** Solo para el log: la IP/nombre interno del pod no se expone en la respuesta (P0-SEC-13). */
+  @JsonIgnore
   public String getLocalHostName() {
     return localHostName;
   }
@@ -133,6 +143,8 @@ public class KeenvilApiError {
   /** Stack trace of the exception which originate, if applicable.
    * @return stack trace.
    */
+  /** Solo para el log: el stack trace no se expone en la respuesta (P0-SEC-13). */
+  @JsonIgnore
   public String getSource() {
     return source;
   }
@@ -141,11 +153,19 @@ public class KeenvilApiError {
     source = theSource;
   }
 
+  public String getErrorId() {
+    return errorId;
+  }
+
+  public void setErrorId(String theErrorId) {
+    errorId = theErrorId;
+  }
+
   @Override
   public String toString() {
-    return String.format("httpStatus: %s, code: %s, title: %s, detail: %s, "
+    return String.format("errorId: %s, httpStatus: %s, code: %s, title: %s, detail: %s, "
         + "source: %s, module: %s, uri: %s, httpMethod: %s, hostName: %s, "
-        + "localHostName: %s", String.valueOf(httpStatus), code, title, detail,
+        + "localHostName: %s", errorId, String.valueOf(httpStatus), code, title, detail,
         source, module, uri, httpMethod, hostName, localHostName);
   }
 
