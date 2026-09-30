@@ -80,7 +80,7 @@ class TenantLiquibaseMigratorTest {
   void providerCreatesAndMigratesEachTenantOnceUnderConcurrency() throws Exception {
     ConsulService consul = mock(ConsulService.class);
     DataSource tenantDs = h2("tenant_c");
-    when(consul.getDatasource("tenant_c")).thenAnswer(inv -> {
+    when(consul.getDatasource("tenant_c", null)).thenAnswer(inv -> {
       Thread.sleep(50);
       return tenantDs;
     });
@@ -105,7 +105,7 @@ class TenantLiquibaseMigratorTest {
     pool.shutdown();
     assertTrue(pool.awaitTermination(10, TimeUnit.SECONDS));
 
-    verify(consul, times(1)).getDatasource("tenant_c");
+    verify(consul, times(1)).getDatasource("tenant_c", null);
     verify(migrator, times(1)).migrate(eq("tenant_c"), eq(tenantDs));
     // the default tenant was created at startup: never migrated here
     assertSame(initial.get("default"), provider.selectDataSource("default"));
@@ -116,13 +116,13 @@ class TenantLiquibaseMigratorTest {
   void providerWithoutMigratorStillWorks() {
     ConsulService consul = mock(ConsulService.class);
     DataSource tenantDs = h2("tenant_d");
-    when(consul.getDatasource("tenant_d")).thenReturn(tenantDs);
+    when(consul.getDatasource("tenant_d", null)).thenReturn(tenantDs);
     DataSourceBasedCommunityConnectionProvider provider =
         new DataSourceBasedCommunityConnectionProvider("default", new HashMap<>());
     provider.setConsulService(consul);
 
     assertSame(tenantDs, provider.selectDataSource("tenant_d"));
     assertEquals(tenantDs, provider.selectDataSource("tenant_d"));
-    verify(consul, times(1)).getDatasource("tenant_d");
+    verify(consul, times(1)).getDatasource("tenant_d", null);
   }
 }

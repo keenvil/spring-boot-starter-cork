@@ -11,6 +11,8 @@ import java.util.*;
 import jakarta.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
+import com.keenvil.cork.consul.TenantPoolProperties;
+
 import org.hibernate.context.spi.CurrentTenantIdentifierResolver;
 import org.hibernate.engine.jdbc.connections.spi.MultiTenantConnectionProvider;
 import org.slf4j.Logger;
@@ -50,6 +52,7 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 @Configuration
 @EnableConfigurationProperties({
       MultitenancyConfigurationProperties.class,
+      TenantPoolProperties.class,
       JpaProperties.class})
 @Conditional(value = MultitenancyCondition.class)
 // Must run BEFORE HibernateJpaAutoConfiguration: Boot's HibernateJpaConfiguration
