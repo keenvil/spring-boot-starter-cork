@@ -10,13 +10,19 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.TypeMismatchException;
+import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.orm.jpa.JpaObjectRetrievalFailureException;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.ErrorResponse;
 
 import com.keenvil.cork.error.KeenvilApiError.KeenvilApiErrorBuilder;
 import com.keenvil.cork.error.KeenvilApiException.Authorization;
@@ -281,5 +287,82 @@ public class KeenvilApiControllerAdvice {
 
     logError(error);
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errors);
+  }
+
+  /**
+   * Last-resort handler for any unexpected {@link RuntimeException} (NPE, data access errors, ...).
+   * Before this, those escaped the advice: Spring answered its default 500 body and nothing was
+   * logged, so the cause was lost. Now they are logged as ERROR with the errorId and the full
+   * stack trace, and answered with the standard error list.
+   *
+   * <p>It handles {@link RuntimeException} and not {@link Exception} on purpose: some services
+   * declare their own {@code @ExceptionHandler(Exception.class)} in the subclass, and a second one
+   * for the same type would make Spring fail at startup ("Ambiguous @ExceptionHandler").</p>
+   *
+   * <ul>
+   *   <li>Spring Security exceptions are rethrown so its filters keep answering 401/403.</li>
+   *   <li>Spring MVC client errors keep their status (4xx) and are logged as WARN.</li>
+   * </ul>
+   */
+  @ExceptionHandler(RuntimeException.class)
+  @ResponseBody ResponseEntity<List<KeenvilApiError>> handleUnexpectedException(
+      final HttpServletRequest request,
+      final RuntimeException exception) {
+    if (isSecurityException(exception)) {
+      throw exception;
+    }
+    HttpStatusCode status = resolveStatus(exception);
+    boolean serverError = status.is5xxServerError();
+    List<KeenvilApiError> errors = new ArrayList<>();
+    KeenvilApiError error = new KeenvilApiError.KeenvilApiErrorBuilder()
+          .code(serverError ? "internalError" : status.value() == 400 ? "badRequest" : "clientError")
+          .httpStatus(status.value())
+          .title(reasonPhrase(status))
+          .detail(serverError ? "Unexpected error" : exception.getMessage())
+          .module(getName())
+          .request(request)
+          .source(exception)
+          .build();
+    errors.add(error);
+
+    if (serverError) {
+      log.error("Unhandled exception, errorId: {}, httpMethod: {}, uri: {}", error.getErrorId(),
+          error.getHttpMethod(), error.getUri(), exception);
+    } else {
+      logError(error);
+    }
+    return ResponseEntity.status(status).body(errors);
+  }
+
+  static HttpStatusCode resolveStatus(final RuntimeException exception) {
+    if (exception instanceof ErrorResponse errorResponse) {
+      return errorResponse.getStatusCode();
+    }
+    if (exception instanceof HttpMessageNotReadableException
+        || exception instanceof TypeMismatchException) {
+      return HttpStatus.BAD_REQUEST;
+    }
+    ResponseStatus responseStatus =
+        AnnotatedElementUtils.findMergedAnnotation(exception.getClass(), ResponseStatus.class);
+    if (responseStatus != null) {
+      return responseStatus.code();
+    }
+    return HttpStatus.INTERNAL_SERVER_ERROR;
+  }
+
+  private static String reasonPhrase(final HttpStatusCode status) {
+    HttpStatus known = HttpStatus.resolve(status.value());
+    return known != null ? known.getReasonPhrase() : "Error";
+  }
+
+  private static boolean isSecurityException(final RuntimeException exception) {
+    for (Class<?> type = exception.getClass(); type != null; type = type.getSuperclass()) {
+      String typeName = type.getName();
+      if ("org.springframework.security.access.AccessDeniedException".equals(typeName)
+          || "org.springframework.security.core.AuthenticationException".equals(typeName)) {
+        return true;
+      }
+    }
+    return false;
   }
 }
