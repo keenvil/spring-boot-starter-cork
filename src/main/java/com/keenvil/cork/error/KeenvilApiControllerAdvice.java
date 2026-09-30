@@ -52,6 +52,21 @@ public class KeenvilApiControllerAdvice {
     return name;
   }
 
+  /**
+   * 4xx are client errors (not found, bots probing paths, invalid input): one WARN line without
+   * the stack, so they do not flood the ERROR level. 5xx keep the full ERROR line with the source.
+   * The response body is not affected.
+   */
+  static void logError(final KeenvilApiError error) {
+    if (error.getHttpStatus() >= 500) {
+      log.error("Platform Error: {}", error.toString());
+    } else {
+      log.warn("Platform Warning: errorId: {}, httpStatus: {}, code: {}, httpMethod: {}, uri: {}",
+          error.getErrorId(), error.getHttpStatus(), error.getCode(), error.getHttpMethod(),
+          error.getUri());
+    }
+  }
+
   @ExceptionHandler(Authorization.class)
   @ResponseBody ResponseEntity<List<KeenvilApiError>> handleAuthorization(
       final HttpServletRequest request,
@@ -68,7 +83,7 @@ public class KeenvilApiControllerAdvice {
           .build();
     errors.add(error);
 
-    log.error("Platform Error: {}", error.toString());
+    logError(error);
     return ResponseEntity
         .status(HttpStatus.UNAUTHORIZED)
         .body(errors);
@@ -90,7 +105,7 @@ public class KeenvilApiControllerAdvice {
           .build();
     errors.add(error);
 
-    log.warn("Platform Warning: {}", error.toString());
+    logError(error);
     return ResponseEntity
         .status(HttpStatus.UNAUTHORIZED)
         .body(errors);
@@ -112,7 +127,7 @@ public class KeenvilApiControllerAdvice {
           .build();
     errors.add(error);
 
-    log.error("Platform Error: {}", error.toString());
+    logError(error);
     return ResponseEntity
         .status(HttpStatus.NOT_FOUND)
         .body(errors);
@@ -134,7 +149,7 @@ public class KeenvilApiControllerAdvice {
           .build();
     errors.add(error);
 
-    log.error("Platform Error: {}", error.toString());
+    logError(error);
     return ResponseEntity
         .status(HttpStatus.CONFLICT)
         .body(errors);
@@ -156,7 +171,7 @@ public class KeenvilApiControllerAdvice {
           .build();
     errors.add(error);
 
-    log.error("Platform Error: {}", error.toString());
+    logError(error);
     return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errors);
   }
 
@@ -177,7 +192,7 @@ public class KeenvilApiControllerAdvice {
           .source(exception)
           .build();
       errors.add(apiError);
-      log.error("Platform Error: {}", apiError.toString());
+      logError(apiError);
     }
     return ResponseEntity
         .status(HttpStatus.UNPROCESSABLE_ENTITY)
@@ -200,7 +215,7 @@ public class KeenvilApiControllerAdvice {
           .build();
     errors.add(error);
 
-    log.error("Platform Error: {}", error.toString());
+    logError(error);
     return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(errors);
   }
 
@@ -220,7 +235,7 @@ public class KeenvilApiControllerAdvice {
         .build();
     errors.add(error);
 
-    log.error("Platform Error: {}", error.toString());
+    logError(error);
     return ResponseEntity
         .status(HttpStatus.FORBIDDEN)
         .body(errors);
@@ -242,7 +257,7 @@ public class KeenvilApiControllerAdvice {
         .build();
     errors.add(error);
 
-    log.error("Platform Error: {}", error.toString());
+    logError(error);
     return ResponseEntity
         .status(HttpStatus.BAD_REQUEST)
         .body(errors);
@@ -264,7 +279,7 @@ public class KeenvilApiControllerAdvice {
           .build();
     errors.add(error);
 
-    log.error("Platform Error: {}", error.toString());
+    logError(error);
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errors);
   }
 }
