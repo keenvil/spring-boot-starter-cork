@@ -4,6 +4,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 
 import com.keenvil.cork.consul.ConsulService;
+import com.keenvil.cork.consul.TenantPoolProperties;
 import org.hibernate.engine.jdbc.connections.spi.AbstractDataSourceBasedMultiTenantConnectionProviderImpl;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +40,9 @@ public class DataSourceBasedCommunityConnectionProvider
   @Autowired(required = false)
   private TenantLiquibaseMigrator tenantLiquibaseMigrator;
 
+  @Autowired(required = false)
+  private TenantPoolProperties tenantPoolProperties;
+
   public DataSourceBasedCommunityConnectionProvider(
       String theDefaultTenant, Map<String, DataSource> theDataSourceMapping) {
     defaultTenant = theDefaultTenant;
@@ -63,7 +67,7 @@ public class DataSourceBasedCommunityConnectionProvider
   }
 
   private DataSource newTenantDataSource(String tenantIdentifier) {
-    DataSource dataSource = consulService.getDatasource(tenantIdentifier);
+    DataSource dataSource = consulService.getDatasource(tenantIdentifier, tenantPoolProperties);
     if (tenantLiquibaseMigrator != null) {
       tenantLiquibaseMigrator.migrate(tenantIdentifier, dataSource);
     }
@@ -72,6 +76,10 @@ public class DataSourceBasedCommunityConnectionProvider
 
   void setConsulService(ConsulService consulService) {
     this.consulService = consulService;
+  }
+
+  void setTenantPoolProperties(TenantPoolProperties tenantPoolProperties) {
+    this.tenantPoolProperties = tenantPoolProperties;
   }
 
   void setTenantLiquibaseMigrator(TenantLiquibaseMigrator tenantLiquibaseMigrator) {
