@@ -47,11 +47,28 @@ public class ConsulService {
    */
   private static final boolean IGNORE_DELETES_FROM_SOURCE = false;
   private String endPointPropertiesRequest;
+  /**
+   * Service credentials used for a tenant whose Consul entry has no username/password,
+   * so the database credentials live only in the service secret, not in every tenant entry.
+   */
+  private String fallbackUsername;
+  private String fallbackPassword;
 
 
   public ConsulService(String endPointPropertiesRequest)
       throws ConsulServiceException {
+    this(endPointPropertiesRequest, null, null);
+  }
+
+  /**
+   * @param fallbackUsername username used when a tenant entry has none (usually database.username)
+   * @param fallbackPassword password used when a tenant entry has none (usually database.password)
+   */
+  public ConsulService(String endPointPropertiesRequest, String fallbackUsername,
+      String fallbackPassword) throws ConsulServiceException {
     this.endPointPropertiesRequest = endPointPropertiesRequest;
+    this.fallbackUsername = fallbackUsername;
+    this.fallbackPassword = fallbackPassword;
     try {
       installConfig();
     } catch (ConfigurationException e) {
@@ -163,12 +180,21 @@ public class ConsulService {
     hikariConfig.setConnectionTimeout(Long.valueOf((String) mapProperties.get("connectionTimeout")));
     hikariConfig.setDriverClassName((String) mapProperties.get("driverClassName"));
     hikariConfig.setJdbcUrl((String) mapProperties.get("url"));
-    hikariConfig.getDataSourceProperties()
-        .setProperty("user", (String) mapProperties.get("username"));
-    hikariConfig.getDataSourceProperties()
-        .setProperty("password", (String) mapProperties.get("password"));
+    String username = credential((String) mapProperties.get("username"), fallbackUsername);
+    String password = credential((String) mapProperties.get("password"), fallbackPassword);
+    if (username != null) {
+      hikariConfig.getDataSourceProperties().setProperty("user", username);
+    }
+    if (password != null) {
+      hikariConfig.getDataSourceProperties().setProperty("password", password);
+    }
 
     return new HikariDataSource(hikariConfig);
+  }
+
+  /** The tenant's own value when present, otherwise the service credential. */
+  static String credential(String fromTenant, String fallback) {
+    return fromTenant == null || fromTenant.isBlank() ? fallback : fromTenant;
   }
 
   private Map<String, Object> jsonToMap(JsonElement jsonElement) {
