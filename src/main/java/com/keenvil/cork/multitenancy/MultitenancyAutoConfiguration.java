@@ -185,6 +185,20 @@ public class MultitenancyAutoConfiguration {
     return new CurrentTenantResolver();
   }
 
+  /**
+   * Runs the changelog on each tenant database when its data source is first created (tenants
+   * are loaded lazily from Consul, after the startup Liquibase). Off unless both
+   * {@code spring.liquibase.enabled} and {@code keenvil.multitenancy.liquibase.tenants.enabled}.
+   */
+  @Bean
+  public TenantLiquibaseMigrator tenantLiquibaseMigrator(
+      @Value("${spring.liquibase.enabled:false}") boolean liquibaseEnabled,
+      @Value("${keenvil.multitenancy.liquibase.tenants.enabled:false}") boolean tenantsEnabled,
+      org.springframework.core.io.ResourceLoader resourceLoader) {
+    return new TenantLiquibaseMigrator(liquibaseEnabled && tenantsEnabled, liquibaseChangelogUrl,
+        resourceLoader);
+  }
+
   @Bean(name = "liquibase")
   @DependsOn("dataSourceBasedCommunityConnectionProvider")
   public MultiTenantSpringLiquibase liquibase() {
