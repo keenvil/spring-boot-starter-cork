@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.sql.DataSource;
 
@@ -35,10 +36,14 @@ public class DataSourceBasedCommunityConnectionProvider
   @Autowired
   private ConsulService consulService;
 
+  @Autowired(required = false)
+  private TenantLiquibaseMigrator tenantLiquibaseMigrator;
+
   public DataSourceBasedCommunityConnectionProvider(
       String theDefaultTenant, Map<String, DataSource> theDataSourceMapping) {
     defaultTenant = theDefaultTenant;
-    dataSourceMapping = theDataSourceMapping;
+    // Concurrent: tenants are added lazily from request threads.
+    dataSourceMapping = new ConcurrentHashMap<>(theDataSourceMapping);
   }
 
   @Override
@@ -52,12 +57,25 @@ public class DataSourceBasedCommunityConnectionProvider
       log.debug("Selecting data source for tenant {}.", tenantIdentifier);
     }
 
-    if (dataSourceMapping.get(tenantIdentifier) == null) {
-        dataSourceMapping.put(
-            tenantIdentifier, consulService.getDatasource(tenantIdentifier));
+    // computeIfAbsent: the data source is created (and its schema updated) once per tenant,
+    // even with concurrent first requests.
+    return dataSourceMapping.computeIfAbsent(tenantIdentifier, this::newTenantDataSource);
+  }
 
+  private DataSource newTenantDataSource(String tenantIdentifier) {
+    DataSource dataSource = consulService.getDatasource(tenantIdentifier);
+    if (tenantLiquibaseMigrator != null) {
+      tenantLiquibaseMigrator.migrate(tenantIdentifier, dataSource);
     }
-    return dataSourceMapping.get(tenantIdentifier);
+    return dataSource;
+  }
+
+  void setConsulService(ConsulService consulService) {
+    this.consulService = consulService;
+  }
+
+  void setTenantLiquibaseMigrator(TenantLiquibaseMigrator tenantLiquibaseMigrator) {
+    this.tenantLiquibaseMigrator = tenantLiquibaseMigrator;
   }
 
   public DataSource getDefaultDataSource() {
