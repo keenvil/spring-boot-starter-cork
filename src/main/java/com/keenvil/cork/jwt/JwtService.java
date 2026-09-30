@@ -24,6 +24,7 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ClassUtils;
 
 import com.keenvil.cork.date.DateUtils;
 
@@ -68,6 +69,30 @@ public class JwtService {
   private static final String AVATAR_URI = "avatarUri";
 
   /** JWT time to live in minutes. */
+  /**
+   * Rechazar tokens HS256 legacy (SPRINT_BACKLOG.md S10-SEC-05, PLAN_JWT_SIN_HS256.md). Default
+   * false: se siguen aceptando via el fallback HMAC de {@link #parseClaims(String)}. Prender recien
+   * cuando {@code cork_jwt_tokens_total{alg="HS256",result="accepted"}} quede en 0.
+   */
+  @Value("${cork.jwt.reject-hs256:false}")
+  private boolean rejectHs256;
+
+  /** Visible for testing. */
+  void setRejectHs256ForTesting(boolean reject) {
+    rejectHs256 = reject;
+  }
+
+  private static final boolean METRICS_PRESENT =
+      ClassUtils.isPresent("io.micrometer.core.instrument.Metrics", JwtService.class.getClassLoader());
+
+  static void recordToken(String alg, Jws<Claims> parsed, String result) {
+    if (!METRICS_PRESENT) {
+      return;
+    }
+    Claims c = parsed.getPayload();
+    JwtMetrics.record(alg, c.get(TYPE, String.class), c.getIssuedAt(), result);
+  }
+
   @Value("${jwt.ttl:120}")
   private int minutes = 120;
 
@@ -588,7 +613,9 @@ public class JwtService {
     // catch de abajo y este comentario una vez que no queden tokens HS256
     // vivos (TTL maximo del refresh token) y dejar unicamente el intento RSA.
     try {
-      return parseClaimsWithKey(jwt, rsaPublicKey);
+      Jws<Claims> rs = parseClaimsWithKey(jwt, rsaPublicKey);
+      recordToken("RS256", rs, "accepted");
+      return rs;
     } catch (JwtInvalidTokenException rsaFailure) {
       // jjwt tira SignatureException si el token es RS256 pero con otra clave,
       // y UnsupportedJwtException si directamente el algoritmo del token (ej.
@@ -601,7 +628,14 @@ public class JwtService {
         throw rsaFailure;
       }
       log.info("Token no valido con clave RSA, reintentando con HMAC (legacy).");
-      return parseClaimsWithKey(jwt, Keys.hmacShaKeyFor(KEY.getBytes(StandardCharsets.UTF_8)));
+      Jws<Claims> hs = parseClaimsWithKey(jwt, Keys.hmacShaKeyFor(KEY.getBytes(StandardCharsets.UTF_8)));
+      if (rejectHs256) {
+        recordToken("HS256", hs, "rejected");
+        log.warn("Token HS256 legacy rechazado (cork.jwt.reject-hs256=true).");
+        throw new JwtInvalidTokenException("Invalid Token, HS256 no longer accepted.", rsaFailure);
+      }
+      recordToken("HS256", hs, "accepted");
+      return hs;
     }
   }
 
