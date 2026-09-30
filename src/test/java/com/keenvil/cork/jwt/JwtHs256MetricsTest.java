@@ -37,38 +37,49 @@ class JwtHs256MetricsTest {
         Collections.singleton("USER"), new Date(System.currentTimeMillis() + 3_600_000));
   }
 
+  // El registro global es compartido entre tests de la misma JVM: se mide por diferencia y por tags.
   private double count(String alg, String result) {
     return registry.find("cork.jwt.tokens").tag("alg", alg).tag("result", result).counters()
         .stream().mapToDouble(c -> c.count()).sum();
   }
 
+  private double count(String alg, String type, String age, String result) {
+    return registry.find("cork.jwt.tokens").tag("alg", alg).tag("type", type).tag("age", age)
+        .tag("result", result).counters().stream().mapToDouble(c -> c.count()).sum();
+  }
+
   @Test
   void hs256IsAcceptedAndCountedByDefault() {
-    JwtUser user = service.parse(hs256Token());
+    String jwt = hs256Token();
+    double before = count("HS256", "access", "<1d", "accepted");
+    double rejectedBefore = count("HS256", "rejected");
+
+    JwtUser user = service.parse(jwt);
 
     assertNotNull(user);
-    assertEquals(1.0, count("HS256", "accepted"));
-    assertEquals(0.0, count("HS256", "rejected"));
-    assertEquals("access", registry.find("cork.jwt.tokens").tag("alg", "HS256").counter().getId().getTag("type"));
-    assertEquals("<1d", registry.find("cork.jwt.tokens").tag("alg", "HS256").counter().getId().getTag("age"));
+    assertEquals(before + 1, count("HS256", "access", "<1d", "accepted"));
+    assertEquals(rejectedBefore, count("HS256", "rejected"));
   }
 
   @Test
   void hs256IsRejectedWhenFlagIsOn() {
     service.setRejectHs256ForTesting(true);
     String jwt = hs256Token();
+    double rejectedBefore = count("HS256", "rejected");
+    double acceptedBefore = count("HS256", "accepted");
 
     assertThrows(JwtInvalidTokenException.class, () -> service.parse(jwt));
-    assertEquals(1.0, count("HS256", "rejected"));
-    assertEquals(0.0, count("HS256", "accepted"));
+    assertEquals(rejectedBefore + 1, count("HS256", "rejected"));
+    assertEquals(acceptedBefore, count("HS256", "accepted"));
   }
 
   @Test
   void invalidTokenIsNotCounted() {
     String tampered = hs256Token() + "x";
+    double before = count("HS256", "accepted") + count("HS256", "rejected");
 
     assertThrows(RuntimeException.class, () -> service.parse(tampered));
-    assertEquals(0.0, count("HS256", "accepted") + count("HS256", "rejected"));
+    assertEquals(before, count("HS256", "accepted") + count("HS256", "rejected"));
   }
 
   @Test
