@@ -393,4 +393,65 @@ public class JwtServiceTest {
       assertThat(exception, is(instanceOf(JwtInvalidTokenException.class)));
     }
   }
+
+  // --- cork 4.1.8: clave publica RSA configurable (cork.jwt.rsa-public-key) ---
+
+  private String toX509Pem(java.security.PublicKey key) {
+    String base64 = Base64.getEncoder().encodeToString(key.getEncoded());
+    return "-----BEGIN PUBLIC KEY-----\n" + base64 + "\n-----END PUBLIC KEY-----";
+  }
+
+  @Test
+  public void parseAcceptsRs256WithConfiguredPublicKeyPem() throws Exception {
+    KeyPair keyPair = generateTestRsaKeyPair();
+    service.setRsaPrivateKeyPemForTesting(toPkcs8Pem(keyPair.getPrivate()));
+    service.setRsaPublicKeyOverrideForTesting(toX509Pem(keyPair.getPublic()));
+    service.setRejectHs256ForTesting(true);
+
+    Set<String> roles = new HashSet<>();
+    Collections.addAll(roles, "USER");
+    String jwt = service.generate("7", "Ana", "Uat", "B-1", "uat@keenvil.com", roles, "avatarUri");
+
+    JwtUser user = service.parse(jwt);
+    assertThat(user.getUserAccountId(), is(7L));
+  }
+
+  @Test
+  public void configuredPublicKeyAcceptsBase64DerWithLiteralNewlines() throws Exception {
+    KeyPair keyPair = generateTestRsaKeyPair();
+    service.setRsaPrivateKeyPemForTesting(toPkcs8Pem(keyPair.getPrivate()));
+    String base64 = Base64.getEncoder().encodeToString(keyPair.getPublic().getEncoded());
+    // como queda un valor de Consul pegado con "\n" literales (barra invertida + n)
+    service.setRsaPublicKeyOverrideForTesting(base64.substring(0, 40) + "\\n" + base64.substring(40));
+
+    Set<String> roles = new HashSet<>();
+    Collections.addAll(roles, "USER");
+    String jwt = service.generate("8", "Ana", "Uat", "B-1", "uat@keenvil.com", roles, "avatarUri");
+
+    assertThat(service.parse(jwt).getUserAccountId(), is(8L));
+  }
+
+  @Test
+  public void configuredPublicKeyRejectsTokenSignedByAnotherKeyAndHs256WhenRejecting() throws Exception {
+    KeyPair uat = generateTestRsaKeyPair();
+    KeyPair other = generateTestRsaKeyPair();
+    service.setRsaPublicKeyOverrideForTesting(toX509Pem(uat.getPublic()));
+    service.setRejectHs256ForTesting(true);
+
+    JwtService signer = new JwtService();
+    signer.setRsaPrivateKeyPemForTesting(toPkcs8Pem(other.getPrivate()));
+    Set<String> roles = new HashSet<>();
+    Collections.addAll(roles, "USER");
+    String foreignRs256 = signer.generate("9", "X", "Y", "B-1", "x@keenvil.com", roles, "avatarUri");
+    String legacyHs256 = new JwtService().generate("9", "X", "Y", "B-1", "x@keenvil.com", roles, "avatarUri");
+
+    for (String jwt : List.of(foreignRs256, legacyHs256)) {
+      try {
+        service.parse(jwt);
+        fail("Se esperaba JwtInvalidTokenException");
+      } catch (JwtInvalidTokenException expected) {
+        assertThat(expected, is(instanceOf(JwtInvalidTokenException.class)));
+      }
+    }
+  }
 }
