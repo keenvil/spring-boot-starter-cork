@@ -140,9 +140,39 @@ public class JwtService {
     rsaPublicKey = key;
   }
 
+  /**
+   * Clave publica RSA configurable (cork 4.1.8, PLAN_JWT_SIN_HS256.md): permite que un ambiente con
+   * su propio par de claves (UAT) valide sus tokens RS256. Acepta PEM o base64 DER (X.509), con o sin
+   * "\n" literales. Vacio (default) = la clave de produccion hardcodeada arriba, sin cambio de
+   * comportamiento.
+   */
+  @Value("${cork.jwt.rsa-public-key:}")
+  private String rsaPublicKeyOverridePem;
+
+  private volatile PublicKey rsaPublicKeyOverride;
+
+  /** Visible for testing. */
+  void setRsaPublicKeyOverrideForTesting(String pemOrBase64) {
+    rsaPublicKeyOverridePem = pemOrBase64;
+    rsaPublicKeyOverride = null;
+  }
+
+  private PublicKey rsaPublicKey() {
+    if (rsaPublicKeyOverridePem == null || rsaPublicKeyOverridePem.isBlank()) {
+      return rsaPublicKey;
+    }
+    PublicKey key = rsaPublicKeyOverride;
+    if (key == null) {
+      key = loadRsaPublicKey(rsaPublicKeyOverridePem);
+      rsaPublicKeyOverride = key;
+    }
+    return key;
+  }
+
   private static PublicKey loadRsaPublicKey(String pem) {
     try {
       String base64 = pem
+          .replace("\\n", "")
           .replace("-----BEGIN PUBLIC KEY-----", "")
           .replace("-----END PUBLIC KEY-----", "")
           .replaceAll("\\s", "");
@@ -613,7 +643,7 @@ public class JwtService {
     // catch de abajo y este comentario una vez que no queden tokens HS256
     // vivos (TTL maximo del refresh token) y dejar unicamente el intento RSA.
     try {
-      Jws<Claims> rs = parseClaimsWithKey(jwt, rsaPublicKey);
+      Jws<Claims> rs = parseClaimsWithKey(jwt, rsaPublicKey());
       recordToken("RS256", rs, "accepted");
       return rs;
     } catch (JwtInvalidTokenException rsaFailure) {
