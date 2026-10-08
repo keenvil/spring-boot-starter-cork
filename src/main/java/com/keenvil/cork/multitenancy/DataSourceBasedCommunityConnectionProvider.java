@@ -74,6 +74,33 @@ public class DataSourceBasedCommunityConnectionProvider
     return dataSource;
   }
 
+  /**
+   * Creates the pool of each tenant and borrows one connection from it, so the first requests
+   * after a restart do not pay for opening the pool. A tenant that fails is logged and skipped:
+   * it will be created lazily on its first request, as before.
+   *
+   * @param tenants the tenants to warm up.
+   * @return how many tenants were warmed up.
+   */
+  public int warmUp(java.util.Collection<String> tenants) {
+    int ok = 0;
+    for (String tenant : tenants) {
+      String id = tenant == null ? "" : tenant.trim();
+      if (id.isEmpty()) {
+        continue;
+      }
+      long start = System.nanoTime();
+      try (java.sql.Connection ignored = selectDataSource(id).getConnection()) {
+        ok++;
+        log.info("Tenant pool {} warmed up in {} ms", id, (System.nanoTime() - start) / 1_000_000);
+      } catch (Exception e) {
+        log.warn("Tenant pool {} could not be warmed up ({}); it will be created on its first request",
+            id, e.getMessage());
+      }
+    }
+    return ok;
+  }
+
   void setConsulService(ConsulService consulService) {
     this.consulService = consulService;
   }

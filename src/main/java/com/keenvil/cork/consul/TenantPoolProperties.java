@@ -28,6 +28,20 @@ public class TenantPoolProperties {
   /** Milliseconds before a connection is retired; below MySQL's wait_timeout. */
   private long maxLifetime = 1_800_000;
 
+  /**
+   * Milliseconds a request waits for a connection of the tenant pool. {@code 0} keeps the value of
+   * the tenant entry in Consul, which is not uniform (1000 / 5000 / 30000 ms in prod): with 1 s a
+   * burst against a pool that is still opening connections fails with "Connection is not
+   * available" (guard-api, 08/10/2026).
+   */
+  private long connectionTimeout = 0;
+
+  /**
+   * Tenants whose pool is created (and its {@code minimumIdle} connections opened) right after
+   * startup instead of on the first request. Empty by default: pools stay lazy.
+   */
+  private java.util.List<String> warmUpTenants = new java.util.ArrayList<>();
+
   /** Applies these settings over the ones read from Consul. */
   void applyTo(HikariConfig config) {
     if (!enabled) {
@@ -37,6 +51,9 @@ public class TenantPoolProperties {
     config.setMinimumIdle(Math.min(minimumIdle, maximumPoolSize));
     config.setIdleTimeout(idleTimeout);
     config.setMaxLifetime(maxLifetime);
+    if (connectionTimeout > 0) {
+      config.setConnectionTimeout(connectionTimeout);
+    }
   }
 
   public boolean isEnabled() {
@@ -77,5 +94,21 @@ public class TenantPoolProperties {
 
   public void setMaxLifetime(long maxLifetime) {
     this.maxLifetime = maxLifetime;
+  }
+
+  public long getConnectionTimeout() {
+    return connectionTimeout;
+  }
+
+  public void setConnectionTimeout(long connectionTimeout) {
+    this.connectionTimeout = connectionTimeout;
+  }
+
+  public java.util.List<String> getWarmUpTenants() {
+    return warmUpTenants;
+  }
+
+  public void setWarmUpTenants(java.util.List<String> warmUpTenants) {
+    this.warmUpTenants = warmUpTenants == null ? new java.util.ArrayList<>() : warmUpTenants;
   }
 }
