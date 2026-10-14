@@ -12,15 +12,15 @@ Cork is intended to encapsulate core Keenvil code. At this moment it offers supp
 You will need the following things properly installed on your computer.
 
 * [Git](http://git-scm.com/)
-* [Maven 3.3.9](http://maven.apache.org)
-* [Java - Oracle 1.8.0_121](http://java.com)
-* [MySQL - 5.7.17](http://www.mysql.com/)
+* [Maven 3.9+](http://maven.apache.org)
+* Java 21 (Temurin)
+* Docker, only for the tests that use Testcontainers
 
 ## Installation for developmet
 
 ### Getting the code
 ```
-$ git clone https://github.com/keenvil/commons.git
+$ git clone https://github.com/keenvil/spring-boot-starter-cork.git
 ```
 
 ### Building the code
@@ -49,7 +49,7 @@ Cork Multitenancy provides a `@EnableMultitenancy` annotation to enable it. This
 
 ```java
 
-@EnableMultitenancy(basePackages = "com.keenvil.guard.domain")
+@EnableMultitenancy(basePackages = "com.keenvil.guard.entity")
 public class GuardApiConfiguration
     extends KeenvilWebSecurityConfigurerAdapter {
 }
@@ -93,4 +93,31 @@ keenvil:
         * `pool-name` (string),
         * `connectionTimeout` (string)
 
+## Package layout
 
+Cork is a library: its public packages and classes are its contract with every Keenvil service. It is organized by
+topic, not by layer (the layered standard applies to services).
+
+| Package | What it holds |
+|---|---|
+| `com.keenvil.cork` | `CommunityIdentifierResolver` (interface used by the services), auto-configuration and `keenvil.cork.*` properties |
+| `consul` | Tenant data sources and configuration read from Consul; per-tenant pool settings (`keenvil.multitenancy.pool.*`) |
+| `multitenancy` | `@EnableMultitenancy`, tenant resolution (`UrlPathVariableCommunityResolver`, `RequestAttributeCommunityResolver`), Liquibase per tenant, task decorator |
+| `jwt` | `@EnableJwtSecurity`, filter, `JwtService`, `JwtUser`, `@JwtLoggedUser` |
+| `security` | `KeenvilWebSecurityConfigurerAdapter`, role annotations, QR |
+| `error` | `KeenvilApiException` and the common controller advice |
+| `totp`, `validation`, `converter`, `data`, `date`, `internationalization` | Small shared utilities |
+| `mongo` | Opt-in Mongo compatibility (`keenvil.mongo.compat.enabled=true`) |
+| `openapi` | Opt-in OpenAPI configuration (`keenvil.openapi.enabled=true`) |
+
+Rules:
+* Do not move or rename a public class, a `@ConfigurationProperties` prefix, or a class listed in
+  `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports` without a major version.
+  Check who imports it first: `rotation-scripts/capas/cork_uso.py` (keenvil workspace) prints the usage per class.
+* `src/main/java/com/mongodb/util/JSON*` keeps the package of the legacy Mongo driver on purpose.
+
+## Releasing
+
+The package is published to GitHub Packages by the `Publish to GitHub Packages` workflow: on every push to `main`,
+or manually with `workflow_dispatch`. Bump `<version>` in `pom.xml` in the same change; a version can be published
+only once.

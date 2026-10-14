@@ -1,4 +1,6 @@
-package com.keenvil.cork;
+package com.keenvil.cork.multitenancy;
+
+import com.keenvil.cork.CommunityIdentifierResolver;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -9,7 +11,6 @@ import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 
 import com.keenvil.cork.jwt.JwtTokenHolder;
-import com.keenvil.cork.multitenancy.MultitenancyConfigurationProperties;
 
 /**
  * <p>Encapsulates behavior to get current request Community Id from a
