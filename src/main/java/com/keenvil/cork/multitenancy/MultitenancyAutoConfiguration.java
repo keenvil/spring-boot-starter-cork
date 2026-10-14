@@ -24,6 +24,7 @@ import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.*;
@@ -118,6 +119,30 @@ public class MultitenancyAutoConfiguration {
 
     return new DataSourceBasedCommunityConnectionProvider(
       multitenancyProperties.getDefaultTenant().getName(), dataSources);
+  }
+
+  /**
+   * Opens the pools listed in {@code keenvil.multitenancy.pool.warm-up-tenants} once the context
+   * is ready. Runs inside the ApplicationReadyEvent, so it finishes before the readiness state
+   * changes to ACCEPTING_TRAFFIC and the pod gets traffic with warm pools.
+   *
+   * @param provider the tenant connection provider.
+   * @param pool the pool properties.
+   * @return the listener.
+   */
+  @Bean
+  public org.springframework.context.ApplicationListener<
+      org.springframework.boot.context.event.ApplicationReadyEvent> tenantPoolWarmUp(
+      DataSourceBasedCommunityConnectionProvider provider, TenantPoolProperties pool) {
+    return event -> {
+      if (pool.isEnabled() && !pool.getWarmUpTenants().isEmpty()) {
+        long start = System.nanoTime();
+        int ok = provider.warmUp(pool.getWarmUpTenants());
+        LoggerFactory.getLogger(MultitenancyAutoConfiguration.class).info(
+            "Tenant pools warmed up: {}/{} in {} ms", ok, pool.getWarmUpTenants().size(),
+            (System.nanoTime() - start) / 1_000_000);
+      }
+    };
   }
 
   @Bean

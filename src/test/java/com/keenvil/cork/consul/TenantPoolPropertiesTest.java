@@ -51,4 +51,26 @@ class TenantPoolPropertiesTest {
     assertEquals(3, config.getMaximumPoolSize());
     assertEquals(3, config.getMinimumIdle());
   }
+
+  @Test
+  void connectionTimeoutKeepsConsulValueByDefault() {
+    HikariConfig config = consulValues();
+    config.setConnectionTimeout(30_000);
+
+    new TenantPoolProperties().applyTo(config);
+
+    assertEquals(30_000, config.getConnectionTimeout());
+  }
+
+  @Test
+  void connectionTimeoutOverridesConsulValueWhenSet() {
+    HikariConfig config = consulValues();
+    config.setConnectionTimeout(1_000);
+    TenantPoolProperties pool = new TenantPoolProperties();
+    pool.setConnectionTimeout(5_000);
+
+    pool.applyTo(config);
+
+    assertEquals(5_000, config.getConnectionTimeout());
+  }
 }
