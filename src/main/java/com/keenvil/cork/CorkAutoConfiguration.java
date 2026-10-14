@@ -9,6 +9,8 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 
 import com.keenvil.cork.CorkConfigurationProperties.CommunityResolverStrategy;
 import com.keenvil.cork.internationalization.LocalizableAspect;
+import com.keenvil.cork.multitenancy.RequestAttributeCommunityResolver;
+import com.keenvil.cork.multitenancy.UrlPathVariableCommunityResolver;
 import com.keenvil.cork.security.QrService;
 import com.keenvil.cork.security.ResourceSecurityService;
 import com.keenvil.cork.validation.BindingResultValidationAspect;

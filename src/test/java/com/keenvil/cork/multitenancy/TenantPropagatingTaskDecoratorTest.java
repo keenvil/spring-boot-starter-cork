@@ -23,8 +23,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import com.keenvil.cork.RequestAttributeCommunityResolver;
-import com.keenvil.cork.UrlPathVariableCommunityResolver;
 import com.keenvil.cork.jwt.JwtTokenHolder;
 
 /**
