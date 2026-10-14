@@ -12,7 +12,6 @@ import org.easymock.TestSubject;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import com.keenvil.cork.UrlPathVariableCommunityResolver;
 import com.keenvil.cork.multitenancy.CurrentTenantResolver;
 
 @ExtendWith(EasyMockExtension.class)

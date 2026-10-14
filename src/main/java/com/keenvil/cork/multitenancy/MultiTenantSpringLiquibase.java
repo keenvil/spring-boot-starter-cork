@@ -59,10 +59,28 @@ public class MultiTenantSpringLiquibase implements InitializingBean, ResourceLoa
 
   private void runOnAllDataSources() throws LiquibaseException {
     for(DataSource aDataSource : dataSources) {
-      log.info("Initializing Liquibase for data source " + aDataSource);
-      SpringLiquibase liquibase = getSpringLiquibase(aDataSource);
-      liquibase.afterPropertiesSet();
-      log.info("Liquibase ran for data source " + aDataSource);
+      try {
+        log.info("Initializing Liquibase for data source " + aDataSource);
+        SpringLiquibase liquibase = getSpringLiquibase(aDataSource);
+        liquibase.afterPropertiesSet();
+        log.info("Liquibase ran for data source " + aDataSource);
+      } finally {
+        close(aDataSource);
+      }
+    }
+  }
+
+  /**
+   * These data sources exist only to run the changelog. Left open, each one kept a full pool of
+   * idle connections for the life of the pod (15 per replica for crowd's default tenant).
+   */
+  private static void close(DataSource dataSource) {
+    if (dataSource instanceof AutoCloseable closeable) {
+      try {
+        closeable.close();
+      } catch (Exception e) {
+        log.warn("Could not close Liquibase data source {}: {}", dataSource, e.getMessage());
+      }
     }
   }
 

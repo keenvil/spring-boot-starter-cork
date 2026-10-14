@@ -80,4 +80,24 @@ public class ConsulConfigurationTest {
     assertThrows(UnprocessedEntity.class, () -> consulService.getDatasource(KEY));
     verify(consulService);
   }
+
+  @Test
+  public void pollUsesTokenWhenConfigured() throws Exception {
+    Response<List<GetValue>> empty = new Response<>(new ArrayList<>(), 0L, false, 0L);
+    expect(consulClient.getKVValues(END_POINT, "tok-123")).andReturn(empty);
+    replay(consulClient);
+
+    assertNotNull(new ConsulConfiguration(END_POINT, consulClient, "tok-123").poll(true, null));
+    verify(consulClient);
+  }
+
+  @Test
+  public void pollWithoutTokenStaysAnonymous() throws Exception {
+    Response<List<GetValue>> empty = new Response<>(new ArrayList<>(), 0L, false, 0L);
+    expect(consulClient.getKVValues(END_POINT)).andReturn(empty);
+    replay(consulClient);
+
+    assertNotNull(new ConsulConfiguration(END_POINT, consulClient, "  ").poll(true, null));
+    verify(consulClient);
+  }
 }
