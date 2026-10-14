@@ -11,6 +11,8 @@ import java.util.*;
 import jakarta.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
+import com.keenvil.cork.consul.TenantPoolProperties;
+
 import org.hibernate.context.spi.CurrentTenantIdentifierResolver;
 import org.hibernate.engine.jdbc.connections.spi.MultiTenantConnectionProvider;
 import org.slf4j.Logger;
@@ -22,6 +24,7 @@ import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.*;
@@ -50,6 +53,7 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 @Configuration
 @EnableConfigurationProperties({
       MultitenancyConfigurationProperties.class,
+      TenantPoolProperties.class,
       JpaProperties.class})
 @Conditional(value = MultitenancyCondition.class)
 // Must run BEFORE HibernateJpaAutoConfiguration: Boot's HibernateJpaConfiguration
@@ -115,6 +119,30 @@ public class MultitenancyAutoConfiguration {
 
     return new DataSourceBasedCommunityConnectionProvider(
       multitenancyProperties.getDefaultTenant().getName(), dataSources);
+  }
+
+  /**
+   * Opens the pools listed in {@code keenvil.multitenancy.pool.warm-up-tenants} once the context
+   * is ready. Runs inside the ApplicationReadyEvent, so it finishes before the readiness state
+   * changes to ACCEPTING_TRAFFIC and the pod gets traffic with warm pools.
+   *
+   * @param provider the tenant connection provider.
+   * @param pool the pool properties.
+   * @return the listener.
+   */
+  @Bean
+  public org.springframework.context.ApplicationListener<
+      org.springframework.boot.context.event.ApplicationReadyEvent> tenantPoolWarmUp(
+      DataSourceBasedCommunityConnectionProvider provider, TenantPoolProperties pool) {
+    return event -> {
+      if (pool.isEnabled() && !pool.getWarmUpTenants().isEmpty()) {
+        long start = System.nanoTime();
+        int ok = provider.warmUp(pool.getWarmUpTenants());
+        LoggerFactory.getLogger(MultitenancyAutoConfiguration.class).info(
+            "Tenant pools warmed up: {}/{} in {} ms", ok, pool.getWarmUpTenants().size(),
+            (System.nanoTime() - start) / 1_000_000);
+      }
+    };
   }
 
   @Bean
@@ -183,6 +211,20 @@ public class MultitenancyAutoConfiguration {
   @Bean
   public CurrentTenantIdentifierResolver<String> currentCommunityIdentifierResolver() {
     return new CurrentTenantResolver();
+  }
+
+  /**
+   * Runs the changelog on each tenant database when its data source is first created (tenants
+   * are loaded lazily from Consul, after the startup Liquibase). Off unless both
+   * {@code spring.liquibase.enabled} and {@code keenvil.multitenancy.liquibase.tenants.enabled}.
+   */
+  @Bean
+  public TenantLiquibaseMigrator tenantLiquibaseMigrator(
+      @Value("${spring.liquibase.enabled:false}") boolean liquibaseEnabled,
+      @Value("${keenvil.multitenancy.liquibase.tenants.enabled:false}") boolean tenantsEnabled,
+      org.springframework.core.io.ResourceLoader resourceLoader) {
+    return new TenantLiquibaseMigrator(liquibaseEnabled && tenantsEnabled, liquibaseChangelogUrl,
+        resourceLoader);
   }
 
   @Bean(name = "liquibase")

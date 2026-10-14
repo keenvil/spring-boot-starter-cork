@@ -47,11 +47,28 @@ public class ConsulService {
    */
   private static final boolean IGNORE_DELETES_FROM_SOURCE = false;
   private String endPointPropertiesRequest;
+  /**
+   * Service credentials used for a tenant whose Consul entry has no username/password,
+   * so the database credentials live only in the service secret, not in every tenant entry.
+   */
+  private String fallbackUsername;
+  private String fallbackPassword;
 
 
   public ConsulService(String endPointPropertiesRequest)
       throws ConsulServiceException {
+    this(endPointPropertiesRequest, null, null);
+  }
+
+  /**
+   * @param fallbackUsername username used when a tenant entry has none (usually database.username)
+   * @param fallbackPassword password used when a tenant entry has none (usually database.password)
+   */
+  public ConsulService(String endPointPropertiesRequest, String fallbackUsername,
+      String fallbackPassword) throws ConsulServiceException {
     this.endPointPropertiesRequest = endPointPropertiesRequest;
+    this.fallbackUsername = fallbackUsername;
+    this.fallbackPassword = fallbackPassword;
     try {
       installConfig();
     } catch (ConfigurationException e) {
@@ -62,6 +79,14 @@ public class ConsulService {
   }
 
   public DataSource getDatasource(String tenantId) {
+    return getDatasource(tenantId, null);
+  }
+
+  /**
+   * @param pool pool settings that win over the ones in the tenant's Consul entry; null keeps
+   *     the Consul ones
+   */
+  public DataSource getDatasource(String tenantId, TenantPoolProperties pool) {
     log.info("Getting tenant datasource for: [{}]", tenantId);
     final DynamicStringProperty datasourceProperties =
         DynamicPropertyFactory.getInstance().getStringProperty(
@@ -69,7 +94,7 @@ public class ConsulService {
             "");
 
     if (!datasourceProperties.get().isEmpty()) {
-      return tenantDatasource(datasourceProperties.get());
+      return new HikariDataSource(tenantHikariConfig(datasourceProperties.get(), pool));
     }
     log.error("no tenant datasource configuration for: [{}]" + tenantId);
     throw new UnprocessedEntity("no tenant configuration for: " + tenantId);
@@ -148,7 +173,7 @@ public class ConsulService {
     return jsonToMap((JsonElement) jsonDatasource);
   }
 
-  private DataSource tenantDatasource(String stringDatasource) {
+  HikariConfig tenantHikariConfig(String stringDatasource, TenantPoolProperties pool) {
     Map<String, Object> mapProperties;
 
     Object jsonDatasource = JsonParser.parseString(stringDatasource);
@@ -163,12 +188,27 @@ public class ConsulService {
     hikariConfig.setConnectionTimeout(Long.valueOf((String) mapProperties.get("connectionTimeout")));
     hikariConfig.setDriverClassName((String) mapProperties.get("driverClassName"));
     hikariConfig.setJdbcUrl((String) mapProperties.get("url"));
-    hikariConfig.getDataSourceProperties()
-        .setProperty("user", (String) mapProperties.get("username"));
-    hikariConfig.getDataSourceProperties()
-        .setProperty("password", (String) mapProperties.get("password"));
+    String username = credential((String) mapProperties.get("username"), fallbackUsername);
+    String password = credential((String) mapProperties.get("password"), fallbackPassword);
+    if (username != null) {
+      hikariConfig.getDataSourceProperties().setProperty("user", username);
+    }
+    if (password != null) {
+      hikariConfig.getDataSourceProperties().setProperty("password", password);
+    }
+    if (pool != null) {
+      pool.applyTo(hikariConfig);
+    }
+    log.info("Tenant pool {}: maximumPoolSize={} minimumIdle={} idleTimeout={} maxLifetime={}",
+        hikariConfig.getPoolName(), hikariConfig.getMaximumPoolSize(),
+        hikariConfig.getMinimumIdle(), hikariConfig.getIdleTimeout(),
+        hikariConfig.getMaxLifetime());
+    return hikariConfig;
+  }
 
-    return new HikariDataSource(hikariConfig);
+  /** The tenant's own value when present, otherwise the service credential. */
+  static String credential(String fromTenant, String fallback) {
+    return fromTenant == null || fromTenant.isBlank() ? fallback : fromTenant;
   }
 
   private Map<String, Object> jsonToMap(JsonElement jsonElement) {
