@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 
-import com.keenvil.cork.RequestAttributeCommunityResolver;
 
 public class RequestAttributeCommunityResolverTest {
 

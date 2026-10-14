@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class TotpGeneratorTest {
+public class TotpAuthenticatorTest {
 
   private TotpAuthenticator authenticator;
   private TotpSecretKeyGenerator generator;

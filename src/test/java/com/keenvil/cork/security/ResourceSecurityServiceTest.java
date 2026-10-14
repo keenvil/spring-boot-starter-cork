@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.common.collect.Sets;
-import com.keenvil.cork.RequestAttributeCommunityResolver;
+import com.keenvil.cork.multitenancy.RequestAttributeCommunityResolver;
 import com.keenvil.cork.jwt.JwtUser;
 
 import java.util.Set;

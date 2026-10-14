@@ -2,3 +2,5 @@ com.keenvil.cork.CorkAutoConfiguration
 com.keenvil.cork.multitenancy.MultitenancyAutoConfiguration
 com.keenvil.cork.jwt.JwtAutoConfiguration
 com.keenvil.cork.totp.TotpAutoConfiguration
+com.keenvil.cork.mongo.MongoCompatAutoConfiguration
+com.keenvil.cork.openapi.OpenApiAutoConfiguration
