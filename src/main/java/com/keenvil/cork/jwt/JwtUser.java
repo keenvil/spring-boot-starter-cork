@@ -216,7 +216,8 @@ public class JwtUser implements UserDetails {
 
   @Override
   public String toString() {
-    return String.format("id: %s, username:%s", id, username);
+    // Sin username/email: este toString se loguea en cada request autenticado ([LOGS-PII]).
+    return String.format("id: %s", id);
   }
 }
 
