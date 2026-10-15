@@ -50,4 +50,14 @@ public class JwtUserTest {
         "admin", roles, "uri");
     assertThat(user.getAvatarUri(), is("uri"));
   }
+
+  @Test
+  public void toStringNoExponeUsernameNiNombre() {
+    JwtUser user = new JwtUser(7L, "Juana", "Ejemplo", "B-52", "juana@example.com", new HashSet<>());
+    String s = user.toString();
+    assertTrue(s.contains("7"));
+    assertFalse(s.contains("juana@example.com"));
+    assertFalse(s.contains("Juana"));
+    assertFalse(s.contains("Ejemplo"));
+  }
 }

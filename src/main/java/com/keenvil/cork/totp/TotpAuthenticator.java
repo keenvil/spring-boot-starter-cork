@@ -126,14 +126,13 @@ public class TotpAuthenticator {
     for (int i = -((window - 1) / 2); i <= window / 2; ++i) {
       long hash = calculateCode(decodedKey, timeWindow + i);
 
-      log.debug("Validating Code: {}, vs hash: {} using secret: {}", code, hash, secret);
-
       if (hash == code) {
-        log.debug("TOTP {} Found!", code);
+        log.debug("TOTP valido (desfase de ventana {})", i);
         return true;
       }
     }
-    log.debug("TOTP {} Not Found!", code);
+    // Nunca loguear el secreto, el hash ni el codigo ([LOGS-PII]).
+    log.debug("TOTP no valido en la ventana");
     return false;
   }
 
