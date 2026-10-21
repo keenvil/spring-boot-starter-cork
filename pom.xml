@@ -16,6 +16,8 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <java.version>21</java.version>
+    <!-- Piso de cobertura de lineas que exige check-lines (ver jacoco-maven-plugin). -->
+    <coverage.line.minimum>0.70</coverage.line.minimum>
     <spring-boot.version>3.5.16</spring-boot.version>
     <spring-cloud.version>2025.0.3</spring-cloud.version>
     <jjwt.version>0.12.6</jjwt.version>
@@ -245,6 +247,54 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>3.2.5</version>
+      </plugin>
+      <plugin>
+        <!--
+          [TEST-COVERAGE-70] (21/10/2026): cork no usa el parent de keenvil, asi que repite aca lo del
+          parent 4.3.0: reporte en "test" (target/site/jacoco/jacoco.csv) y check en "verify" que falla
+          si la cobertura de lineas baja de coverage.line.minimum (0.70). Exclusiones equivalentes:
+          codigo sin logica propia (configuracion/autoconfiguracion, DTO, *Properties).
+        -->
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>0.8.12</version>
+        <configuration>
+          <excludes>
+            <exclude>**/*Application.class</exclude>
+            <exclude>**/config/**</exclude>
+            <exclude>**/dto/**</exclude>
+          </excludes>
+        </configuration>
+        <executions>
+          <execution>
+            <id>default-prepare-agent</id>
+            <goals><goal>prepare-agent</goal></goals>
+          </execution>
+          <execution>
+            <id>default-report</id>
+            <phase>test</phase>
+            <goals><goal>report</goal></goals>
+          </execution>
+          <execution>
+            <id>check-lines</id>
+            <phase>verify</phase>
+            <goals><goal>check</goal></goals>
+            <configuration>
+              <rules>
+                <rule>
+                  <element>BUNDLE</element>
+                  <limits>
+                    <limit>
+                      <counter>LINE</counter>
+                      <value>COVEREDRATIO</value>
+                      <minimum>${coverage.line.minimum}</minimum>
+                    </limit>
+                  </limits>
+                </rule>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
