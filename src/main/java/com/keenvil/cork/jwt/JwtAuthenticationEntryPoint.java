@@ -15,7 +15,7 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.keenvil.cork.error.KeenvilApiError;
 
 import static org.slf4j.LoggerFactory.getLogger;
@@ -95,7 +95,7 @@ public class JwtAuthenticationEntryPoint
         .source(exception)
         .build();
 
-    ObjectMapper mapper = new ObjectMapper();
+    JsonMapper mapper = JsonMapper.shared();
     response.setContentType("application/json");
     response.setStatus(responseStatus);
     response.getOutputStream().println(mapper.writeValueAsString(error));

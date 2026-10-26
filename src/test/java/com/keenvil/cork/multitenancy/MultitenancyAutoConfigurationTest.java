@@ -46,7 +46,7 @@ import org.springframework.test.context.TestPropertySource;
 @SpringBootTest(classes = MultitenancyAutoConfigurationTest.TestApp.class)
 @TestPropertySource(properties = {
     "spring.main.allow-bean-definition-overriding=true",
-    "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration",
+    "spring.autoconfigure.exclude=org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration",
     "keenvil.cork.multitenancy.tenants-strategy=SHARED-DB-SEPARATE-SCHEMAS",
     "keenvil.cork.multitenancy.tenants[0].name=primary",
     "keenvil.cork.multitenancy.tenants[0].jdbc-url=jdbc:h2:mem:cork-multitenancy-it;DB_CLOSE_DELAY=-1",
