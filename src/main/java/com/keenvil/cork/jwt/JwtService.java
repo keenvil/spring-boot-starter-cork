@@ -33,6 +33,7 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.IncorrectClaimException;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.MissingClaimException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.InvalidKeyException;
@@ -711,6 +712,10 @@ public class JwtService {
       log.debug("Token no firmado con RSA (probablemente HS256 legacy).", rsaMismatch);
       throw new JwtInvalidTokenException("Invalid Token, signature mismatch.",
           rsaMismatch);
+    } catch (MalformedJwtException mje) {
+      // Header con algo que no es un JWT (p.ej. "null" desde el front): rechazo comun, sin stack trace.
+      log.warn("JWT malformado, rechazado: {}", mje.getMessage());
+      throw new JwtInvalidTokenException("Invalid Token, malformed.", mje);
     } catch (Exception exception) {
       log.error("Error parsing JWT. ", exception);
       throw new JwtInvalidTokenException("Error parsing Token.", exception);
@@ -743,6 +748,10 @@ public class JwtService {
       log.warn("JWT signature does not match. Token rejected.");
       throw new JwtInvalidTokenException("Invalid Token, signature mismatch.",
           se);
+    } catch (MalformedJwtException mje) {
+      // Header con algo que no es un JWT (p.ej. "null" desde el front): rechazo comun, sin stack trace.
+      log.warn("JWT malformado, rechazado: {}", mje.getMessage());
+      throw new JwtInvalidTokenException("Invalid Token, malformed.", mje);
     } catch (Exception exception) {
       log.error("Error parsing JWT. ", exception);
       throw new JwtInvalidTokenException("Error parsing Token.", exception);
