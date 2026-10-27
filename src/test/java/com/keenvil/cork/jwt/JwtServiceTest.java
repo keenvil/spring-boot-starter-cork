@@ -182,6 +182,16 @@ public class JwtServiceTest {
   }
 
   @Test
+  public void parseNullTokenIsMalformed() throws Exception {
+    try {
+      service.parse("null");
+      fail();
+    } catch (JwtInvalidTokenException exception) {
+      assertThat(exception.getCause(), is(instanceOf(io.jsonwebtoken.MalformedJwtException.class)));
+    }
+  }
+
+  @Test
   public void parseInvalidToken() throws Exception {
     try {
       service.parse("invalid");
