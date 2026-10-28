@@ -522,37 +522,37 @@ public class JwtService {
 
     String tokenType = (String) claims.get(TYPE);
     if (tokenType == null || !tokenType.equals(TYPE_ACCESS)) {
-      log.error("Subject not present.");
+      log.debug("Subject not present.");
       throw new JwtInvalidTokenException("Invalid access token.");
     }
 
     if (claims.getSubject() == null) {
-      log.error("Subject not present.");
+      log.debug("Subject not present.");
       throw new JwtInvalidTokenException("Subject not present.");
     }
 
     if (claims.get(FIRST_NAME) == null) {
-      log.error("First name not present.");
+      log.debug("First name not present.");
       throw new JwtInvalidTokenException("First name not present.");
     }
 
     if (claims.get(LAST_NAME) == null) {
-      log.error("Last name not present.");
+      log.debug("Last name not present.");
       throw new JwtInvalidTokenException("Last name not present.");
     }
 
     if (claims.get(UNIT) == null) {
-      log.error("Unit not present.");
+      log.debug("Unit not present.");
       throw new JwtInvalidTokenException("Unit not present.");
     }
 
     if (claims.get(USERNAME) == null) {
-      log.error("Username not present.");
+      log.debug("Username not present.");
       throw new JwtInvalidTokenException("Username not present.");
     }
 
     if (claims.get(ROLES) == null) {
-      log.error("Roles not defined.");
+      log.debug("Roles not defined.");
       throw new JwtInvalidTokenException("Roles not defined.");
     }
 
@@ -629,7 +629,7 @@ public class JwtService {
     Date expiration = parsedClaims.getPayload().getExpiration();
 
     if (type == null || !type.equals(TYPE_REFRESH)) {
-      log.error("Invalid refresh token. Type must be Refresh, but is [{}]", type);
+      log.warn("Invalid refresh token. Type must be Refresh, but is [{}]", type);
       throw new JwtInvalidTokenException("Invalid refresh token.");
     }
 
@@ -678,19 +678,19 @@ public class JwtService {
           .build()
           .parseSignedClaims(jwt);
     } catch (IllegalArgumentException e) {
-      log.error("Illegal Argument Exception.");
+      log.debug("Illegal Argument Exception.");
       throw new JwtInvalidTokenException("Invalid Token, Illegal Argument .",
           e);
     } catch (MissingClaimException mce) {
-      log.error("Issuer not present.");
+      log.debug("Issuer not present.");
       throw new JwtInvalidTokenException("Invalid Token, issuer not present.",
           mce);
     } catch (IncorrectClaimException ice) {
-      log.error("Unrecognized issuer.");
+      log.debug("Unrecognized issuer.");
       throw new JwtInvalidTokenException("Invalid Token, unrecognized issuer.",
           ice);
     } catch (ExpiredJwtException ee) {
-      log.error("Expired jwt.");
+      log.debug("Expired jwt.");
       throw new JwtExpiredTokenException("Token expired.", ee);
     } catch (SignatureException | UnsupportedJwtException | InvalidKeyException rsaMismatch) {
       // Este overload (PublicKey) SOLO se usa para el intento RSA optimista de
@@ -714,10 +714,10 @@ public class JwtService {
           rsaMismatch);
     } catch (MalformedJwtException mje) {
       // Header con algo que no es un JWT (p.ej. "null" desde el front): rechazo comun, sin stack trace.
-      log.warn("JWT malformado, rechazado: {}", mje.getMessage());
+      log.debug("JWT malformado, rechazado: {}", mje.getMessage());
       throw new JwtInvalidTokenException("Invalid Token, malformed.", mje);
     } catch (Exception exception) {
-      log.error("Error parsing JWT. ", exception);
+      log.warn("Error parsing JWT: {}", exception.toString());
       throw new JwtInvalidTokenException("Error parsing Token.", exception);
     }
   }
@@ -730,30 +730,30 @@ public class JwtService {
           .build()
           .parseSignedClaims(jwt);
     } catch (IllegalArgumentException e) {
-      log.error("Illegal Argument Exception.");
+      log.debug("Illegal Argument Exception.");
       throw new JwtInvalidTokenException("Invalid Token, Illegal Argument .",
           e);
     } catch (MissingClaimException mce) {
-      log.error("Issuer not present.");
+      log.debug("Issuer not present.");
       throw new JwtInvalidTokenException("Invalid Token, issuer not present.",
           mce);
     } catch (IncorrectClaimException ice) {
-      log.error("Unrecognized issuer.");
+      log.debug("Unrecognized issuer.");
       throw new JwtInvalidTokenException("Invalid Token, unrecognized issuer.",
           ice);
     } catch (ExpiredJwtException ee) {
-      log.error("Expired jwt.");
+      log.debug("Expired jwt.");
       throw new JwtExpiredTokenException("Token expired.", ee);
     } catch (SignatureException se) {
-      log.warn("JWT signature does not match. Token rejected.");
+      log.debug("JWT signature does not match. Token rejected.");
       throw new JwtInvalidTokenException("Invalid Token, signature mismatch.",
           se);
     } catch (MalformedJwtException mje) {
       // Header con algo que no es un JWT (p.ej. "null" desde el front): rechazo comun, sin stack trace.
-      log.warn("JWT malformado, rechazado: {}", mje.getMessage());
+      log.debug("JWT malformado, rechazado: {}", mje.getMessage());
       throw new JwtInvalidTokenException("Invalid Token, malformed.", mje);
     } catch (Exception exception) {
-      log.error("Error parsing JWT. ", exception);
+      log.warn("Error parsing JWT: {}", exception.toString());
       throw new JwtInvalidTokenException("Error parsing Token.", exception);
     }
   }
