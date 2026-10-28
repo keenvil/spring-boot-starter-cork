@@ -96,7 +96,7 @@ public class ConsulService {
     if (!datasourceProperties.get().isEmpty()) {
       return new HikariDataSource(tenantHikariConfig(datasourceProperties.get(), pool));
     }
-    log.error("no tenant datasource configuration for: [{}]" + tenantId);
+    log.warn("no tenant datasource configuration for: [{}]", tenantId);
     throw new UnprocessedEntity("no tenant configuration for: " + tenantId);
   }
 
@@ -110,7 +110,7 @@ public class ConsulService {
     if (!rabbitProperties.get().isEmpty()) {
       return getPropertiesConnectionFactory(rabbitProperties.get());
     }
-    log.error("no rabbit configuration for tenant: [{}]" + tenantId);
+    log.warn("no rabbit configuration for tenant: [{}]", tenantId);
     throw new UnprocessedEntity("no rabbit connection factory for: " + tenantId);
   }
 
@@ -124,7 +124,7 @@ public class ConsulService {
       return (String) getPropertiesConnectionFactory(
           mongoProperties.get()).get("database");
     }
-    log.error("no mongo configuration for tenant: [{}]" + tenantId);
+    log.warn("no mongo configuration for tenant: [{}]", tenantId);
     throw new UnprocessedEntity("no mongo DB  connection factory for tenant: " + tenantId);
   }
 
