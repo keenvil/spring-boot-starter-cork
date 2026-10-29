@@ -54,6 +54,13 @@ public class OpenApiAutoConfiguration {
   @ConditionalOnClass(name = "org.springdoc.core.customizers.GlobalOpenApiCustomizer")
   static class SpringdocCustomizers {
 
+    static {
+      // El usuario del JWT lo inyecta cork (@JwtLoggedUser): no es un parametro del pedido.
+      org.springdoc.core.utils.SpringDocUtils.getConfig()
+          .addAnnotationsToIgnore(com.keenvil.cork.jwt.JwtLoggedUser.class)
+          .addRequestWrapperToIgnore(com.keenvil.cork.jwt.JwtUser.class);
+    }
+
     @Bean
     KeenvilOpenApiCustomizer keenvilOpenApiCustomizer(KeenvilOpenApiProperties properties,
         @Value("${spring.application.name:api}") String applicationName,

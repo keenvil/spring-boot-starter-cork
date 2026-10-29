@@ -147,7 +147,8 @@ With `keenvil.openapi.enabled=true` and springdoc on the classpath, cork complet
 * **Swagger UI**: tags and operations sorted alphabetically, models collapsed, filter and request duration
   (lowest precedence defaults, the service yml overrides them).
 
-The customizers also apply to a service that keeps its own `OpenAPI` bean.
+The customizers also apply to a service that keeps its own `OpenAPI` bean. `@JwtLoggedUser JwtUser` parameters are
+hidden (cork injects them) and the `/c/{id}` path variable gets a default description.
 
 ## Releasing
 

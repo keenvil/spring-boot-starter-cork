@@ -79,7 +79,8 @@ class OpenApiDocumentTest {
     @ApiError(status = 409, code = "amount.changed", description = "El importe cambio.")
     @ApiError(status = 409, code = "fine.closed", description = "La multa esta cerrada.")
     @ApiError(status = 400, code = "category.automatic", description = "Categoria automatica.")
-    Fine fine(@PathVariable("id") String id, @PathVariable("fineId") Long fineId) {
+    Fine fine(@PathVariable("id") String id, @PathVariable("fineId") Long fineId,
+        @com.keenvil.cork.jwt.JwtLoggedUser com.keenvil.cork.jwt.JwtUser user) {
       return new Fine("ABC123");
     }
 
@@ -173,6 +174,10 @@ class OpenApiDocumentTest {
     assertThat(get.at("/summary").asText()).isEqualTo("Devuelve una multa");
     assertThat(get.at("/description").asText()).contains("Busca la multa por id");
     assertThat(get.at("/parameters/1/description").asText()).isEqualTo("id de la multa");
+    assertThat(get.at("/parameters/0/description").asText()).isEqualTo("comunidad");
+    assertThat(get.at("/parameters").size()).isEqualTo(2);
+    assertThat(doc.at("/paths/~1c~1{id}~1fines/post/parameters/0/description").asText())
+        .isEqualTo(KeenvilErrorResponsesCustomizer.COMMUNITY_ID_DESCRIPTION);
     assertThat(doc.at("/components/schemas/Fine/description").asText()).isEqualTo("Datos de una multa de prueba.");
   }
 }
