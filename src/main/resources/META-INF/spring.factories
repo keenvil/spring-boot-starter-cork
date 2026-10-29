@@ -1,1 +1,2 @@
-org.springframework.boot.EnvironmentPostProcessor=com.keenvil.cork.JacksonDefaultsEnvironmentPostProcessor
+org.springframework.boot.EnvironmentPostProcessor=com.keenvil.cork.JacksonDefaultsEnvironmentPostProcessor,\
+  com.keenvil.cork.openapi.OpenApiUiDefaultsEnvironmentPostProcessor

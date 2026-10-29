@@ -7,13 +7,14 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.keenvil</groupId>
   <artifactId>spring-boot-starter-cork</artifactId>
-  <version>5.0.2</version>
+  <version>5.1.0</version>
   <packaging>jar</packaging>
 
   <name>spring-boot-starter-cork</name>
   <description>Keenvil Spring Boot Core Module — Spring Boot 4.1 / Java 21</description>
 
   <properties>
+    <therapi-javadoc.version>0.15.0</therapi-javadoc.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <java.version>21</java.version>
     <!-- Piso de cobertura de lineas que exige check-lines (ver jacoco-maven-plugin). -->
@@ -22,7 +23,7 @@
     <spring-cloud.version>2025.1.4</spring-cloud.version>
     <jjwt.version>0.12.6</jjwt.version>
     <sentry.version>8.61.1</sentry.version>
-    <commons-lang3.version>3.14.0</commons-lang3.version>
+    <commons-lang3.version>3.18.0</commons-lang3.version>
     <commons-codec.version>1.17.0</commons-codec.version>
     <archaius.version>0.7.7</archaius.version>
     <ecwid-consul-api.version>1.4.5</ecwid-consul-api.version>
@@ -94,6 +95,20 @@
       <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
       <version>3.2.0</version>
       <optional>true</optional>
+    </dependency>
+    <!-- Javadoc en runtime para springdoc (5.1.0): con esto en el classpath springdoc usa el Javadoc de
+         controllers y DTOs como summary/description. Cada servicio agrega el procesador
+         therapi-runtime-javadoc-scribe (provided) en su pom; sin el, no hay Javadoc que leer y no cambia nada. -->
+    <dependency>
+      <groupId>com.github.therapi</groupId>
+      <artifactId>therapi-runtime-javadoc</artifactId>
+      <version>${therapi-javadoc.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.github.therapi</groupId>
+      <artifactId>therapi-runtime-javadoc-scribe</artifactId>
+      <version>${therapi-javadoc.version}</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -239,6 +254,8 @@
         <configuration>
           <release>21</release>
           <parameters>true</parameters>
+          <!-- JDK 23+ no corre procesadores del classpath sin esto (configuration-processor, therapi en tests). -->
+          <proc>full</proc>
         </configuration>
       </plugin>
       <plugin>
