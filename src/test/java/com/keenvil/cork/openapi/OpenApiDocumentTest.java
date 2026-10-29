@@ -76,6 +76,7 @@ class OpenApiDocumentTest {
      * @return la multa
      */
     @GetMapping("/c/{id}/fines/{fineId}")
+    @com.keenvil.cork.security.HasAdminRoleInCommunity
     @ApiError(status = 409, code = "amount.changed", description = "El importe cambio.")
     @ApiError(status = 409, code = "fine.closed", description = "La multa esta cerrada.")
     @ApiError(status = 400, code = "category.automatic", description = "Categoria automatica.")
@@ -172,7 +173,9 @@ class OpenApiDocumentTest {
   void javadocComoSummaryYDescription() {
     JsonNode get = doc.at("/paths/~1c~1{id}~1fines~1{fineId}/get");
     assertThat(get.at("/summary").asText()).isEqualTo("Devuelve una multa");
-    assertThat(get.at("/description").asText()).contains("Busca la multa por id");
+    assertThat(get.at("/description").asText()).contains("Busca la multa por id")
+        .endsWith("**Roles:** `ADMIN` en la comunidad de la URL.");
+    assertThat(get.at("/x-roles/0").asText()).isEqualTo("ADMIN");
     assertThat(get.at("/parameters/1/description").asText()).isEqualTo("id de la multa");
     assertThat(get.at("/parameters/0/description").asText()).isEqualTo("comunidad");
     assertThat(get.at("/parameters").size()).isEqualTo(2);

@@ -129,6 +129,8 @@ With `keenvil.openapi.enabled=true` and springdoc on the classpath, cork complet
   body, 500 always; `keenvil.openapi.standard-errors=false` turns it off). Operation specific errors go with
   `@ApiError(status = 409, code = "amount.changed", description = "...")`, not with swagger's `@ApiResponse`, which
   makes springdoc drop the generated 200.
+* **Roles**: the roles of the operation `@PreAuthorize` (direct or through `@HasAdminRoleInCommunity` and the like)
+  are appended to the description and listed in `x-roles`.
 * **Internal endpoints**: `/internal/**` and `/c/{id}/internal/**` are removed (`keenvil.openapi.hide-internal=false`
   keeps them).
 * **Javadoc**: cork brings `therapi-runtime-javadoc`; a service that adds the processor gets its Javadoc as summary

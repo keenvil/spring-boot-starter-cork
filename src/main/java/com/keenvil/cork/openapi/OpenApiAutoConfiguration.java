@@ -69,6 +69,12 @@ public class OpenApiAutoConfiguration {
     }
 
     @Bean
+    @ConditionalOnClass(name = "org.springframework.security.access.prepost.PreAuthorize")
+    KeenvilRolesCustomizer keenvilRolesCustomizer() {
+      return new KeenvilRolesCustomizer();
+    }
+
+    @Bean
     @ConditionalOnProperty(prefix = "keenvil.openapi", name = "standard-errors", havingValue = "true",
         matchIfMissing = true)
     KeenvilErrorResponsesCustomizer keenvilErrorResponsesCustomizer(
