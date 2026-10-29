@@ -116,12 +116,12 @@ Rules:
   Check who imports it first: `rotation-scripts/capas/cork_uso.py` (keenvil workspace) prints the usage per class.
 * `src/main/java/com/mongodb/util/JSON*` keeps the package of the legacy Mongo driver on purpose.
 
-## OpenAPI documentation (5.1.0)
+## OpenAPI documentation (5.1.0, fixes in 5.1.1)
 
 With `keenvil.openapi.enabled=true` and springdoc on the classpath, cork completes the service document:
 
 * **Info**: `keenvil.openapi.title`, `keenvil.openapi.description` (markdown), `keenvil.openapi.version` (default: the
-  build version), `keenvil.openapi.contact.*` and `keenvil.openapi.servers[n].url|description`. A common section
+  build version, then `spring.application.version`, then `unknown`), `keenvil.openapi.contact.*` and `keenvil.openapi.servers[n].url|description`. A common section
   (authentication with `X-Authorization`, error body, pagination, dates) is appended to the description
   (`keenvil.openapi.common-section=false` turns it off).
 * **Errors**: the `KeenvilApiError` schema and standard responses on every operation (400 with parameters or body,
@@ -132,7 +132,10 @@ With `keenvil.openapi.enabled=true` and springdoc on the classpath, cork complet
 * **Roles**: the roles of the operation `@PreAuthorize` (direct or through `@HasAdminRoleInCommunity` and the like)
   are appended to the description and listed in `x-roles`.
 * **Internal endpoints**: `/internal/**` and `/c/{id}/internal/**` are removed (`keenvil.openapi.hide-internal=false`
-  keeps them).
+  keeps them), together with the tags left without operations and the schemas no longer referenced.
+* **Pagination**: a `RequestedPage` query parameter is documented as `page`, `size` and `sort`, without
+  `@ParameterObject`.
+* **Error examples**: `uri` uses the service context-path (`/amercement/c/1/recurso`).
 * **Javadoc**: cork brings `therapi-runtime-javadoc`; a service that adds the processor gets its Javadoc as summary
   and description of operations, parameters and schemas (records included):
 
@@ -146,11 +149,26 @@ With `keenvil.openapi.enabled=true` and springdoc on the classpath, cork complet
   ```
 
   On JDK 23+ javac only runs classpath processors with `<proc>full</proc>` in `maven-compiler-plugin`.
+  If the service already declares `<annotationProcessorPaths>` (Lombok, MapStruct...), javac ignores the processors
+  on the classpath: add the scribe there instead of as a `provided` dependency:
+
+  ```xml
+  <annotationProcessorPaths>
+    <!-- ...the existing ones... -->
+    <path>
+      <groupId>com.github.therapi</groupId>
+      <artifactId>therapi-runtime-javadoc-scribe</artifactId>
+      <version>0.15.0</version>
+    </path>
+  </annotationProcessorPaths>
+  ```
 * **Swagger UI**: tags and operations sorted alphabetically, models collapsed, filter and request duration
   (lowest precedence defaults, the service yml overrides them).
 
-The customizers also apply to a service that keeps its own `OpenAPI` bean. `@JwtLoggedUser JwtUser` parameters are
-hidden (cork injects them) and the `/c/{id}` path variable gets a default description.
+The customizers also apply to a service that keeps its own `OpenAPI` bean. `@JwtLoggedUser JwtUser` and
+`@LoggedIndividual` parameters are hidden (cork injects them); other server-injected types or annotations go in
+`keenvil.openapi.ignored-parameter-types` (fully qualified names). The `/c/{id}` path variable gets a default
+description, and "in the community of the URL" is added to the roles only when the path has that `{id}`.
 
 ## Releasing
 

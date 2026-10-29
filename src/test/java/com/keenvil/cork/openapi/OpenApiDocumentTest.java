@@ -28,7 +28,8 @@ import org.springframework.web.context.WebApplicationContext;
  * estandar, sin endpoints internos y Javadoc (therapi) como summary/description.
  */
 @SpringBootTest(classes = OpenApiDocumentTest.App.class, properties = {
-    "spring.application.name=demo-api",
+    "spring.application.name=keenvil/demo-api",
+    "spring.application.version=1.4.2",
     "keenvil.openapi.enabled=true",
     "keenvil.openapi.title=Keenvil · Demo",
     "keenvil.openapi.description=Servicio de prueba.",
@@ -54,7 +55,7 @@ class OpenApiDocumentTest {
       "org.springframework.boot.security.autoconfigure.web.servlet.ServletWebSecurityAutoConfiguration",
       "org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration",
       "org.springframework.boot.security.autoconfigure.web.servlet.SecurityFilterAutoConfiguration"})
-  @Import(DemoController.class)
+  @Import({DemoController.class, InternalPeopleController.class})
   static class App { }
 
   /** Datos de una multa de prueba. */
@@ -62,9 +63,41 @@ class OpenApiDocumentTest {
       /** Patente del vehiculo. */
       String plate) { }
 
+  /** Solo lo usa el endpoint interno. */
+  record InternalOnly(String unit) { }
+
+  /** Endpoints servicio a servicio: no van al documento, ni sus tags ni sus schemas. */
+  @RestController
+  static class InternalPeopleController {
+
+    @GetMapping("/c/{id}/internal/segment-people")
+    InternalOnly people(@PathVariable("id") String id) {
+      return new InternalOnly("A1");
+    }
+  }
+
   /** Multas de prueba. */
   @RestController
   static class DemoController {
+
+    /**
+     * Lista las multas.
+     *
+     * @param id comunidad
+     * @param page pagina pedida
+     * @return las multas
+     */
+    @GetMapping("/c/{id}/fines")
+    java.util.List<Fine> list(@PathVariable("id") String id, com.keenvil.cork.data.RequestedPage page) {
+      return java.util.List.of();
+    }
+
+    /** Cambia el PIN de la cuenta. */
+    @PostMapping("/account/pin")
+    @com.keenvil.cork.security.HasAdminRoleInCommunity
+    String pin(@com.keenvil.cork.jwt.LoggedIndividual Object me) {
+      return "ok";
+    }
 
     /**
      * Devuelve una multa.
@@ -144,7 +177,11 @@ class OpenApiDocumentTest {
     assertThat(get.at("/409/content/application~1json/examples/amount.changed/value/0/code").asText())
         .isEqualTo("amount.changed");
     assertThat(get.at("/409/content/application~1json/examples/amount.changed/value/0/module").asText())
-        .isEqualTo("demo-api");
+        .isEqualTo("keenvil/demo-api");
+    assertThat(get.at("/409/content/application~1json/examples/amount.changed/value/0/uri").asText())
+        .isEqualTo("/demo-api/c/1/recurso");
+    assertThat(doc.at("/components/responses/NotFound/content/application~1json/examples/NotFound/value/0/uri")
+        .asText()).isEqualTo("/demo-api/c/1/recurso");
     assertThat(get.at("/400/description").asText()).isEqualTo("`category.automatic`: Categoria automatica.");
 
     JsonNode post = doc.at("/paths/~1c~1{id}~1fines/post/responses");
@@ -167,6 +204,38 @@ class OpenApiDocumentTest {
     assertThat(doc.at("/paths").fieldNames()).toIterable()
         .noneMatch(path -> path.contains("internal"))
         .contains("/public/ping");
+  }
+
+  @Test
+  void sinTagsNiSchemasDeLosInternos() {
+    assertThat(doc.at("/tags").findValuesAsText("name")).noneMatch(name -> name.contains("internal"))
+        .contains("demo-controller");
+    assertThat(doc.at("/components/schemas").fieldNames()).toIterable()
+        .doesNotContain("InternalOnly", "RequestedPage")
+        .contains("Fine", KeenvilApiErrorDocs.ERROR_SCHEMA, KeenvilApiErrorDocs.ERRORS_SCHEMA);
+  }
+
+  @Test
+  void versionDeLaApp() {
+    assertThat(doc.at("/info/version").asText()).isEqualTo("1.4.2");
+  }
+
+  @Test
+  void requestedPageComoPageSizeYSort() {
+    JsonNode parameters = doc.at("/paths/~1c~1{id}~1fines/get/parameters");
+    assertThat(parameters.findValuesAsText("name")).containsExactly("id", "page", "size", "sort");
+    assertThat(parameters.get(1).at("/required").asBoolean()).isFalse();
+    assertThat(parameters.get(1).at("/schema/default").asInt()).isZero();
+    assertThat(parameters.get(2).at("/schema/default").asInt()).isEqualTo(20);
+    assertThat(parameters.get(3).at("/schema/enum/1").asText()).isEqualTo("DESC");
+  }
+
+  @Test
+  void loggedIndividualNoEsParametroYLosRolesSinComunidadEnLaUrl() {
+    JsonNode pin = doc.at("/paths/~1account~1pin/post");
+    assertThat(pin.at("/parameters").isMissingNode() || pin.at("/parameters").isEmpty()).isTrue();
+    assertThat(pin.at("/requestBody").isMissingNode()).isTrue();
+    assertThat(pin.at("/description").asText()).endsWith("**Roles:** `ADMIN`.");
   }
 
   @Test

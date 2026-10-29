@@ -56,16 +56,47 @@ public class OpenApiAutoConfiguration {
 
     static {
       // El usuario del JWT lo inyecta cork (@JwtLoggedUser): no es un parametro del pedido.
+      // Lo mismo con @LoggedIndividual (Account o Individual en security-api).
       org.springdoc.core.utils.SpringDocUtils.getConfig()
-          .addAnnotationsToIgnore(com.keenvil.cork.jwt.JwtLoggedUser.class)
+          .addAnnotationsToIgnore(com.keenvil.cork.jwt.JwtLoggedUser.class,
+              com.keenvil.cork.jwt.LoggedIndividual.class)
           .addRequestWrapperToIgnore(com.keenvil.cork.jwt.JwtUser.class);
     }
 
     @Bean
     KeenvilOpenApiCustomizer keenvilOpenApiCustomizer(KeenvilOpenApiProperties properties,
         @Value("${spring.application.name:api}") String applicationName,
+        @Value("${spring.application.version:}") String applicationVersion,
+        @Value("${server.servlet.context-path:}") String contextPath,
         ObjectProvider<BuildProperties> buildProperties) {
-      return new KeenvilOpenApiCustomizer(properties, applicationName, buildProperties.getIfAvailable());
+      ignoreParameterTypes(properties.getIgnoredParameterTypes());
+      return new KeenvilOpenApiCustomizer(properties, applicationName, buildProperties.getIfAvailable(),
+          applicationVersion, contextPath);
+    }
+
+    @Bean
+    KeenvilRequestedPageCustomizer keenvilRequestedPageCustomizer() {
+      return new KeenvilRequestedPageCustomizer();
+    }
+
+    /** {@code keenvil.openapi.ignored-parameter-types}: anotaciones o tipos que springdoc no documenta. */
+    @SuppressWarnings("unchecked")
+    static void ignoreParameterTypes(java.util.List<String> typeNames) {
+      for (String typeName : typeNames) {
+        Class<?> type;
+        try {
+          type = org.springframework.util.ClassUtils.forName(typeName.strip(), OpenApiAutoConfiguration.class
+              .getClassLoader());
+        } catch (ClassNotFoundException | LinkageError e) {
+          throw new IllegalStateException("keenvil.openapi.ignored-parameter-types: no existe " + typeName, e);
+        }
+        if (type.isAnnotation()) {
+          org.springdoc.core.utils.SpringDocUtils.getConfig()
+              .addAnnotationsToIgnore((Class<? extends java.lang.annotation.Annotation>) type);
+        } else {
+          org.springdoc.core.utils.SpringDocUtils.getConfig().addRequestWrapperToIgnore(type);
+        }
+      }
     }
 
     @Bean
@@ -78,8 +109,9 @@ public class OpenApiAutoConfiguration {
     @ConditionalOnProperty(prefix = "keenvil.openapi", name = "standard-errors", havingValue = "true",
         matchIfMissing = true)
     KeenvilErrorResponsesCustomizer keenvilErrorResponsesCustomizer(
-        @Value("${spring.application.name:api}") String applicationName) {
-      return new KeenvilErrorResponsesCustomizer(applicationName);
+        @Value("${spring.application.name:api}") String applicationName,
+        @Value("${server.servlet.context-path:}") String contextPath) {
+      return new KeenvilErrorResponsesCustomizer(applicationName, contextPath);
     }
   }
 }

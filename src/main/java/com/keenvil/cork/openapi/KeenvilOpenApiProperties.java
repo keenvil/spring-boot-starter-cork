@@ -7,7 +7,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 /**
  * Propiedades {@code keenvil.openapi.*} del documento OpenAPI de cada servicio (5.1.0). Todas son opcionales:
  * sin {@code title} se usa {@code spring.application.name}; sin {@code version}, la del build
- * ({@code BuildProperties}) si existe.
+ * ({@code BuildProperties}) si existe, si no {@code spring.application.version} y si no {@code unknown}.
  */
 @ConfigurationProperties(prefix = "keenvil.openapi")
 public class KeenvilOpenApiProperties {
@@ -37,6 +37,13 @@ public class KeenvilOpenApiProperties {
 
   /** Servidores del documento; si no hay, springdoc usa la URL del request. */
   private List<Server> servers = new ArrayList<>();
+
+  /**
+   * Tipos o anotaciones (nombre completo de la clase) de parametros que inyecta el servidor y no son parte del
+   * pedido, ademas de los de cork ({@code @JwtLoggedUser}, {@code JwtUser}, {@code @LoggedIndividual}), que se
+   * ignoran siempre.
+   */
+  private List<String> ignoredParameterTypes = new ArrayList<>();
 
   public boolean isEnabled() {
     return enabled;
@@ -104,6 +111,14 @@ public class KeenvilOpenApiProperties {
 
   public void setServers(List<Server> theServers) {
     servers = theServers;
+  }
+
+  public List<String> getIgnoredParameterTypes() {
+    return ignoredParameterTypes;
+  }
+
+  public void setIgnoredParameterTypes(List<String> theIgnoredParameterTypes) {
+    ignoredParameterTypes = theIgnoredParameterTypes;
   }
 
   /** Contacto del equipo duenio del servicio. */

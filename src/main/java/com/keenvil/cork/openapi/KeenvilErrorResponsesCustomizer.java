@@ -42,9 +42,15 @@ class KeenvilErrorResponsesCustomizer implements GlobalOperationCustomizer {
   static final String COMMUNITY_ID_DESCRIPTION = "Id de la comunidad (barrio) en `/c/{id}/...`.";
 
   private final String module;
+  private final String basePath;
 
   KeenvilErrorResponsesCustomizer(String theModule) {
+    this(theModule, null);
+  }
+
+  KeenvilErrorResponsesCustomizer(String theModule, String theContextPath) {
     module = theModule;
+    basePath = KeenvilApiErrorDocs.basePath(theContextPath, theModule);
   }
 
   @Override
@@ -68,7 +74,7 @@ class KeenvilErrorResponsesCustomizer implements GlobalOperationCustomizer {
       }
       ApiResponses target = responses;
       custom.forEach((status, errors) ->
-          target.addApiResponse(String.valueOf(status), KeenvilApiErrorDocs.customResponse(status, errors, module)));
+          target.addApiResponse(String.valueOf(status), KeenvilApiErrorDocs.customResponse(status, errors, module, basePath)));
     }
     if (operation.getParameters() != null) {
       operation.getParameters().stream()

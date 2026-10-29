@@ -58,8 +58,25 @@ final class KeenvilApiErrorDocs {
 
   private KeenvilApiErrorDocs() { }
 
+  /**
+   * Prefijo de {@code uri} en los ejemplos: el context-path del servicio ({@code /amercement}) o, sin context-path,
+   * el ultimo segmento de {@code spring.application.name} ({@code keenvil/amercement} → {@code /amercement}).
+   */
+  static String basePath(String contextPath, String applicationName) {
+    if (contextPath != null && !contextPath.isBlank() && !"/".equals(contextPath.strip())) {
+      String path = contextPath.strip();
+      path = path.startsWith("/") ? path : "/" + path;
+      return path.endsWith("/") ? path.substring(0, path.length() - 1) : path;
+    }
+    String name = applicationName == null || applicationName.isBlank() ? "api" : applicationName.strip();
+    if (name.endsWith("/")) {
+      name = name.substring(0, name.length() - 1);
+    }
+    return "/" + name.substring(name.lastIndexOf('/') + 1);
+  }
+
   /** Registra el esquema de error y las respuestas estandar en los componentes (sin pisar los del servicio). */
-  static void register(Components components, String module) {
+  static void register(Components components, String module, String basePath) {
     if (components.getSchemas() == null || !components.getSchemas().containsKey(ERROR_SCHEMA)) {
       components.addSchemas(ERROR_SCHEMA, errorSchema());
     }
@@ -70,7 +87,7 @@ final class KeenvilApiErrorDocs {
     for (StandardResponse response : ALL) {
       if (components.getResponses() == null || !components.getResponses().containsKey(response.name())) {
         components.addResponses(response.name(), new ApiResponse().description(response.description())
-            .content(errorContent(response, module)));
+            .content(errorContent(response, module, basePath)));
       }
     }
   }
@@ -80,14 +97,14 @@ final class KeenvilApiErrorDocs {
     return new Content().addMediaType(JSON, new MediaType().schema(new Schema<>().$ref(ERRORS_SCHEMA)));
   }
 
-  private static Content errorContent(StandardResponse response, String module) {
+  private static Content errorContent(StandardResponse response, String module, String basePath) {
     return new Content().addMediaType(JSON, new MediaType().schema(new Schema<>().$ref(ERRORS_SCHEMA))
         .addExamples(response.name(), new Example().value(List.of(
-            example(Integer.parseInt(response.status()), response.code(), response.title(), module)))));
+            example(Integer.parseInt(response.status()), response.code(), response.title(), module, basePath)))));
   }
 
   /** Respuesta de los {@link ApiError} de un mismo status: descripcion por codigo y un ejemplo por codigo. */
-  static ApiResponse customResponse(int status, List<ApiError> errors, String module) {
+  static ApiResponse customResponse(int status, List<ApiError> errors, String module, String basePath) {
     String title = HttpStatus.resolve(status) == null ? "Error" : HttpStatus.resolve(status).getReasonPhrase();
     StringBuilder description = new StringBuilder();
     MediaType media = new MediaType().schema(new Schema<>().$ref(ERRORS_SCHEMA));
@@ -95,19 +112,20 @@ final class KeenvilApiErrorDocs {
       description.append(description.isEmpty() ? "" : "\n").append(errors.size() > 1 ? "- " : "")
           .append('`').append(error.code()).append("`: ").append(error.description());
       media.addExamples(error.code(), new Example().summary(error.code())
-          .value(List.of(example(status, error.code(), title, module))));
+          .value(List.of(example(status, error.code(), title, module, basePath))));
     }
     return new ApiResponse().description(description.toString()).content(new Content().addMediaType(JSON, media));
   }
 
-  private static Map<String, Object> example(int status, String code, String title, String module) {
+  private static Map<String, Object> example(int status, String code, String title, String module,
+      String basePath) {
     Map<String, Object> example = new LinkedHashMap<>();
     example.put("httpStatus", status);
     example.put("code", code);
     example.put("title", title);
     example.put("detail", "Descripcion del error");
     example.put("module", module);
-    example.put("uri", "/" + module + "/c/1/recurso");
+    example.put("uri", basePath + "/c/1/recurso");
     example.put("httpMethod", "GET");
     example.put("hostName", "api.keenvil.com");
     example.put("errorId", "3f0c2a4e-8d9b-4a51-9a7e-2a1c5b6d7e8f");
