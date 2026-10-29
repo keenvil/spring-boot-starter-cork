@@ -37,6 +37,33 @@ class KeenvilOpenApiCustomizerTest {
   }
 
   @Test
+  void sinBuildUsaLaVersionDeLaAppYSiNoUnknown() {
+    OpenAPI api = new OpenAPI().info(new Info().version(KeenvilOpenApiCustomizer.SPRINGDOC_DEFAULT_VERSION));
+    new KeenvilOpenApiCustomizer(properties, "demo-api", null, "3.0.1", null).customise(api);
+    assertThat(api.getInfo().getVersion()).isEqualTo("3.0.1");
+
+    OpenAPI sinNada = new OpenAPI().info(new Info().version(KeenvilOpenApiCustomizer.SPRINGDOC_DEFAULT_VERSION));
+    customizer(null).customise(sinNada);
+    assertThat(sinNada.getInfo().getVersion()).isEqualTo(KeenvilOpenApiCustomizer.UNKNOWN_VERSION);
+  }
+
+  @Test
+  void prefijoDeUriSinElNamespaceDeLaApp() {
+    assertThat(KeenvilApiErrorDocs.basePath("/amercement", "keenvil/amercement")).isEqualTo("/amercement");
+    assertThat(KeenvilApiErrorDocs.basePath("amercement/", "x")).isEqualTo("/amercement");
+    assertThat(KeenvilApiErrorDocs.basePath(null, "keenvil/amercement")).isEqualTo("/amercement");
+    assertThat(KeenvilApiErrorDocs.basePath("/", "demo-api")).isEqualTo("/demo-api");
+    assertThat(KeenvilApiErrorDocs.basePath("", null)).isEqualTo("/api");
+  }
+
+  @Test
+  void ignoraTiposConfiguradosYFallaConUnoInexistente() {
+    org.junit.jupiter.api.Assertions.assertThrows(IllegalStateException.class,
+        () -> OpenApiAutoConfiguration.SpringdocCustomizers.ignoreParameterTypes(List.of("no.Existe")));
+    OpenApiAutoConfiguration.SpringdocCustomizers.ignoreParameterTypes(List.of(" java.security.Principal "));
+  }
+
+  @Test
   void respetaLaInfoDelServicioYNoDuplicaLaSeccionComun() {
     Info propia = new Info().title("Mi API").version("2").description("Hace cosas.");
     OpenAPI api = new OpenAPI().info(propia);
