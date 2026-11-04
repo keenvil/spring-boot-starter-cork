@@ -23,6 +23,8 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.server.ResponseStatusException;
 
 /** Status, codigo por defecto y codigo propio de cada handler del advice. */
@@ -158,6 +160,14 @@ class KeenvilApiControllerAdviceHandlersTest {
   void resolveStatusLeeLaAnotacionResponseStatus() {
     assertThat(KeenvilApiControllerAdvice.resolveStatus(new GoneException()).value(), is(410));
     assertThat(KeenvilApiControllerAdvice.resolveStatus(new RuntimeException()).value(), is(500));
+  }
+
+  @Test
+  void unMultipartMalFormadoEsUn400YUnArchivoGrandeUn413() {
+    assertThat(KeenvilApiControllerAdvice.resolveStatus(
+        new MultipartException("Failed to parse multipart servlet request")).value(), is(400));
+    assertThat(KeenvilApiControllerAdvice.resolveStatus(
+        new MaxUploadSizeExceededException(10)).value(), is(413));
   }
 
   @Test

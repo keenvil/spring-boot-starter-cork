@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.ErrorResponse;
+import org.springframework.web.multipart.MultipartException;
 
 import com.keenvil.cork.error.KeenvilApiError.KeenvilApiErrorBuilder;
 import com.keenvil.cork.error.KeenvilApiException.Authorization;
@@ -338,8 +339,11 @@ public class KeenvilApiControllerAdvice {
     if (exception instanceof ErrorResponse errorResponse) {
       return errorResponse.getStatusCode();
     }
+    // MultipartException: cuerpo multipart mal formado o cortado por el cliente (400 de Jetty
+    // envuelto por Spring). MaxUploadSizeExceededException ya es ErrorResponse (413) arriba.
     if (exception instanceof HttpMessageNotReadableException
-        || exception instanceof TypeMismatchException) {
+        || exception instanceof TypeMismatchException
+        || exception instanceof MultipartException) {
       return HttpStatus.BAD_REQUEST;
     }
     ResponseStatus responseStatus =
