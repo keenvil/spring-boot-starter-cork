@@ -50,9 +50,40 @@ public class DataSourceBasedCommunityConnectionProvider
     dataSourceMapping = new ConcurrentHashMap<>(theDataSourceMapping);
   }
 
+  /**
+   * Optional wrapper applied to the data source handed to Hibernate (for example the JDBC
+   * observation proxy of datasource-micrometer). The raw pools stay in {@link #dataSourceMapping}:
+   * Liquibase and {@link #getDefaultDataSource()} keep using them.
+   */
+  private transient java.util.function.BiFunction<String, DataSource, DataSource> dataSourceDecorator;
+
+  private final Map<String, DataSource> decoratedDataSources = new ConcurrentHashMap<>();
+
+  /**
+   * Sets the wrapper for the data sources handed to Hibernate.
+   *
+   * @param decorator (tenant, raw data source) to the data source to use; {@code null} turns it off.
+   */
+  public void setDataSourceDecorator(
+      java.util.function.BiFunction<String, DataSource, DataSource> decorator) {
+    this.dataSourceDecorator = decorator;
+    decoratedDataSources.clear();
+  }
+
+  private DataSource decorate(String tenant, DataSource raw) {
+    java.util.function.BiFunction<String, DataSource, DataSource> decorator = dataSourceDecorator;
+    if (decorator == null || raw == null) {
+      return raw;
+    }
+    return decoratedDataSources.computeIfAbsent(tenant, t -> {
+      DataSource wrapped = decorator.apply(t, raw);
+      return wrapped != null ? wrapped : raw;
+    });
+  }
+
   @Override
   protected DataSource selectAnyDataSource() {
-    return dataSourceMapping.get(defaultTenant);
+    return decorate(defaultTenant, dataSourceMapping.get(defaultTenant));
   }
 
   @Override
@@ -63,7 +94,8 @@ public class DataSourceBasedCommunityConnectionProvider
 
     // computeIfAbsent: the data source is created (and its schema updated) once per tenant,
     // even with concurrent first requests.
-    return dataSourceMapping.computeIfAbsent(tenantIdentifier, this::newTenantDataSource);
+    return decorate(tenantIdentifier,
+        dataSourceMapping.computeIfAbsent(tenantIdentifier, this::newTenantDataSource));
   }
 
   private DataSource newTenantDataSource(String tenantIdentifier) {

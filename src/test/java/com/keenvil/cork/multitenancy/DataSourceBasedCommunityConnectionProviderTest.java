@@ -55,4 +55,44 @@ class DataSourceBasedCommunityConnectionProviderTest {
     verify(connection).close();
     assertSame(ok, provider.selectDataSource("sanfrancisco"));
   }
+
+  /** Trazas JDBC por barrio (07/11/2026): Hibernate recibe el pool envuelto; Liquibase y el default, el crudo. */
+  @Test
+  void decoratorWrapsTheDataSourceHandedToHibernateOncePerTenant() {
+    DataSource raw = mock(DataSource.class);
+    DataSource defaultRaw = mock(DataSource.class);
+    DataSource wrapped = mock(DataSource.class);
+    DataSource defaultWrapped = mock(DataSource.class);
+    TenantPoolProperties pool = new TenantPoolProperties();
+    ConsulService consul = mock(ConsulService.class);
+    when(consul.getDatasource("sanfrancisco", pool)).thenReturn(raw);
+    DataSourceBasedCommunityConnectionProvider provider =
+        new DataSourceBasedCommunityConnectionProvider("default", Map.of("default", defaultRaw));
+    provider.setConsulService(consul);
+    provider.setTenantPoolProperties(pool);
+    java.util.concurrent.atomic.AtomicInteger calls = new java.util.concurrent.atomic.AtomicInteger();
+    provider.setDataSourceDecorator((tenant, ds) -> {
+      calls.incrementAndGet();
+      return ds == raw ? wrapped : defaultWrapped;
+    });
+
+    assertSame(wrapped, provider.selectDataSource("sanfrancisco"));
+    assertSame(wrapped, provider.selectDataSource("sanfrancisco"));
+    assertSame(defaultWrapped, provider.selectAnyDataSource());
+    assertSame(defaultRaw, provider.getDefaultDataSource());
+    assertEquals(2, calls.get());
+  }
+
+  @Test
+  void withoutDecoratorOrWhenItReturnsNullTheRawDataSourceIsUsed() {
+    DataSource defaultRaw = mock(DataSource.class);
+    DataSourceBasedCommunityConnectionProvider provider =
+        new DataSourceBasedCommunityConnectionProvider("default", Map.of("default", defaultRaw));
+
+    assertSame(defaultRaw, provider.selectAnyDataSource());
+    provider.setDataSourceDecorator((tenant, ds) -> null);
+    assertSame(defaultRaw, provider.selectAnyDataSource());
+    provider.setDataSourceDecorator(null);
+    assertSame(defaultRaw, provider.selectAnyDataSource());
+  }
 }
