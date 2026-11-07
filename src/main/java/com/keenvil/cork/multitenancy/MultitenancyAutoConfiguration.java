@@ -145,6 +145,35 @@ public class MultitenancyAutoConfiguration {
     };
   }
 
+  /**
+   * Tenant data sources are created by cork, not as Spring beans, so bean post-processors (for
+   * example datasource-micrometer's JDBC observation proxy) never see them. With
+   * {@code keenvil.multitenancy.datasource.post-process=true} the data source of each tenant handed
+   * to Hibernate goes through the bean post-processors once, as if it were a bean named
+   * {@code tenantDataSource_<tenant>}. Off by default: nothing changes for services that do not
+   * set it. Set after every singleton exists, so connections taken while starting are not wrapped.
+   *
+   * @param provider the tenant connection provider.
+   * @param beanFactory the bean factory.
+   * @return the initializer.
+   */
+  @Bean
+  @org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(
+      prefix = "keenvil.multitenancy.datasource", name = "post-process", havingValue = "true")
+  public org.springframework.beans.factory.SmartInitializingSingleton tenantDataSourcePostProcessing(
+      DataSourceBasedCommunityConnectionProvider provider,
+      org.springframework.beans.factory.config.ConfigurableListableBeanFactory beanFactory) {
+    return () -> {
+      provider.setDataSourceDecorator((tenant, raw) -> {
+        Object processed = beanFactory.applyBeanPostProcessorsAfterInitialization(raw,
+            "tenantDataSource_" + tenant);
+        return processed instanceof DataSource dataSource ? dataSource : raw;
+      });
+      log.info("Tenant data sources go through the bean post-processors"
+          + " (keenvil.multitenancy.datasource.post-process=true)");
+    };
+  }
+
   @Bean
   @DependsOn("dataSourceBasedCommunityConnectionProvider")
   public DataSource defaultDataSource() {
