@@ -94,7 +94,7 @@ public class ConsulService {
             "");
 
     if (!datasourceProperties.get().isEmpty()) {
-      return new HikariDataSource(tenantHikariConfig(datasourceProperties.get(), pool));
+      return new HikariDataSource(tenantHikariConfig(datasourceProperties.get(), pool, tenantId));
     }
     log.warn("no tenant datasource configuration for: [{}]", tenantId);
     throw new UnprocessedEntity("no tenant configuration for: " + tenantId);
@@ -174,6 +174,11 @@ public class ConsulService {
   }
 
   HikariConfig tenantHikariConfig(String stringDatasource, TenantPoolProperties pool) {
+    return tenantHikariConfig(stringDatasource, pool, null);
+  }
+
+  HikariConfig tenantHikariConfig(String stringDatasource, TenantPoolProperties pool,
+      String tenantId) {
     Map<String, Object> mapProperties;
 
     Object jsonDatasource = JsonParser.parseString(stringDatasource);
@@ -197,12 +202,13 @@ public class ConsulService {
       hikariConfig.getDataSourceProperties().setProperty("password", password);
     }
     if (pool != null) {
-      pool.applyTo(hikariConfig);
+      pool.applyTo(hikariConfig, tenantId);
     }
-    log.info("Tenant pool {}: maximumPoolSize={} minimumIdle={} idleTimeout={} maxLifetime={}",
+    log.info("Tenant pool {}: maximumPoolSize={} minimumIdle={} idleTimeout={} maxLifetime={}"
+        + " connectionTimeout={}",
         hikariConfig.getPoolName(), hikariConfig.getMaximumPoolSize(),
         hikariConfig.getMinimumIdle(), hikariConfig.getIdleTimeout(),
-        hikariConfig.getMaxLifetime());
+        hikariConfig.getMaxLifetime(), hikariConfig.getConnectionTimeout());
     return hikariConfig;
   }
 

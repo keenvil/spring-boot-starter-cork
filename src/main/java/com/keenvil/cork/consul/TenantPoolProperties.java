@@ -42,17 +42,77 @@ public class TenantPoolProperties {
    */
   private java.util.List<String> warmUpTenants = new java.util.ArrayList<>();
 
+  /**
+   * Per-tenant overrides ({@code keenvil.multitenancy.pool.tenants.<tenant>.*}) applied over the
+   * global values. A null field keeps the global value, so an empty property (a Consul key that
+   * is not set) changes nothing. Lets a single tenant get a bigger pool without multiplying the
+   * connections of every tenant (load tests on {@code cargatest}, 15/11/2026).
+   */
+  private java.util.Map<String, TenantOverride> tenants = new java.util.HashMap<>();
+
   /** Applies these settings over the ones read from Consul. */
   void applyTo(HikariConfig config) {
+    applyTo(config, null);
+  }
+
+  /** Applies these settings, and the override of {@code tenantId} if any, over the Consul ones. */
+  void applyTo(HikariConfig config, String tenantId) {
     if (!enabled) {
       return;
     }
-    config.setMaximumPoolSize(maximumPoolSize);
-    config.setMinimumIdle(Math.min(minimumIdle, maximumPoolSize));
+    TenantOverride o = tenantId == null ? null : tenants.get(tenantId);
+    int max = o != null && o.getMaximumPoolSize() != null ? o.getMaximumPoolSize() : maximumPoolSize;
+    int minIdle = o != null && o.getMinimumIdle() != null ? o.getMinimumIdle() : minimumIdle;
+    long timeout = o != null && o.getConnectionTimeout() != null
+        ? o.getConnectionTimeout() : connectionTimeout;
+    config.setMaximumPoolSize(max);
+    config.setMinimumIdle(Math.min(minIdle, max));
     config.setIdleTimeout(idleTimeout);
     config.setMaxLifetime(maxLifetime);
-    if (connectionTimeout > 0) {
-      config.setConnectionTimeout(connectionTimeout);
+    if (timeout > 0) {
+      config.setConnectionTimeout(timeout);
+    }
+  }
+
+  public java.util.Map<String, TenantOverride> getTenants() {
+    return tenants;
+  }
+
+  public void setTenants(java.util.Map<String, TenantOverride> tenants) {
+    this.tenants = tenants == null ? new java.util.HashMap<>() : tenants;
+  }
+
+  /** Pool values for one tenant; null keeps the global value. */
+  public static class TenantOverride {
+
+    private Integer maximumPoolSize;
+
+    private Integer minimumIdle;
+
+    private Long connectionTimeout;
+
+    public Integer getMaximumPoolSize() {
+      return maximumPoolSize;
+    }
+
+    public void setMaximumPoolSize(Integer maximumPoolSize) {
+      this.maximumPoolSize = maximumPoolSize;
+    }
+
+    public Integer getMinimumIdle() {
+      return minimumIdle;
+    }
+
+    public void setMinimumIdle(Integer minimumIdle) {
+      this.minimumIdle = minimumIdle;
+    }
+
+    public Long getConnectionTimeout() {
+      return connectionTimeout;
+    }
+
+    public void setConnectionTimeout(Long connectionTimeout) {
+      this.connectionTimeout = connectionTimeout;
     }
   }
 
